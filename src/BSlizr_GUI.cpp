@@ -160,7 +160,7 @@ private:
 
 	BStyles::Theme theme = BStyles::Theme ({
 		defaultStyles,
-		{"B.Slicer", 		{{"background", STYLEPTR (&BStyles::blackFill)},
+		{"B.Slizr", 		{{"background", STYLEPTR (&BStyles::blackFill)},
 							 {"border", STYLEPTR (&BStyles::noBorder)}}},
 		{"main", 			{{"background", STYLEPTR (&widgetBg)},
 							 {"border", STYLEPTR (&BStyles::noBorder)}}},
@@ -186,7 +186,7 @@ private:
 
 
 BSlizr_GUI::BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow) :
-	Window (800, 560, "B.Slizzr", parentWindow, true),
+	Window (800, 560, "B.Slizr", parentWindow, true),
 	scale (DB_CO(0.0)), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0), step (), sz (1.0),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")), controller (NULL), write_function (NULL), map (NULL),
 	surface (NULL), cr1 (NULL), cr2 (NULL), cr3 (NULL), cr4 (NULL), pat1 (NULL), pat2 (NULL), pat3 (NULL), pat4 (NULL), pat5 (NULL),

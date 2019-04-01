@@ -156,7 +156,7 @@ void BSlizr::run (uint32_t n_samples)
 			// BeatUnit changed?
 			if (oBu && (oBu->type == uris.atom_Int) && (((LV2_Atom_Int*)oBu)->body > 0)) beatUnit = ((LV2_Atom_Int*)oBu)->body;
 
-			// Speed changed? (not really implemented
+			// Speed changed?
 			if (oSpeed && (oSpeed->type == uris.atom_Float)) speed = ((LV2_Atom_Float*)oSpeed)->body;
 
 			// Beat position changed (during playing) ?
