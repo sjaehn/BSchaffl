@@ -19,12 +19,17 @@ Step 2: Install the development packages for x11, cairo, and lv2 if not done yet
 Step 3: Building and installing into the default lv2 directory (/usr/lib/lv2/) is easy. Simply call:
 
 ```
+make
 sudo make install
 ```
 
 from the directory where you downloaded the repository files.
 
-For installation into an alternative directory (e.g., /usr/local/lib/lv2), modify line 2 in the makefile.
+For installation into an alternative directory (e.g., /usr/local/lib/lv2), change the variable `INSTALL_DIR` while installing:
+
+```
+sudo make INSTALL_DIR=/usr/local/lib/lv2 install
+```
 
 Running
 -------
@@ -36,12 +41,12 @@ If jalv is installed, you can also call it
 jalv.gtk https://www.jahnichen.de/plugins/lv2/BSlizr
 ```
 
-to run it stand-alone and connect it to the JACK system. 
+to run it stand-alone and connect it to the JACK system.
 
-Notes: 
+Notes:
 
 * **Jack transport is required to get information about beat / position**
-* If you use an older version (until v0.3) of this plugin, use the URI https://www.jahnichen.de/plugins/lv2/BSlicer instead. 
+* If you use an older version (until v0.3) of this plugin, use the URI https://www.jahnichen.de/plugins/lv2/BSlicer instead.
 
 What's new
 -----------
@@ -74,7 +79,3 @@ Step shape
 Links
 -----
 * Preview video: https://www.youtube.com/watch?v=1VD3KsXvyLU
-
-
-
-
