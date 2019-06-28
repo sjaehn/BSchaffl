@@ -23,8 +23,13 @@ make
 sudo make install PREFIX=/usr
 ```
 
-from the directory where you downloaded the repository files.
+from the directory where you downloaded the repository files. For installation into an
+alternative directory (e.g., /usr/local/lib/lv2), change the variable `PREFIX` while installing:
+
 ```
+sudo make install PREFIX=/usr/local
+```
+
 
 Running
 -------
