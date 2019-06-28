@@ -897,10 +897,13 @@ LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin
 	int screenWidth  = getScreenWidth ();
 	int screenHeight = getScreenHeight ();
 	if ((screenWidth < 820) || (screenHeight < 600)) sz = 0.66;
+
+	/*
 	std::cerr << "BSlizr_GUI.lv2 screen size " << screenWidth << " x " << screenHeight <<
 			". Set GUI size to " << 800 * sz << " x " << 560 * sz << ".\n";
+	*/
 
-	if (resize) resize->ui_resize(resize->handle, 800, 560 );
+	if (resize) resize->ui_resize(resize->handle, 800 * sz, 560 * sz);
 
 	*widget = (LV2UI_Widget) puglGetNativeWindow (ui->getPuglView ());
 	ui->send_record_on();
