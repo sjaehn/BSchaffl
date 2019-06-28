@@ -1,8 +1,5 @@
 SHELL = /bin/sh
 
-BUNDLE = BSlizr.lv2
-VER = 0.4
-
 PREFIX ?= /usr/local
 LV2DIR ?= $(PREFIX)/lib/lv2
 
@@ -17,6 +14,18 @@ GUIFLAGS = -DPUGL_HAVE_CAIRO
 
 DSPFLAGS += `$(PKG_CONFIG) --cflags --libs lv2`
 GUIFLAGS += `$(PKG_CONFIG) --cflags --libs lv2 x11 cairo`
+
+BUNDLE = BSlizr.lv2
+DSP = BSlizr
+DSP_SRC = ./src/BSlizr.cpp
+GUI = BSlizr_GUI
+GUI_SRC = ./src/BSlizr_GUI.cpp
+OBJ_EXT = .so
+DSP_OBJ = $(DSP)$(OBJ_EXT)
+GUI_OBJ = $(GUI)$(OBJ_EXT)
+B_OBJECTS = $(addprefix $(BUNDLE)/, $(DSP_OBJ) $(GUI_OBJ))
+FILES = manifest.ttl BSlizr.ttl surface.png LICENSE
+B_FILES = $(addprefix $(BUNDLE)/, $(FILES))
 
 GUI_INCL = \
 	src/BWidgets/DrawingSurface.cpp \
@@ -57,18 +66,18 @@ ifeq ($(shell $(PKG_CONFIG) --exists cairo || echo no), no)
   $(error Cairo not found. Please install cairo first.)
 endif
 
-$(BUNDLE): clean BSlizr.so BSlizr_GUI.so
-	@cp manifest.ttl BSlizr.ttl surface.png LICENSE $(BUNDLE)
+$(BUNDLE): clean $(DSP_OBJ) $(GUI_OBJ)
+	@cp $(FILES) $(BUNDLE)
 
 all: $(BUNDLE)
 
-BSlizr.so: ./src/BSlizr.cpp
+$(DSP_OBJ): $(DSP_SRC)
 	@echo -n Build $(BUNDLE) DSP...
 	@mkdir -p $(BUNDLE)
 	@$(CXX) $< -o $(BUNDLE)/$@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $(DSPFLAGS)
 	@echo \ done.
 
-BSlizr_GUI.so: ./src/BSlizr_GUI.cpp
+$(GUI_OBJ): $(GUI_SRC)
 	@echo -n Build $(BUNDLE) GUI...
 	@mkdir -p $(BUNDLE)
 	@$(CXX) $< $(GUI_INCL) -o $(BUNDLE)/$@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $(GUIFLAGS)
@@ -76,8 +85,9 @@ BSlizr_GUI.so: ./src/BSlizr_GUI.cpp
 
 install:
 	@echo -n Install $(BUNDLE) to $(DESTDIR)$(LV2DIR)...
-	@mkdir -p $(DESTDIR)$(LV2DIR)
-	@rm -rf $(DESTDIR)$(LV2DIR)/$(BUNDLE)
+	@install -d $(DESTDIR)$(LV2DIR)/$(BUNDLE)
+	@install -m755 $(B_OBJECTS) $(DESTDIR)$(LV2DIR)/$(BUNDLE)
+	@install -m644 $(B_FILES) $(DESTDIR)$(LV2DIR)/$(BUNDLE)
 	@cp -R $(BUNDLE) $(DESTDIR)$(LV2DIR)
 	@echo \ done.
 
