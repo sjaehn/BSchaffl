@@ -27,11 +27,13 @@
 #define LIM(g , min, max) ((g) > (max) ? (max) : ((g) < (min) ? (min) : (g)))
 
 BSlizr::BSlizr (double samplerate, const LV2_Feature* const* features) :
-	map(NULL), controlPort1(NULL), controlPort2(NULL),  notifyPort(NULL),
-	audioInput1(NULL), audioInput2(NULL), audioOutput1(NULL), audioOutput2(NULL),
-	nrSteps(16), attack(0.2), release (0.2), sequencesperbar (4),
-	rate(samplerate), bpm(120.0f), speed(1), position(0), refFrame(0), beatUnit (4), beatsPerBar (4),
+	map(NULL),
+	rate(samplerate), bpm(120.0f), speed(1), position(0),
+	beatsPerBar (4), beatUnit (4), refFrame(0),
 	prevStep(NULL), actStep(NULL), nextStep(NULL),
+	audioInput1(NULL), audioInput2(NULL), audioOutput1(NULL), audioOutput2(NULL),
+	sequencesperbar (4), nrSteps(16), attack(0.2), release (0.2),
+	controlPort1(NULL), controlPort2(NULL),  notifyPort(NULL),
 	record_on(true), monitorpos(-1)
 
 {
@@ -196,7 +198,6 @@ void BSlizr::notifyGUI()
 				// Copy data monitor -> notifications
 				if (notificationsCount < NOTIFYBUFFERSIZE - 1)
 				{
-					int count = monitor[i].count;
 					notifications[notificationsCount].position = i;
 					notifications[notificationsCount].inputMin = monitor[i].inputMin;
 					notifications[notificationsCount].inputMax = monitor[i].inputMax;

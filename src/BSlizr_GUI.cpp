@@ -35,9 +35,9 @@
 #include "BWidgets/DrawingSurface.hpp"
 #include "BWidgets/HSwitch.hpp"
 #include "BWidgets/VSlider.hpp"
-#include "BWidgets/DisplayVSlider.hpp"
-#include "BWidgets/DisplayHSlider.hpp"
-#include "BWidgets/DisplayDial.hpp"
+#include "BWidgets/VSliderValue.hpp"
+#include "BWidgets/HSliderValue.hpp"
+#include "BWidgets/DialValue.hpp"
 
 #include "main.h"
 #include "screen.h"
@@ -89,22 +89,22 @@ private:
 
 	BWidgets::Widget mContainer;
 	BWidgets::Widget sContainer;
-	BWidgets::Label attackLabel;
-	BWidgets::Label releaseLabel;
-	BWidgets::Label sequencesperbarLabel;
-	BWidgets::DrawingSurface stepshapeDisplay;
-	BWidgets::Label nrStepsLabel;
-	BWidgets::Label monitorLabel;
 	BWidgets::HSwitch monitorSwitch;
-	BWidgets::VSlider scaleControl;
 	BWidgets::DrawingSurface monitorDisplay;
-	BWidgets::DisplayHSlider nrStepsControl;
-	BWidgets::DisplayDial attackControl;
-	BWidgets::DisplayDial releaseControl;
-	BWidgets::DisplayHSlider sequencesperbarControl;
+	BWidgets::Label monitorLabel;
+	BWidgets::VSlider scaleControl;
+	BWidgets::DrawingSurface stepshapeDisplay;
+	BWidgets::DialValue attackControl;
+	BWidgets::Label attackLabel;
+	BWidgets::DialValue releaseControl;
+	BWidgets::Label releaseLabel;
+	BWidgets::HSliderValue sequencesperbarControl;
+	BWidgets::Label sequencesperbarLabel;
+	BWidgets::HSliderValue nrStepsControl;
+	BWidgets::Label nrStepsLabel;
 	BWidgets::Label stepshapeLabel;
 	BWidgets::Label sequencemonitorLabel;
-	std::array<BWidgets::DisplayVSlider, MAXSTEPS> stepControl;
+	std::array<BWidgets::VSliderValue, MAXSTEPS> stepControl;
 
 	cairo_surface_t* surface;
 	cairo_t* cr1;
@@ -187,12 +187,10 @@ private:
 
 BSlizr_GUI::BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow) :
 	Window (800, 560, "B.Slizr", parentWindow, true),
-	scale (DB_CO(0.0)), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0), step (), sz (1.0),
-	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")), controller (NULL), write_function (NULL), map (NULL),
-	surface (NULL), cr1 (NULL), cr2 (NULL), cr3 (NULL), cr4 (NULL), pat1 (NULL), pat2 (NULL), pat3 (NULL), pat4 (NULL), pat5 (NULL),
-	bgImageSurface (nullptr),
+	controller (NULL), write_function (NULL),
 
 	mContainer (0, 0, 800, 560, "main"),
+	sContainer (260, 330, 480, 130, "widget"),
 	monitorSwitch (690, 25, 40, 16, "switch", 0.0),
 	monitorDisplay (260, 70, 480, 240, "monitor"),
 	monitorLabel (680, 45, 60, 20, "label", "Monitor"),
@@ -208,7 +206,12 @@ BSlizr_GUI::BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *featu
 	nrStepsLabel (400, 520, 380, 20, "label", "Number of steps"),
 	stepshapeLabel (33, 323, 80, 20, "label", "Step shape"),
 	sequencemonitorLabel (263, 73, 120, 20, "label", "Sequence monitor"),
-	sContainer (260, 330, 480, 130, "widget")
+
+	surface (NULL), cr1 (NULL), cr2 (NULL), cr3 (NULL), cr4 (NULL), pat1 (NULL), pat2 (NULL), pat3 (NULL), pat4 (NULL), pat5 (NULL),
+	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),  sz (1.0), bgImageSurface (nullptr),
+	scale (DB_CO(0.0)), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0), step (),
+	map (NULL)
+
 
 {
 	if (!init_mainMonitor () || !init_Stepshape ())
@@ -222,7 +225,7 @@ BSlizr_GUI::BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *featu
 	//Initialialize and configure stepControllers
 	for (int i = 0; i < MAXSTEPS; ++i)
 	{
-		stepControl[i] = BWidgets::DisplayVSlider ((i + 0.5) * 480 / MAXSTEPS - 10, 0, 28, 130, "slider", 1.0, 0.0, 1.0, 0.01, "%1.2f");
+		stepControl[i] = BWidgets::VSliderValue ((i + 0.5) * 480 / MAXSTEPS - 10, 0, 28, 130, "slider", 1.0, 0.0, 1.0, 0.01, "%1.2f");
 		stepControl[i].setHardChangeable (false);
 		stepControl[i].setScrollable (true);
 		stepControl[i].rename ("slider");
@@ -578,7 +581,6 @@ void BSlizr_GUI::valueChangedCallback (BEvents::Event* event)
 
 bool BSlizr_GUI::init_Stepshape ()
 {
-	double width = stepshapeDisplay.getEffectiveWidth ();
 	double height = stepshapeDisplay.getEffectiveHeight ();
 	pat5 = cairo_pattern_create_linear (0, 0, 0, height);
 
@@ -711,7 +713,7 @@ void BSlizr_GUI::destroy_mainMonitor ()
 
 void BSlizr_GUI::add_monitor_data (BSlizrNotifications* notifications, uint32_t notificationsCount, uint32_t& end)
 {
-	for (int i = 0; i < notificationsCount; ++i)
+	for (uint i = 0; i < notificationsCount; ++i)
 	{
 		int monitorpos = notifications[i].position;
 		if (monitorpos >= MONITORBUFFERSIZE) monitorpos = MONITORBUFFERSIZE;
@@ -748,7 +750,7 @@ void BSlizr_GUI::redrawMainMonitor ()
 	cairo_line_to (cr, width, 0.9 * height);
 
 	uint32_t steps = (uint32_t) nrSteps;
-	for (int i = 1; i < steps; ++i)
+	for (uint i = 1; i < steps; ++i)
 	{
 		uint32_t x = (uint32_t) (i * width / steps);
 		cairo_move_to (cr, x, 0);

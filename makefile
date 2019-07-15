@@ -29,13 +29,13 @@ B_FILES = $(addprefix $(BUNDLE)/, $(FILES))
 
 GUI_INCL = \
 	src/BWidgets/DrawingSurface.cpp \
-	src/BWidgets/DisplayDial.cpp \
+	src/BWidgets/DialValue.cpp \
 	src/BWidgets/Dial.cpp \
-	src/BWidgets/DisplayVSlider.cpp \
+	src/BWidgets/VSliderValue.cpp \
 	src/BWidgets/VSlider.cpp \
 	src/BWidgets/VScale.cpp \
 	src/BWidgets/HSwitch.cpp \
-	src/BWidgets/DisplayHSlider.cpp \
+	src/BWidgets/HSliderValue.cpp \
 	src/BWidgets/HSlider.cpp \
 	src/BWidgets/HScale.cpp \
 	src/BWidgets/RangeWidget.cpp \
