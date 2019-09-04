@@ -713,7 +713,7 @@ void BSlizr_GUI::destroy_mainMonitor ()
 
 void BSlizr_GUI::add_monitor_data (BSlizrNotifications* notifications, uint32_t notificationsCount, uint32_t& end)
 {
-	for (uint i = 0; i < notificationsCount; ++i)
+	for (uint32_t i = 0; i < notificationsCount; ++i)
 	{
 		int monitorpos = notifications[i].position;
 		if (monitorpos >= MONITORBUFFERSIZE) monitorpos = MONITORBUFFERSIZE;
@@ -750,9 +750,9 @@ void BSlizr_GUI::redrawMainMonitor ()
 	cairo_line_to (cr, width, 0.9 * height);
 
 	uint32_t steps = (uint32_t) nrSteps;
-	for (uint i = 1; i < steps; ++i)
+	for (uint32_t i = 1; i < steps; ++i)
 	{
-		uint32_t x = (uint32_t) (i * width / steps);
+		uint32_t x = uint32_t (i * width / steps);
 		cairo_move_to (cr, x, 0);
 		cairo_line_to (cr, x, height);
 	}
