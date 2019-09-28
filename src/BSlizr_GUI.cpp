@@ -57,7 +57,7 @@
 #define CO_DB(g) ((g) > 0.0001f ? logf((g)) / 0.05f : -90.0f)
 #define LIM(g , max) ((g) > (max) ? (max) : (g))
 #define INT(g) (int) (g + 0.5)
-#define RESIZE(widget, x, y, w, h, sz) widget.moveTo ((x) * (sz), (y) * (sz)); widget.resize ((w) * (sz), (h) * (sz));
+#define RESIZE(widget, x, y, w, h, sz) (widget).moveTo ((x) * (sz), (y) * (sz)); (widget).resize ((w) * (sz), (h) * (sz));
 
 class BSlizr_GUI : public BWidgets::Window
 {
@@ -401,7 +401,7 @@ void BSlizr_GUI::resizeGUI()
 	RESIZE (stepshapeLabel, 33, 323, 80, 20, sz);
 	RESIZE (sequencemonitorLabel, 263, 73, 120, 20, sz);
 	RESIZE (sContainer, 260, 330, 480, 130, sz);
-	for (int i = 0; i < MAXSTEPS; ++i) {RESIZE (stepControl[i], (i + 0.5) * 480 / MAXSTEPS - 10, 0, 28, 130, sz);}
+	for (int i = 0; i < MAXSTEPS; ++i) {RESIZE (stepControl[i], (i + 0.5) * 480 / nrSteps - 10, 0, 28, 130, sz);}
 
 	// Update monitors
 	destroy_Stepshape ();
@@ -485,7 +485,7 @@ void BSlizr_GUI::rearrange_step_controllers (float nrSteps_newf)
 	{
 		if (i < nrSteps_new)
 		{
-			stepControl[i].moveTo ((i + 0.5) * 480 / nrSteps_new - 10, 0);
+			stepControl[i].moveTo (((i + 0.5) * 480 / nrSteps_new - 10) * sz, 0);
 			stepControl[i].show ();
 		}
 		else stepControl[i].hide ();
