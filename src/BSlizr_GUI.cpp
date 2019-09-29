@@ -1,7 +1,7 @@
-/* B.Slicer
+/* B.Slizr
  * Step Sequencer Effect Plugin
  *
- * Copyright (C) 2018 by Sven Jähnichen
+ * Copyright (C) 2018, 2019 by Sven Jähnichen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,9 @@
 #include <cstdlib>
 #include <cmath>
 #include <exception>
-#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
-#include <lv2/lv2plug.in/ns/ext/time/time.h>
 #include "BWidgets/Widget.hpp"
 #include "BWidgets/Window.hpp"
 #include "BWidgets/FocusWidget.hpp"
@@ -41,6 +39,16 @@
 
 #include "main.h"
 #include "screen.h"
+
+#ifndef MESSAGENR_
+#define MESSAGENR_
+enum MessageNr
+{
+	NO_MSG		= 0,
+	JACK_STOP_MSG	= 1,
+	MAX_MSG		= 1
+};
+#endif /* MESSAGENR_ */
 
 #define SCALEMIN -60
 #define SCALEMAX 30
@@ -58,6 +66,12 @@
 #define LIM(g , max) ((g) > (max) ? (max) : (g))
 #define INT(g) (int) (g + 0.5)
 #define RESIZE(widget, x, y, w, h, sz) (widget).moveTo ((x) * (sz), (y) * (sz)); (widget).resize ((w) * (sz), (h) * (sz));
+
+const std::string messageStrings[MAX_MSG + 1] =
+{
+	"",
+	"*** Jack transport off or halted. ***"
+};
 
 class BSlizr_GUI : public BWidgets::Window
 {
@@ -104,6 +118,7 @@ private:
 	BWidgets::Label nrStepsLabel;
 	BWidgets::Label stepshapeLabel;
 	BWidgets::Label sequencemonitorLabel;
+	BWidgets::Label messageLabel;
 	std::array<BWidgets::VSliderValue, MAXSTEPS> stepControl;
 
 	cairo_surface_t* surface;
@@ -117,13 +132,14 @@ private:
 	cairo_pattern_t* pat4;
 	cairo_pattern_t* pat5;
 
-	struct 	{
+	struct
+	{
 		bool record_on;
 		uint32_t width;
 		uint32_t height;
 		std::array<BSlizrNotifications, MONITORBUFFERSIZE> data;
 		uint32_t horizonPos;
-	} mainMonitor;
+	}  mainMonitor;
 
 	std::string pluginPath;
 	double sz;
@@ -150,37 +166,39 @@ private:
 	BStyles::Border border = {{ink, 1.0}, 0.0, 2.0, 0.0};
 	BStyles::Fill widgetBg = BStyles::noFill;
 	BStyles::Font defaultFont = BStyles::Font ("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 12.0,
-										       BStyles::TEXT_ALIGN_CENTER, BStyles::TEXT_VALIGN_MIDDLE);
+						   BStyles::TEXT_ALIGN_CENTER, BStyles::TEXT_VALIGN_MIDDLE);
 	BStyles::StyleSet defaultStyles = {"default", {{"background", STYLEPTR (&BStyles::noFill)},
-												   {"border", STYLEPTR (&BStyles::noBorder)}}};
-	BStyles::StyleSet labelStyles = {"labels", 	  {{"background", STYLEPTR (&BStyles::noFill)},
-												   {"border", STYLEPTR (&BStyles::noBorder)},
-												   {"textcolors", STYLEPTR (&txColors)},
-												   {"font", STYLEPTR (&defaultFont)}}};
+						       {"border", STYLEPTR (&BStyles::noBorder)}}};
+	BStyles::StyleSet labelStyles = {"labels", {{"background", STYLEPTR (&BStyles::noFill)},
+						    {"border", STYLEPTR (&BStyles::noBorder)},
+						    {"textcolors", STYLEPTR (&txColors)},
+						    {"font", STYLEPTR (&defaultFont)}}};
 
 	BStyles::Theme theme = BStyles::Theme ({
 		defaultStyles,
-		{"B.Slizr", 		{{"background", STYLEPTR (&BStyles::blackFill)},
-							 {"border", STYLEPTR (&BStyles::noBorder)}}},
-		{"main", 			{{"background", STYLEPTR (&widgetBg)},
-							 {"border", STYLEPTR (&BStyles::noBorder)}}},
-		{"widget", 			{{"uses", STYLEPTR (&defaultStyles)}}},
-		{"monitor", 		{{"background", STYLEPTR (&BStyles::blackFill)},
-							 {"border", STYLEPTR (&border)}}},
-		{"dial", 			{{"uses", STYLEPTR (&defaultStyles)},
-							 {"fgcolors", STYLEPTR (&fgColors)},
-							 {"bgcolors", STYLEPTR (&bgColors)},
-							 {"textcolors", STYLEPTR (&fgColors)},
-							 {"font", STYLEPTR (&defaultFont)}}},
-		{"slider",			{{"uses", STYLEPTR (&defaultStyles)},
-							 {"fgcolors", STYLEPTR (&fgColors)},
-							 {"bgcolors", STYLEPTR (&bgColors)},
-							 {"textcolors", STYLEPTR (&fgColors)},
-							 {"font", STYLEPTR (&defaultFont)}}},
-		 {"switch",			{{"uses", STYLEPTR (&defaultStyles)},
-							 {"fgcolors", STYLEPTR (&fgColors)},
-							 {"bgcolors", STYLEPTR (&bgColors)}}},
-		{"label",	 		{{"uses", STYLEPTR (&labelStyles)}}}
+		{"B.Slizr", 	{{"background", STYLEPTR (&BStyles::blackFill)},
+				 {"border", STYLEPTR (&BStyles::noBorder)}}},
+		{"main", 	{{"background", STYLEPTR (&widgetBg)},
+				 {"border", STYLEPTR (&BStyles::noBorder)}}},
+		{"widget", 	{{"uses", STYLEPTR (&defaultStyles)}}},
+		{"monitor", 	{{"background", STYLEPTR (&BStyles::blackFill)},
+				 {"border", STYLEPTR (&border)}}},
+		{"dial", 	{{"uses", STYLEPTR (&defaultStyles)},
+				 {"fgcolors", STYLEPTR (&fgColors)},
+				 {"bgcolors", STYLEPTR (&bgColors)},
+				 {"textcolors", STYLEPTR (&fgColors)},
+				 {"font", STYLEPTR (&defaultFont)}}},
+		{"slider",	{{"uses", STYLEPTR (&defaultStyles)},
+				 {"fgcolors", STYLEPTR (&fgColors)},
+				 {"bgcolors", STYLEPTR (&bgColors)},
+				 {"textcolors", STYLEPTR (&fgColors)},
+				 {"font", STYLEPTR (&defaultFont)}}},
+		 {"switch",	{{"uses", STYLEPTR (&defaultStyles)},
+				 {"fgcolors", STYLEPTR (&fgColors)},
+				 {"bgcolors", STYLEPTR (&bgColors)}}},
+		{"label",	{{"uses", STYLEPTR (&labelStyles)}}},
+		{"hilabel",	{{"uses", STYLEPTR (&labelStyles)},
+				 {"textcolors", STYLEPTR (&BColors::whites)}}},
 	});
 };
 
@@ -206,6 +224,7 @@ BSlizr_GUI::BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *featu
 	nrStepsLabel (400, 520, 380, 20, "label", "Number of steps"),
 	stepshapeLabel (33, 323, 80, 20, "label", "Step shape"),
 	sequencemonitorLabel (263, 73, 120, 20, "label", "Sequence monitor"),
+	messageLabel (420, 73, 280, 20, "hilabel", ""),
 
 	surface (NULL), cr1 (NULL), cr2 (NULL), cr3 (NULL), cr4 (NULL), pat1 (NULL), pat2 (NULL), pat3 (NULL), pat4 (NULL), pat5 (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),  sz (1.0), bgImageSurface (nullptr),
@@ -271,6 +290,7 @@ BSlizr_GUI::BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *featu
 	mContainer.add (nrStepsLabel);
 	mContainer.add (stepshapeLabel);
 	mContainer.add (sequencemonitorLabel);
+	mContainer.add (messageLabel);
 	mContainer.add (sContainer);
 	add (mContainer);
 
@@ -306,6 +326,8 @@ void BSlizr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t f
 		if ((atom->type == uris.atom_Blank) || (atom->type == uris.atom_Object))
 		{
 			const LV2_Atom_Object* obj = (const LV2_Atom_Object*) atom;
+
+			// Monitor notification
 			if (obj->body.otype == uris.notify_event)
 			{
 				const LV2_Atom* data = NULL;
@@ -325,6 +347,19 @@ void BSlizr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t f
 					}
 				}
 				else std::cerr << "BSlizr.lv2#GUI: Corrupt audio message." << std::endl;
+			}
+
+			// Message notification
+			else if (obj->body.otype == uris.notify_messageEvent)
+			{
+				const LV2_Atom* data = NULL;
+				lv2_atom_object_get(obj, uris.notify_message, &data, 0);
+				if (data && (data->type == uris.atom_Int))
+				{
+					const int messageNr = ((LV2_Atom_Int*)data)->body;
+					std::string msg = ((messageNr >= NO_MSG) && (messageNr <= MAX_MSG) ? messageStrings[messageNr] : "");
+					messageLabel.setText (msg);
+				}
 			}
 		}
 	}
@@ -400,6 +435,7 @@ void BSlizr_GUI::resizeGUI()
 	RESIZE (nrStepsLabel, 400, 520, 380, 20, sz);
 	RESIZE (stepshapeLabel, 33, 323, 80, 20, sz);
 	RESIZE (sequencemonitorLabel, 263, 73, 120, 20, sz);
+	RESIZE (messageLabel, 420, 73, 280, 20,sz);
 	RESIZE (sContainer, 260, 330, 480, 130, sz);
 	for (int i = 0; i < MAXSTEPS; ++i) {RESIZE (stepControl[i], (i + 0.5) * 480 / nrSteps - 10, 0, 28, 130, sz);}
 
@@ -434,6 +470,7 @@ void BSlizr_GUI::applyTheme (BStyles::Theme& theme)
 	nrStepsLabel.applyTheme (theme);
 	stepshapeLabel.applyTheme (theme);
 	sequencemonitorLabel.applyTheme (theme);
+	messageLabel.applyTheme (theme);
 	sContainer.applyTheme (theme);
 	for (int i = 0; i < MAXSTEPS; ++i)
 	{

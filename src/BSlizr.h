@@ -1,7 +1,7 @@
-/* B.Slicer
+/* B.Slizr
  * Step Sequencer Effect Plugin
  *
- * Copyright (C) 2018 by Sven Jähnichen
+ * Copyright (C) 2018, 2019 by Sven Jähnichen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +25,10 @@
 
 #include <cmath>
 #include <array>
-#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
-#include <lv2/lv2plug.in/ns/ext/atom/util.h>
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
-#include <lv2/lv2plug.in/ns/ext/urid/urid.h>
-#include <lv2/lv2plug.in/ns/ext/time/time.h>
 #include "main.h"
+#include "Message.hpp"
 
 typedef struct
 {
@@ -94,11 +91,13 @@ private:
 
 	bool record_on;
 	int monitorpos;
+	Message message;
 	std::array<BSlizrNotifications, NOTIFYBUFFERSIZE> notifications;
 	std::array<BSlizrMonitor_t, MONITORBUFFERSIZE> monitor;
 
 	void play(uint32_t start, uint32_t end);
 	void notifyGUI();
+	void notifyMessageToGui ();
 
 };
 

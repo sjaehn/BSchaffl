@@ -1,7 +1,7 @@
-/* B.Slicer
+/* B.Slizr
  * Step Sequencer Effect Plugin
  *
- * Copyright (C) 2018 by Sven Jähnichen
+ * Copyright (C) 2018, 2019 by Sven Jähnichen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ BSlizr::BSlizr (double samplerate, const LV2_Feature* const* features) :
 	audioInput1(NULL), audioInput2(NULL), audioOutput1(NULL), audioOutput2(NULL),
 	sequencesperbar (4), nrSteps(16), attack(0.2), release (0.2),
 	controlPort1(NULL), controlPort2(NULL),  notifyPort(NULL),
-	record_on(true), monitorpos(-1)
+	record_on(true), monitorpos(-1), message ()
 
 {
 	notifications.fill (defaultNotification);
@@ -150,7 +150,16 @@ void BSlizr::run (uint32_t n_samples)
 									  NULL);
 
 			// BPM changed?
-			if (oBpm && (oBpm->type == uris.atom_Float)) bpm = ((LV2_Atom_Float*)oBpm)->body;
+			if (oBpm && (oBpm->type == uris.atom_Float))
+			{
+				float nbpm = ((LV2_Atom_Float*)oBpm)->body;
+				if (bpm != nbpm)
+				{
+					bpm = nbpm;
+					if (nbpm < 1.0) message.setMessage (JACK_STOP_MSG);
+					else message.deleteMessage (JACK_STOP_MSG);
+				}
+			}
 
 			// Beats per bar changed?
 			if (oBpb && (oBpb->type == uris.atom_Float) && (((LV2_Atom_Float*)oBpb)->body > 0)) beatsPerBar = ((LV2_Atom_Float*)oBpb)->body;
@@ -159,7 +168,16 @@ void BSlizr::run (uint32_t n_samples)
 			if (oBu && (oBu->type == uris.atom_Int) && (((LV2_Atom_Int*)oBu)->body > 0)) beatUnit = ((LV2_Atom_Int*)oBu)->body;
 
 			// Speed changed?
-			if (oSpeed && (oSpeed->type == uris.atom_Float)) speed = ((LV2_Atom_Float*)oSpeed)->body;
+			if (oSpeed && (oSpeed->type == uris.atom_Float))
+			{
+				float nspeed = ((LV2_Atom_Float*)oSpeed)->body;
+				if (speed != nspeed)
+				{
+					speed = nspeed;
+					if (nspeed == 0.0) message.setMessage (JACK_STOP_MSG);
+					else message.deleteMessage (JACK_STOP_MSG);
+				}
+			}
 
 			// Beat position changed (during playing) ?
 			if (oBbeat && (oBbeat->type == uris.atom_Float))
@@ -181,8 +199,15 @@ void BSlizr::run (uint32_t n_samples)
 	position = MODFL (position + relpos);
 	refFrame = 0;
 
-	if (record_on) notifyGUI();						// Send collected data to GUI
+	// Send collected data to GUI
+	if (record_on)
+	{
+		notifyGUI();
+		if (message.isScheduled ()) notifyMessageToGui ();
 
+		// Close off sequence
+		lv2_atom_forge_pop(&forge, &notify_frame);
+	}
 }
 
 void BSlizr::notifyGUI()
@@ -230,10 +255,21 @@ void BSlizr::notifyGUI()
 		lv2_atom_forge_vector(&forge, sizeof(float), uris.atom_Float, (uint32_t) (5 * notificationsCount), &notifications);
 		lv2_atom_forge_pop(&forge, &frame);
 
-		// Close off sequence
-		lv2_atom_forge_pop(&forge, &notify_frame);
 		notificationsCount = 0;
 	}
+}
+
+void BSlizr::notifyMessageToGui()
+{
+	uint32_t messageNr = message.loadMessage ();
+
+	// Send notifications
+	LV2_Atom_Forge_Frame frame;
+	lv2_atom_forge_frame_time(&forge, 0);
+	lv2_atom_forge_object(&forge, &frame, 0, uris.notify_messageEvent);
+	lv2_atom_forge_key(&forge, uris.notify_message);
+	lv2_atom_forge_int(&forge, messageNr);
+	lv2_atom_forge_pop(&forge, &frame);
 }
 
 void BSlizr::play(uint32_t start, uint32_t end)

@@ -1,7 +1,7 @@
-/* B.Slicer
+/* B.Slizr
  * Step Sequencer Effect Plugin
  *
- * Copyright (C) 2018 by Sven Jähnichen
+ * Copyright (C) 2018, 2019 by Sven Jähnichen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,11 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
+#include <lv2/lv2plug.in/ns/ext/atom/util.h>
+#include <lv2/lv2plug.in/ns/ext/urid/urid.h>
+#include <lv2/lv2plug.in/ns/ext/time/time.h>
+
 #define NOTIFYBUFFERSIZE 64
 #define MONITORBUFFERSIZE 64
 #define MAXSTEPS 16
@@ -28,21 +33,21 @@
 #define BSLIZR_GUI_URI "https://www.jahnichen.de/plugins/lv2/BSlizr#gui"
 
 typedef enum {
-	Control_1		= 0,
-	Control_2		= 1,
-	Notify			= 2,
-	AudioPorts		= 3,
-	AudioIn_1		= 3,
-	AudioIn_2		= 4,
-	AudioOut_1		= 5,
-	AudioOut_2		= 6,
+	Control_1	= 0,
+	Control_2	= 1,
+	Notify		= 2,
+	AudioPorts	= 3,
+	AudioIn_1	= 3,
+	AudioIn_2	= 4,
+	AudioOut_1	= 5,
+	AudioOut_2	= 6,
 	NrAudioPorts	= 4,
-	Controllers		= 7,
-	Attack			= 7,
-	Release			= 8,
+	Controllers	= 7,
+	Attack		= 7,
+	Release		= 8,
 	SequencesPerBar	= 9,
-	NrSteps			= 10,
-	Step_			= 11,
+	NrSteps		= 10,
+	Step_		= 11,
 	NrControllers	= 20
 } BSlizrPortIndex;
 
@@ -64,6 +69,8 @@ typedef struct
 	LV2_URID ui_off;
 	LV2_URID notify_event;
 	LV2_URID notify_key;
+	LV2_URID notify_messageEvent;
+	LV2_URID notify_message;
 }  BSlizrURIs;
 
 typedef struct {
@@ -94,6 +101,8 @@ void getURIs (LV2_URID_Map* m, BSlizrURIs* uris)
 	uris->ui_off = m->map(m->handle, BSLIZR_URI "#UIoff");
 	uris->notify_event = m->map(m->handle, BSLIZR_URI "#NOTIFYev");
 	uris->notify_key = m->map(m->handle, BSLIZR_URI "#NOTIFYkey");
+	uris->notify_messageEvent = m->map(m->handle, BSLIZR_URI "#NOTIFYmessageEvent");
+	uris->notify_message = m->map(m->handle, BSLIZR_URI "#NOTIFYmessage");
 }
 
 #endif /* MAIN_H_ */
