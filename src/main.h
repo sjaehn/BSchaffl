@@ -81,7 +81,7 @@ typedef struct {
 	float outputMax;
 } BSlizrNotifications;
 
-BSlizrNotifications defaultNotification = {0, 0.0, 0.0};
+const BSlizrNotifications defaultNotification = {0.0, 0.0, 0.0, 0.0, 0.0};
 
 void getURIs (LV2_URID_Map* m, BSlizrURIs* uris)
 {

@@ -40,7 +40,7 @@ typedef struct
 	double outputMax;
 } BSlizrMonitor_t;
 
-BSlizrMonitor_t defaultMonitorData = {0, false, 0.0, 0.0};
+const BSlizrMonitor_t defaultMonitorData = {0, false, 0.0, 0.0, 0.0, 0.0};
 
 class BSlizr
 {
