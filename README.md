@@ -7,10 +7,7 @@ Description: LV2 audio effect plugin for sequenced slicing of stereo audio input
 
 Installation
 ------------
-a) Download and unpack the most recent release binaries from
-https://github.com/sjaehn/BSlizr/releases to your lv2 directory (e.g., /usr/lib/lv2/).
-
-b) Build your own binaries in the following three steps.
+Build your own binaries in the following three steps.
 
 Step 1: [Download the latest published version](https://github.com/sjaehn/BSlizr/releases) of B.Slizr. Or clone or
 [download the master](https://github.com/sjaehn/BSlizr/archive/master.zip) of this repository.
