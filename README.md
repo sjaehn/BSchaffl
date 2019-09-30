@@ -79,4 +79,4 @@ Step shape
 
 Links
 -----
-* Preview video: https://www.youtube.com/watch?v=1VD3KsXvyLU
+* Video: https://www.youtube.com/watch?v=gLI2ozKdNDk
