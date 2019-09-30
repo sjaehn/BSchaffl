@@ -12,9 +12,14 @@ https://github.com/sjaehn/BSlizr/releases to your lv2 directory (e.g., /usr/lib/
 
 b) Build your own binaries in the following three steps.
 
-Step 1: Clone or download this repository.
+Step 1: [Download the latest published version](https://github.com/sjaehn/BSlizr/releases) of B.Slizr. Or clone or
+[download the master](https://github.com/sjaehn/BSlizr/archive/master.zip) of this repository.
 
-Step 2: Install the development packages for x11, cairo, and lv2 if not done yet.
+Step 2: Install pkg-config and the development packages for x11, cairo, and lv2 if not done yet. On
+Debian-based systems you may run:
+```
+sudo apt-get install pkg-config libx11-dev libcairo2-dev lv2-dev
+```
 
 Step 3: Building and installing into the default lv2 directory (/usr/lib/lv2/) is easy. Simply call:
 
@@ -50,10 +55,9 @@ Notes:
 
 What's new
 -----------
-* Crazy name
-* Resizeable GUI
-* Monitor also displays negative amplitude
-* Bugfixes
+* Jack transport status notification
+* Downsize on small screens
+* New install method
 
 Usage
 -----
