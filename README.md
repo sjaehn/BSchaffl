@@ -7,7 +7,10 @@ Description: LV2 audio effect plugin for sequenced slicing of stereo audio input
 
 Installation
 ------------
-Build your own binaries in the following three steps.
+a) Install the bslizr package for your system
+* [Arch linux](https://www.archlinux.org/packages/community/x86_64/bslizr/) by David Runge
+
+b) Build your own binaries in the following three steps.
 
 Step 1: [Download the latest published version](https://github.com/sjaehn/BSlizr/releases) of B.Slizr. Or clone or
 [download the master](https://github.com/sjaehn/BSlizr/archive/master.zip) of this repository.
@@ -22,7 +25,7 @@ Step 3: Building and installing into the default lv2 directory (/usr/lib/lv2/) i
 
 ```
 make
-sudo make install PREFIX=/usr
+sudo make install
 ```
 
 from the directory where you downloaded the repository files. For installation into an
