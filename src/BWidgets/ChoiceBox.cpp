@@ -36,8 +36,6 @@ ChoiceBox::ChoiceBox (const double x, const double y, const double width,
 
 	add (upButton);
 	add (downButton);
-
-	setScrollable (true);
 }
 
 ChoiceBox::ChoiceBox (const double x, const double y, const double width, const double height,
@@ -122,6 +120,7 @@ void ChoiceBox::addItem (const BItems::Item& newItem)
 	if (w)
 	{
 		w->setClickable (true);
+		w->setScrollable (false);
 		w->setCallbackFunction (BEvents::BUTTON_PRESS_EVENT, ChoiceBox::handleItemClicked);
 		add (*w);
 	}
@@ -131,6 +130,29 @@ void ChoiceBox::addItem (const BItems::Item& newItem)
 void ChoiceBox::addItem (const BItems::ItemList& newItems)
 {
 	for (BItems::Item const& ni : newItems) addItem (ni);
+}
+
+void ChoiceBox::resizeItem (const double value, const double width, const double height)
+{
+	BItems::Item* it = getItem (value);
+	if (it)
+	{
+		BWidgets::Widget* w = it->getWidget ();
+		if (w) w->resize (width, height);
+	}
+
+	updateItems ();
+}
+
+void ChoiceBox::resizeItems (const double width, const double height)
+{
+	for (BItems::Item const& it : items)
+	{
+		BWidgets::Widget* w = it.getWidget ();
+		if (w) w->resize (width, height);
+	}
+
+	updateItems ();
 }
 
 void ChoiceBox::applyTheme (BStyles::Theme& theme) {applyTheme (theme, name_);}
