@@ -81,7 +81,7 @@ public:
 	void portEvent (uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer);
 	void send_record_on ();
 	void send_record_off ();
-	virtual void onConfigure (BEvents::ExposeEvent* event) override;
+	virtual void onConfigureRequest (BEvents::ExposeEvent* event) override;
 	void applyTheme (BStyles::Theme& theme) override;
 
 	LV2UI_Controller controller;
@@ -479,9 +479,9 @@ void BSlizr_GUI::applyTheme (BStyles::Theme& theme)
 	}
 }
 
-void BSlizr_GUI::onConfigure (BEvents::ExposeEvent* event)
+void BSlizr_GUI::onConfigureRequest (BEvents::ExposeEvent* event)
 {
-	Window::onConfigure (event);
+	Window::onConfigureRequest (event);
 
 	sz = (width_ / 800 > height_ / 560 ? height_ / 560 : width_ / 800);
 	resizeGUI ();
