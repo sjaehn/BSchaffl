@@ -29,7 +29,7 @@
         rdfs:comment "LV2 audio effect plugin. This plugin slices stereo audio input signals with a length up to 1 bar into up to 16 pieces. As result it may produce a step sequencer-like effect." ;
 	doap:maintainer <http://www.jahnichen.de/sjaehn#me> ;
 	doap:license <http://usefulinc.com/doap/licenses/gpl> ;
-	lv2:microVersion 0 ;
+	lv2:microVersion 2 ;
 	lv2:minorVersion 2 ;
         lv2:optionalFeature lv2:hardRTCapable ;
         lv2:binary <BSlizr.so> ;
