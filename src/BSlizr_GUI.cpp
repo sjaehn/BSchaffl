@@ -28,7 +28,6 @@
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
 #include "BWidgets/Widget.hpp"
 #include "BWidgets/Window.hpp"
-#include "BWidgets/FocusWidget.hpp"
 #include "BWidgets/Label.hpp"
 #include "BWidgets/DrawingSurface.hpp"
 #include "BWidgets/HSwitch.hpp"
@@ -163,8 +162,11 @@ private:
 	BColors::ColorSet txColors = {{{0.0, 1.0, 0.4, 1.0}, {1.0, 1.0, 1.0, 1.0}, {0.0, 0.5, 0.0, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::ColorSet bgColors = {{{0.15, 0.15, 0.15, 1.0}, {0.3, 0.3, 0.3, 1.0}, {0.05, 0.05, 0.05, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::Color ink = {0.0, 0.75, 0.2, 1.0};
+
 	BStyles::Border border = {{ink, 1.0}, 0.0, 2.0, 0.0};
 	BStyles::Fill widgetBg = BStyles::noFill;
+	BStyles::Fill screenBg = BStyles::Fill (BColors::Color (0.0, 0.0, 0.0, 0.75));
+	BStyles::Border screenBorder = BStyles::Border (BStyles::Line (BColors::Color (0.0, 0.0, 0.0, 0.75), 4.0));
 	BStyles::Font defaultFont = BStyles::Font ("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 12.0,
 						   BStyles::TEXT_ALIGN_CENTER, BStyles::TEXT_VALIGN_MIDDLE);
 	BStyles::StyleSet defaultStyles = {"default", {{"background", STYLEPTR (&BStyles::noFill)},
@@ -188,14 +190,26 @@ private:
 				 {"bgcolors", STYLEPTR (&bgColors)},
 				 {"textcolors", STYLEPTR (&fgColors)},
 				 {"font", STYLEPTR (&defaultFont)}}},
+		{"dial/focus", 	{{"background", STYLEPTR (&screenBg)},
+				 {"border", STYLEPTR (&screenBorder)},
+				 {"textcolors", STYLEPTR (&txColors)},
+				 {"font", STYLEPTR (&defaultFont)}}},
 		{"slider",	{{"uses", STYLEPTR (&defaultStyles)},
 				 {"fgcolors", STYLEPTR (&fgColors)},
 				 {"bgcolors", STYLEPTR (&bgColors)},
 				 {"textcolors", STYLEPTR (&fgColors)},
 				 {"font", STYLEPTR (&defaultFont)}}},
-		 {"switch",	{{"uses", STYLEPTR (&defaultStyles)},
+		{"slider/focus",{{"background", STYLEPTR (&screenBg)},
+				 {"border", STYLEPTR (&screenBorder)},
+				 {"textcolors", STYLEPTR (&txColors)},
+				 {"font", STYLEPTR (&defaultFont)}}},
+		{"switch",	{{"uses", STYLEPTR (&defaultStyles)},
 				 {"fgcolors", STYLEPTR (&fgColors)},
 				 {"bgcolors", STYLEPTR (&bgColors)}}},
+		{"switch/focus",{{"background", STYLEPTR (&screenBg)},
+				 {"border", STYLEPTR (&screenBorder)},
+				 {"textcolors", STYLEPTR (&txColors)},
+				 {"font", STYLEPTR (&defaultFont)}}},
 		{"label",	{{"uses", STYLEPTR (&labelStyles)}}},
 		{"hilabel",	{{"uses", STYLEPTR (&labelStyles)},
 				 {"textcolors", STYLEPTR (&BColors::whites)}}},
@@ -483,7 +497,7 @@ void BSlizr_GUI::onConfigureRequest (BEvents::ExposeEvent* event)
 {
 	Window::onConfigureRequest (event);
 
-	sz = (width_ / 800 > height_ / 560 ? height_ / 560 : width_ / 800);
+	sz = (getWidth() / 800 > getHeight() / 560 ? getHeight() / 560 : getWidth() / 800);
 	resizeGUI ();
 }
 
