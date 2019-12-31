@@ -57,9 +57,8 @@ Notes:
 
 What's new
 -----------
-* Jack transport status notification
-* Downsize on small screens
-* New install method
+* Improved stability
+* Improved visibility of sliders
 
 Usage
 -----
