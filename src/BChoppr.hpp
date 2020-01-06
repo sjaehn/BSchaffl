@@ -63,9 +63,9 @@ private:
 	float beatsPerBar;
 	uint32_t beatUnit;
 	uint32_t refFrame;
-	float* prevStep;
-	float* actStep;
-	float* nextStep;
+	uint32_t prevStep;
+	uint32_t actStep;
+	uint32_t nextStep;
 
 	// Audio buffers
 	float* audioInput1;

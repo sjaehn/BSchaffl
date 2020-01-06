@@ -30,7 +30,7 @@ BChoppr::BChoppr (double samplerate, const LV2_Feature* const* features) :
 	map(NULL),
 	rate(samplerate), bpm(120.0f), speed(1), position(0),
 	beatsPerBar (4), beatUnit (4), refFrame(0),
-	prevStep(NULL), actStep(NULL), nextStep(NULL),
+	prevStep(0), actStep(0), nextStep(1),
 	audioInput1(NULL), audioInput2(NULL), audioOutput1(NULL), audioOutput2(NULL),
 	controllers {nullptr},
 	sequencesperbar (4), nrSteps(16), attack(0.2), release (0.2),
@@ -346,28 +346,51 @@ void BChoppr::play(uint32_t start, uint32_t end)
 		// Calculate fraction of active step
 		float steppos = (iStep == 0 ? 0 : stepPositions[iStep - 1]);
 		float nextpos = (int (iStep) == steps - 1 ? 1 : stepPositions[iStep]);
-		float iStepFrac = (nextpos <= steppos ? 0 : (pos - steppos) / (nextpos - steppos));
+		float stepsize = nextpos - steppos;
+		float iStepFrac = (stepsize <= 0 ? 0 : (pos - steppos) / stepsize);
 
 		// Move to the next step?
-		if (actStep != &(stepLevels[iStep]))
+		if (actStep != uint32_t (iStep))
 		{
 			prevStep = actStep;
-			actStep = &(stepLevels[iStep]);
-			if (iStep < (steps-1)) nextStep = &(stepLevels[iStep+1]);
-			else nextStep = &(stepLevels[0]);
+			actStep = iStep;
+			nextStep = (iStep < steps - 1 ? iStep + 1 : 0);
 		}
-		if (!prevStep) prevStep = actStep;							// prevStep not initialized (= on Start)?
 
 		// Calculate effect (vol) for the position
-		float vol = *actStep;
-		if (iStepFrac < attack)									// On attack
+		float vol = stepLevels[actStep];
+		if (iStepFrac < attack)		// On attack
 		{
-			if (*prevStep < *actStep) vol = *prevStep + (iStepFrac / attack) * (*actStep - *prevStep);
+			/*float prevSteppos = (prevStep == 0 ? 0 : stepPositions[prevStep - 1]);
+			float prevNextpos = (int (prevStep) == steps - 1 ? 1 : stepPositions[prevStep]);
+			float prevStepsize = prevNextpos - prevSteppos;
+			float prevReleaseSize = release * prevStepsize;
+			float actAttackSize = attack * stepsize;
+			if (prevReleaseSize + actAttackSize > 0)
+			{
+				vol = stepLevels[prevStep] + (stepLevels[actStep] - stepLevels[prevStep]) * (prevReleaseSize + pos - steppos) / (prevReleaseSize + actAttackSize);
+			}*/
+			if (stepLevels[prevStep] < stepLevels[actStep])
+			{
+				vol = stepLevels[prevStep] + (iStepFrac / attack) * (stepLevels[actStep] - stepLevels[prevStep]);
+			}
 
 		}
-		if (iStepFrac > (1 - release))								// On release
+		if (iStepFrac > (1 - release))	// On release
 		{
-			if (*nextStep < *actStep) vol = vol - ((iStepFrac - (1 - release)) / release) * (*actStep - *nextStep);
+			/*float nextSteppos = (nextStep == 0 ? 0 : stepPositions[nextStep - 1]);
+			float nextNextpos = (int (nextStep) == steps - 1 ? 1 : stepPositions[nextStep]);
+			float nextStepsize = nextNextpos - nextSteppos;
+			float nextAttackSize = attack * nextStepsize;
+			float actReleaseSize = release * stepsize;
+			if (actReleaseSize + nextAttackSize > 0)
+			{
+				vol = stepLevels[actStep] + (stepLevels[nextStep] - stepLevels[actStep]) * (pos + actReleaseSize - nextpos) / (actReleaseSize + nextAttackSize);
+			}*/
+			if (stepLevels[nextStep] < stepLevels[actStep])
+			{
+				vol = vol - ((iStepFrac - (1 - release)) / release) * (stepLevels[actStep] - stepLevels[nextStep]);
+			}
 		}
 
 		// Apply effect on input
