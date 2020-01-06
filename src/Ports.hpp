@@ -18,34 +18,34 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef MESSAGE_HPP_
-#define MESSAGE_HPP_
+#ifndef PORTS_HPP_
+#define PORTS_HPP_
 
-#include <cstdint>
+#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
+#include <lv2/lv2plug.in/ns/ext/atom/util.h>
+#include <lv2/lv2plug.in/ns/ext/urid/urid.h>
+#include <lv2/lv2plug.in/ns/ext/time/time.h>
+#include "definitions.hpp"
 
-#ifndef MESSAGENR_
-#define MESSAGENR_
-enum MessageNr
+enum BChopprPortIndex
 {
-	NO_MSG		= 0,
-	JACK_STOP_MSG	= 1,
-	MAX_MSG		= 1
-};
-#endif /* MESSAGENR_ */
-
-class Message
-{
-public:
-	Message ();
-	void clearMessages ();
-	void setMessage (MessageNr messageNr);
-	void deleteMessage (MessageNr messageNr);
-	bool isMessage (MessageNr messageNr);
-	MessageNr loadMessage ();
-	bool isScheduled ();
-private:
-	uint32_t messageBits;
-	bool scheduled;
+	Control_1	= 0,
+	Control_2	= 1,
+	Notify		= 2,
+	AudioPorts	= 3,
+	AudioIn_1	= 3,
+	AudioIn_2	= 4,
+	AudioOut_1	= 5,
+	AudioOut_2	= 6,
+	NrAudioPorts	= 4,
+	Controllers	= 7,
+	Attack		= 7,
+	Release		= 8,
+	SequencesPerBar	= 9,
+	NrSteps		= 10,
+	StepPositions	= 11,
+	StepLevels	= 26,
+	NrControllers	= 35
 };
 
-#endif /* MESSAGE_HPP_*/
+#endif /* PORTS_HPP_ */

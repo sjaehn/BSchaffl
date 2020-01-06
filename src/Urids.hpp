@@ -1,4 +1,4 @@
-/* B.Slizr
+/* B.Choppr
  * Step Sequencer Effect Plugin
  *
  * Copyright (C) 2018, 2019 by Sven Jähnichen
@@ -18,40 +18,16 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef MAIN_H_
-#define MAIN_H_
+#ifndef URIDS_HPP_
+#define URIDS_HPP_
 
 #include <lv2/lv2plug.in/ns/lv2core/lv2.h>
 #include <lv2/lv2plug.in/ns/ext/atom/util.h>
 #include <lv2/lv2plug.in/ns/ext/urid/urid.h>
 #include <lv2/lv2plug.in/ns/ext/time/time.h>
+#include "definitions.hpp"
 
-#define NOTIFYBUFFERSIZE 64
-#define MONITORBUFFERSIZE 64
-#define MAXSTEPS 16
-#define BSLIZR_URI "https://www.jahnichen.de/plugins/lv2/BSlizr"
-#define BSLIZR_GUI_URI "https://www.jahnichen.de/plugins/lv2/BSlizr#gui"
-
-typedef enum {
-	Control_1	= 0,
-	Control_2	= 1,
-	Notify		= 2,
-	AudioPorts	= 3,
-	AudioIn_1	= 3,
-	AudioIn_2	= 4,
-	AudioOut_1	= 5,
-	AudioOut_2	= 6,
-	NrAudioPorts	= 4,
-	Controllers	= 7,
-	Attack		= 7,
-	Release		= 8,
-	SequencesPerBar	= 9,
-	NrSteps		= 10,
-	Step_		= 11,
-	NrControllers	= 20
-} BSlizrPortIndex;
-
-typedef struct
+struct BChopprURIs
 {
 	LV2_URID atom_Float;
 	LV2_URID atom_Int;
@@ -71,19 +47,9 @@ typedef struct
 	LV2_URID notify_key;
 	LV2_URID notify_messageEvent;
 	LV2_URID notify_message;
-}  BSlizrURIs;
+};
 
-typedef struct {
-	float position;
-	float inputMin;
-	float inputMax;
-	float outputMin;
-	float outputMax;
-} BSlizrNotifications;
-
-const BSlizrNotifications defaultNotification = {0.0, 0.0, 0.0, 0.0, 0.0};
-
-void getURIs (LV2_URID_Map* m, BSlizrURIs* uris)
+void getURIs (LV2_URID_Map* m, BChopprURIs* uris)
 {
 	uris->atom_Float = m->map(m->handle, LV2_ATOM__Float);
 	uris->atom_Int = m->map(m->handle, LV2_ATOM__Int);
@@ -97,12 +63,12 @@ void getURIs (LV2_URID_Map* m, BSlizrURIs* uris)
 	uris->time_beatUnit = m->map(m->handle, LV2_TIME__beatUnit);
 	uris->time_beatsPerBar = m->map(m->handle, LV2_TIME__beatsPerBar);
 	uris->time_speed = m->map(m->handle, LV2_TIME__speed);
-	uris->ui_on = m->map(m->handle, BSLIZR_URI "#UIon");
-	uris->ui_off = m->map(m->handle, BSLIZR_URI "#UIoff");
-	uris->notify_event = m->map(m->handle, BSLIZR_URI "#NOTIFYev");
-	uris->notify_key = m->map(m->handle, BSLIZR_URI "#NOTIFYkey");
-	uris->notify_messageEvent = m->map(m->handle, BSLIZR_URI "#NOTIFYmessageEvent");
-	uris->notify_message = m->map(m->handle, BSLIZR_URI "#NOTIFYmessage");
+	uris->ui_on = m->map(m->handle, BCHOPPR_URI "#UIon");
+	uris->ui_off = m->map(m->handle, BCHOPPR_URI "#UIoff");
+	uris->notify_event = m->map(m->handle, BCHOPPR_URI "#NOTIFYev");
+	uris->notify_key = m->map(m->handle, BCHOPPR_URI "#NOTIFYkey");
+	uris->notify_messageEvent = m->map(m->handle, BCHOPPR_URI "#NOTIFYmessageEvent");
+	uris->notify_message = m->map(m->handle, BCHOPPR_URI "#NOTIFYmessage");
 }
 
-#endif /* MAIN_H_ */
+#endif /* URIDS_HPP_ */

@@ -1,4 +1,4 @@
-/* B.Slizr
+/* B.Choppr
  * Step Sequencer Effect Plugin
  *
  * Copyright (C) 2018, 2019 by Sven Jähnichen
@@ -18,7 +18,7 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "BSlizr.h"
+#include "BChoppr.hpp"
 
 #include <cstdio>
 #include <string>
@@ -26,13 +26,15 @@
 
 #define LIM(g , min, max) ((g) > (max) ? (max) : ((g) < (min) ? (min) : (g)))
 
-BSlizr::BSlizr (double samplerate, const LV2_Feature* const* features) :
+BChoppr::BChoppr (double samplerate, const LV2_Feature* const* features) :
 	map(NULL),
 	rate(samplerate), bpm(120.0f), speed(1), position(0),
 	beatsPerBar (4), beatUnit (4), refFrame(0),
 	prevStep(NULL), actStep(NULL), nextStep(NULL),
 	audioInput1(NULL), audioInput2(NULL), audioOutput1(NULL), audioOutput2(NULL),
+	controllers {nullptr},
 	sequencesperbar (4), nrSteps(16), attack(0.2), release (0.2),
+	stepLevels {1.0}, stepPositions {0.0}, stepAutoPositions {true},
 	controlPort1(NULL), controlPort2(NULL),  notifyPort(NULL),
 	record_on(true), monitorpos(-1), message ()
 
@@ -60,9 +62,9 @@ BSlizr::BSlizr (double samplerate, const LV2_Feature* const* features) :
 
 }
 
-BSlizr::~BSlizr () {}
+BChoppr::~BChoppr () {}
 
-void BSlizr::connect_port(uint32_t port, void *data)
+void BChoppr::connect_port(uint32_t port, void *data)
 {
 	switch (port) {
 	case Control_1:
@@ -91,7 +93,7 @@ void BSlizr::connect_port(uint32_t port, void *data)
 	}
 }
 
-void BSlizr::run (uint32_t n_samples)
+void BChoppr::run (uint32_t n_samples)
 {
 
 	// Check ports
@@ -105,8 +107,32 @@ void BSlizr::run (uint32_t n_samples)
 	attack = LIM (*(controllers[Attack - Controllers]), 0.01, 1.0);
 	release = LIM (*(controllers[Release - Controllers]), 0.01, 1.0);
 	sequencesperbar = LIM (round (*(controllers[SequencesPerBar - Controllers])), 1, 8);
-	nrSteps = LIM (round(*(controllers[NrSteps - Controllers])), 1, 16);
-	for (int i = 0; i < MAXSTEPS; ++i) step[i] = LIM (*(controllers[i + Step_ - Controllers]), 0.0, 1.0);
+
+	float new_nrSteps = LIM (round(*(controllers[NrSteps - Controllers])), 1, 16);
+	if (new_nrSteps != nrSteps)
+	{
+		nrSteps = new_nrSteps;
+		recalculateAutoPositions ();
+	}
+
+	for (int i = 0; i < MAXSTEPS; ++i) stepLevels[i] = LIM (*(controllers[i + StepLevels - Controllers]), 0.0, 1.0);
+	for (int i = 0; i < MAXSTEPS - 1; ++i)
+	{
+		 float value = LIM (*(controllers[i + StepPositions - Controllers]), 0.0, 1.0);
+
+		 if ((value == 0.0f) && (!stepAutoPositions[i]))
+		 {
+			 stepAutoPositions[i] = true;
+			 recalculateAutoPositions();
+		 }
+
+		 else if (stepPositions[i] != value)
+		 {
+			 stepAutoPositions[i] = false;
+			 stepPositions[i] = value;
+			 recalculateAutoPositions();
+		 }
+	}
 
 	// Process GUI data
 	const LV2_Atom_Event* ev2 = lv2_atom_sequence_begin(&(controlPort2)->body);
@@ -210,7 +236,30 @@ void BSlizr::run (uint32_t n_samples)
 	}
 }
 
-void BSlizr::notifyGUI()
+void BChoppr::recalculateAutoPositions ()
+{
+	int nrMarkers = nrSteps - 1;
+	int start = 0;
+	for (int i = 0; i < nrMarkers; ++i)
+	{
+		if (stepAutoPositions[i])
+		{
+			if ((i == nrMarkers - 1) || (!stepAutoPositions[i + 1]))
+			{
+				double anc = (start == 0 ? 0 : stepPositions[start - 1]);
+				double suc = (i == nrMarkers - 1 ? 1 : stepPositions[i + 1]);
+				double step = (suc <= anc ? 0 : (suc - anc) / (i + 2 - start));
+				for (int j = start; j <= i; ++j)
+				{
+					stepPositions[j] = anc + (j + 1 - start) * step;
+				}
+			}
+		}
+		else start = i + 1;
+	}
+}
+
+void BChoppr::notifyGUI()
 {
 	if (record_on)
 	{
@@ -259,7 +308,7 @@ void BSlizr::notifyGUI()
 	}
 }
 
-void BSlizr::notifyMessageToGui()
+void BChoppr::notifyMessageToGui()
 {
 	uint32_t messageNr = message.loadMessage ();
 
@@ -272,11 +321,9 @@ void BSlizr::notifyMessageToGui()
 	lv2_atom_forge_pop(&forge, &frame);
 }
 
-void BSlizr::play(uint32_t start, uint32_t end)
+void BChoppr::play(uint32_t start, uint32_t end)
 {
-	float vol, relpos, pos, iStepf, iStepFrac, effect1, effect2;
-	uint32_t steps = (uint32_t) nrSteps;
-	uint32_t iStep;
+	int steps = nrSteps;
 
 	//Silence if halted or bpm == 0
 	if ((speed == 0.0f) || (bpm < 1.0f))
@@ -289,37 +336,43 @@ void BSlizr::play(uint32_t start, uint32_t end)
 	for (uint32_t i = start; i < end; ++i)
 	{
 		// Interpolate position within the loop
-		relpos = (i - refFrame) * speed / (rate / (bpm / 60)) * sequencesperbar / beatsPerBar;	// Position relative to reference frame
-		pos = MODFL (position + relpos);
-		iStepf = (pos * steps);
-		iStep = (uint32_t)iStepf;											// Calculate step number
-		iStepFrac = iStepf - iStep;											// Calculate fraction of active step
+		float relpos = (i - refFrame) * speed / (rate / (bpm / 60)) * sequencesperbar / beatsPerBar;	// Position relative to reference frame
+		float pos = MODFL (position + relpos);
+
+		// Calculate step number
+		int iStep;
+		for (iStep = 0; (iStep < steps - 1) && (stepPositions[iStep] < pos); ++iStep) {}
+
+		// Calculate fraction of active step
+		float steppos = (iStep == 0 ? 0 : stepPositions[iStep - 1]);
+		float nextpos = (int (iStep) == steps - 1 ? 1 : stepPositions[iStep]);
+		float iStepFrac = (nextpos <= steppos ? 0 : (pos - steppos) / (nextpos - steppos));
 
 		// Move to the next step?
-		if (actStep != &(step[iStep]))
+		if (actStep != &(stepLevels[iStep]))
 		{
 			prevStep = actStep;
-			actStep = &(step[iStep]);
-			if (iStep < (steps-1)) nextStep = &(step[iStep+1]);
-			else nextStep = &(step[0]);
+			actStep = &(stepLevels[iStep]);
+			if (iStep < (steps-1)) nextStep = &(stepLevels[iStep+1]);
+			else nextStep = &(stepLevels[0]);
 		}
-		if (!prevStep) prevStep = actStep;									// prevStep not initialized (= on Start)?
+		if (!prevStep) prevStep = actStep;							// prevStep not initialized (= on Start)?
 
 		// Calculate effect (vol) for the position
-		vol = *actStep;
+		float vol = *actStep;
 		if (iStepFrac < attack)									// On attack
 		{
 			if (*prevStep < *actStep) vol = *prevStep + (iStepFrac / attack) * (*actStep - *prevStep);
 
 		}
-		if (iStepFrac > (1 - release))									// On release
+		if (iStepFrac > (1 - release))								// On release
 		{
 			if (*nextStep < *actStep) vol = vol - ((iStepFrac - (1 - release)) / release) * (*actStep - *nextStep);
 		}
 
 		// Apply effect on input
-		effect1 = audioInput1[i] * vol;
-		effect2 = audioInput2[i] * vol;
+		float effect1 = audioInput1[i] * vol;
+		float effect2 = audioInput2[i] * vol;
 
 		// Analyze input and output data for GUI notification
 		if (record_on)
@@ -358,23 +411,23 @@ void BSlizr::play(uint32_t start, uint32_t end)
 LV2_Handle instantiate (const LV2_Descriptor* descriptor, double samplerate, const char* bundle_path, const LV2_Feature* const* features)
 {
 	// New instance
-	BSlizr* instance;
-	try {instance = new BSlizr(samplerate, features);}
+	BChoppr* instance;
+	try {instance = new BChoppr(samplerate, features);}
 	catch (std::exception& exc)
 	{
-		fprintf (stderr, "BSlizr.lv2: Plugin instantiation failed. %s\n", exc.what ());
+		fprintf (stderr, "BChoppr.lv2: Plugin instantiation failed. %s\n", exc.what ());
 		return NULL;
 	}
 
 	if (!instance)
 	{
-		fprintf(stderr, "BSlizr.lv2: Plugin instantiation failed.\n");
+		fprintf(stderr, "BChoppr.lv2: Plugin instantiation failed.\n");
 		return NULL;
 	}
 
 	if (!instance->map)
 	{
-		fprintf(stderr, "BSlizr.lv2: Host does not support urid:map.\n");
+		fprintf(stderr, "BChoppr.lv2: Host does not support urid:map.\n");
 		delete (instance);
 		return NULL;
 	}
@@ -384,25 +437,25 @@ LV2_Handle instantiate (const LV2_Descriptor* descriptor, double samplerate, con
 
 void connect_port (LV2_Handle instance, uint32_t port, void *data)
 {
-	BSlizr* inst = (BSlizr*) instance;
+	BChoppr* inst = (BChoppr*) instance;
 	inst->connect_port (port, data);
 }
 
 void run (LV2_Handle instance, uint32_t n_samples)
 {
-	BSlizr* inst = (BSlizr*) instance;
+	BChoppr* inst = (BChoppr*) instance;
 	inst->run (n_samples);
 }
 
 void cleanup (LV2_Handle instance)
 {
-	BSlizr* inst = (BSlizr*) instance;
+	BChoppr* inst = (BChoppr*) instance;
 	delete inst;
 }
 
 const LV2_Descriptor descriptor =
 {
-		BSLIZR_URI,
+		BCHOPPR_URI,
 		instantiate,
 		connect_port,
 		NULL, //activate,

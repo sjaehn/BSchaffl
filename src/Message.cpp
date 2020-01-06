@@ -1,4 +1,4 @@
-/* B.Slizr
+/* B.Choppr
  * Step Sequencer Effect Plugin
  *
  * Copyright (C) 2018, 2019 by Sven Jähnichen
@@ -64,4 +64,4 @@ MessageNr Message::loadMessage ()
 	return NO_MSG;
 }
 
-bool Message::isScheduled () {return scheduled;} 
+bool Message::isScheduled () {return scheduled;}

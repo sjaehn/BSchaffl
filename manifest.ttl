@@ -2,12 +2,12 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix ui:   <http://lv2plug.in/ns/extensions/ui#>.
 
-<https://www.jahnichen.de/plugins/lv2/BSlizr>
+<https://www.jahnichen.de/plugins/lv2/BChoppr>
         a lv2:Plugin ;
-        lv2:binary <BSlizr.so> ;
-        rdfs:seeAlso <BSlizr.ttl> .
+        lv2:binary <BChoppr.so> ;
+        rdfs:seeAlso <BChoppr.ttl> .
 
-<https://www.jahnichen.de/plugins/lv2/BSlizr#gui>   
+<https://www.jahnichen.de/plugins/lv2/BChoppr#gui>
         a ui:X11UI;
-		ui:binary <BSlizr_GUI.so>;
-		rdfs:seeAlso <BSlizr.ttl>.
+	ui:binary <BChoppr_GUI.so>;
+	rdfs:seeAlso <BChoppr.ttl>.

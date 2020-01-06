@@ -1,4 +1,4 @@
-/* B.Slizr
+/* B.Choppr
  * Step Sequencer Effect Plugin
  *
  * Copyright (C) 2018, 2019 by Sven Jähnichen
@@ -18,8 +18,8 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef BSLIZR_H_
-#define BSLIZR_H_
+#ifndef BCHOPPR_H_
+#define BCHOPPR_H_
 
 #define MODFL(x) (x - floorf (x))
 
@@ -27,10 +27,12 @@
 #include <array>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
-#include "main.h"
+#include "definitions.hpp"
+#include "Urids.hpp"
+#include "Ports.hpp"
 #include "Message.hpp"
 
-typedef struct
+struct BChopprMonitor_t
 {
 	int count;
 	bool ready;
@@ -38,15 +40,15 @@ typedef struct
 	double inputMax;
 	double outputMin;
 	double outputMax;
-} BSlizrMonitor_t;
+};
 
-const BSlizrMonitor_t defaultMonitorData = {0, false, 0.0, 0.0, 0.0, 0.0};
+const BChopprMonitor_t defaultMonitorData = {0, false, 0.0, 0.0, 0.0, 0.0};
 
-class BSlizr
+class BChoppr
 {
 public:
-	BSlizr (double samplerate, const LV2_Feature* const* features);
-	~BSlizr();
+	BChoppr (double samplerate, const LV2_Feature* const* features);
+	~BChoppr();
 
 	void connect_port (uint32_t port, void *data);
 	void run (uint32_t n_samples);
@@ -77,10 +79,12 @@ private:
 	float nrSteps;
 	float attack;
 	float release;
-	float step[MAXSTEPS];
+	float stepLevels[MAXSTEPS];
+	float stepPositions[MAXSTEPS - 1];
+	bool stepAutoPositions[MAXSTEPS - 1];
 
 	// Atom port
-	BSlizrURIs uris;
+	BChopprURIs uris;
 
 	LV2_Atom_Sequence* controlPort1;
 	LV2_Atom_Sequence* controlPort2;
@@ -92,13 +96,14 @@ private:
 	bool record_on;
 	int monitorpos;
 	Message message;
-	std::array<BSlizrNotifications, NOTIFYBUFFERSIZE> notifications;
-	std::array<BSlizrMonitor_t, MONITORBUFFERSIZE> monitor;
+	std::array<BChopprNotifications, NOTIFYBUFFERSIZE> notifications;
+	std::array<BChopprMonitor_t, MONITORBUFFERSIZE> monitor;
 
+	void recalculateAutoPositions ();
 	void play(uint32_t start, uint32_t end);
 	void notifyGUI();
 	void notifyMessageToGui ();
 
 };
 
-#endif /* BSLIZR_H_ */
+#endif /* BCHOPPR_H_ */

@@ -18,34 +18,25 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef MESSAGE_HPP_
-#define MESSAGE_HPP_
+#ifndef DEFINITIONS_HPP_
+#define DEFINITIONS_HPP_
 
-#include <cstdint>
+#define NOTIFYBUFFERSIZE 64
+#define MONITORBUFFERSIZE 64
+#define MAXSTEPS 16
+#define MINMARKERVALUE 0.000001
+#define BCHOPPR_URI "https://www.jahnichen.de/plugins/lv2/BChoppr"
+#define BCHOPPR_GUI_URI "https://www.jahnichen.de/plugins/lv2/BChoppr#gui"
 
-#ifndef MESSAGENR_
-#define MESSAGENR_
-enum MessageNr
+struct BChopprNotifications
 {
-	NO_MSG		= 0,
-	JACK_STOP_MSG	= 1,
-	MAX_MSG		= 1
-};
-#endif /* MESSAGENR_ */
-
-class Message
-{
-public:
-	Message ();
-	void clearMessages ();
-	void setMessage (MessageNr messageNr);
-	void deleteMessage (MessageNr messageNr);
-	bool isMessage (MessageNr messageNr);
-	MessageNr loadMessage ();
-	bool isScheduled ();
-private:
-	uint32_t messageBits;
-	bool scheduled;
+	float position;
+	float inputMin;
+	float inputMax;
+	float outputMin;
+	float outputMax;
 };
 
-#endif /* MESSAGE_HPP_*/
+const BChopprNotifications defaultNotification = {0.0, 0.0, 0.0, 0.0, 0.0};
+
+#endif /* DEFINITIONS_HPP_ */

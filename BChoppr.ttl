@@ -16,25 +16,25 @@
 #	foaf:mbox ;
 	foaf:homepage <https://github.com/sjaehn/> .
 
-<https://www.jahnichen.de/plugins/lv2/BSlizr#gui>
+<https://www.jahnichen.de/plugins/lv2/BChoppr#gui>
 	a ui:X11UI;
-	ui:binary <BSlizr_GUI.so> ;
+	ui:binary <BChoppr_GUI.so> ;
 	lv2:extensionData ui:idleInterface ;
 	lv2:requiredFeature ui:idleInterface ;
 	ui:requiredFeature ui:makeResident .
 
-<https://www.jahnichen.de/plugins/lv2/BSlizr>
+<https://www.jahnichen.de/plugins/lv2/BChoppr>
         a lv2:Plugin, lv2:DynamicsPlugin ;
-        doap:name "B.Slizr" ;
-        rdfs:comment "LV2 audio effect plugin. This plugin slices stereo audio input signals with a length up to 1 bar into up to 16 pieces. As result it may produce a step sequencer-like effect." ;
+        doap:name "B.Choppr" ;
+        rdfs:comment "An audio stream chopping LV2 plugin. B.Choppr cuts the audio input stream into a repeated sequence of up to 16 chops. Each chop can be leveled up or down (gating)." ;
 	doap:maintainer <http://www.jahnichen.de/sjaehn#me> ;
 	doap:license <http://usefulinc.com/doap/licenses/gpl> ;
-	lv2:microVersion 2 ;
-	lv2:minorVersion 2 ;
+#	lv2:microVersion 0 ;
+#	lv2:minorVersion 2 ;
         lv2:optionalFeature lv2:hardRTCapable ;
-        lv2:binary <BSlizr.so> ;
+        lv2:binary <BChoppr.so> ;
 	lv2:requiredFeature urid:map ;
-	ui:ui <https://www.jahnichen.de/plugins/lv2/BSlizr#gui> ;
+	ui:ui <https://www.jahnichen.de/plugins/lv2/BChoppr#gui> ;
         lv2:port [
                 a lv2:InputPort , atom:AtomPort ;
                 atom:bufferType atom:Sequence ;
@@ -114,128 +114,248 @@
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 11 ;
-                lv2:symbol "step_01" ;
-                lv2:name "Step 01" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_01" ;
+                lv2:name "Position 01" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 12 ;
-                lv2:symbol "step_02" ;
-                lv2:name "Step 02" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_02" ;
+                lv2:name "Position 02" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 13 ;
-                lv2:symbol "step_03" ;
-                lv2:name "Step 03" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_03" ;
+                lv2:name "Position 03" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 14 ;
-                lv2:symbol "step_04" ;
-                lv2:name "Step 04" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_04" ;
+                lv2:name "Position 04" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 15 ;
-                lv2:symbol "step_05" ;
-                lv2:name "Step 05" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_05" ;
+                lv2:name "Position 05" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 16 ;
-                lv2:symbol "step_06" ;
-                lv2:name "Step 06" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_06" ;
+                lv2:name "Position 06" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 17 ;
-                lv2:symbol "step_07" ;
-                lv2:name "Step 07" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_07" ;
+                lv2:name "Position 07" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 18 ;
-                lv2:symbol "step_08" ;
-                lv2:name "Step 08" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_08" ;
+                lv2:name "Position 08" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 19 ;
-                lv2:symbol "step_09" ;
-                lv2:name "Step 09" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_09" ;
+                lv2:name "Position 09" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 20 ;
-                lv2:symbol "step_10" ;
-                lv2:name "Step 10" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_10" ;
+                lv2:name "Position 10" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 21 ;
-                lv2:symbol "step_11" ;
-                lv2:name "Step 11" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_11" ;
+                lv2:name "Position 11" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 22 ;
-                lv2:symbol "step_12" ;
-                lv2:name "Step 12" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_12" ;
+                lv2:name "Position 12" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 23 ;
-                lv2:symbol "step_13" ;
-                lv2:name "Step 13" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_13" ;
+                lv2:name "Position 13" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 24 ;
-                lv2:symbol "step_14" ;
-                lv2:name "Step 14" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_14" ;
+                lv2:name "Position 14" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 25 ;
-                lv2:symbol "step_15" ;
-                lv2:name "Step 15" ;
-                lv2:default 1.0 ;
+                lv2:symbol "position_15" ;
+                lv2:name "Position 15" ;
+                lv2:default 0.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 26 ;
-                lv2:symbol "step_16" ;
-                lv2:name "Step 16" ;
+                lv2:symbol "level_01" ;
+                lv2:name "Level 01" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 27 ;
+                lv2:symbol "level_02" ;
+                lv2:name "Level 02" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 28 ;
+                lv2:symbol "level_03" ;
+                lv2:name "Level 03" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 29 ;
+                lv2:symbol "level_04" ;
+                lv2:name "Level 04" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 30 ;
+                lv2:symbol "level_05" ;
+                lv2:name "Level 05" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 31 ;
+                lv2:symbol "level_06" ;
+                lv2:name "Level 06" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 32 ;
+                lv2:symbol "level_07" ;
+                lv2:name "Level 07" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 33 ;
+                lv2:symbol "level_08" ;
+                lv2:name "Level 08" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 34 ;
+                lv2:symbol "level_09" ;
+                lv2:name "Level 09" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 35 ;
+                lv2:symbol "level_10" ;
+                lv2:name "Level 10" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 36 ;
+                lv2:symbol "level_11" ;
+                lv2:name "Level 11" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 37 ;
+                lv2:symbol "level_12" ;
+                lv2:name "Level 12" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 38 ;
+                lv2:symbol "level_13" ;
+                lv2:name "Level 13" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 39 ;
+                lv2:symbol "level_14" ;
+                lv2:name "Level 14" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 40 ;
+                lv2:symbol "level_15" ;
+                lv2:name "Level 15" ;
+                lv2:default 1.0 ;
+                lv2:minimum 0.0 ;
+                lv2:maximum 1.0 ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 41 ;
+                lv2:symbol "level_16" ;
+                lv2:name "Level 16" ;
                 lv2:default 1.0 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 1.0 ;

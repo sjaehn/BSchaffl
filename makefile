@@ -28,16 +28,16 @@ GUIPPFLAGS += -DPUGL_HAVE_CAIRO
 DSPFLAGS += `$(PKG_CONFIG) --cflags --libs $(LV2_LIBS)`
 GUIFLAGS += `$(PKG_CONFIG) --cflags --libs $(LV2_LIBS) $(GUI_LIBS)`
 
-BUNDLE = BSlizr.lv2
-DSP = BSlizr
-DSP_SRC = ./src/BSlizr.cpp
-GUI = BSlizr_GUI
-GUI_SRC = ./src/BSlizr_GUI.cpp
+BUNDLE = BChoppr.lv2
+DSP = BChoppr
+DSP_SRC = ./src/BChoppr.cpp
+GUI = BChoppr_GUI
+GUI_SRC = ./src/BChoppr_GUI.cpp
 OBJ_EXT = .so
 DSP_OBJ = $(DSP)$(OBJ_EXT)
 GUI_OBJ = $(GUI)$(OBJ_EXT)
 B_OBJECTS = $(addprefix $(BUNDLE)/, $(DSP_OBJ) $(GUI_OBJ))
-FILES = manifest.ttl BSlizr.ttl surface.png LICENSE
+FILES = manifest.ttl BChoppr.ttl surface.png LICENSE
 B_FILES = $(addprefix $(BUNDLE)/, $(FILES))
 
 DSP_INCL = src/Message.cpp

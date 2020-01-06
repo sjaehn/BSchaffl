@@ -1,4 +1,4 @@
-/* B.Slizr
+/* B.Choppr
  * Step Sequencer Effect Plugin
  *
  * Copyright (C) 2018, 2019 by Sven Jähnichen
@@ -18,211 +18,17 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <string>
-#include <iostream>
-#include <cstdlib>
-#include <cmath>
-#include <exception>
-#include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
-#include <lv2/lv2plug.in/ns/ext/atom/atom.h>
-#include <lv2/lv2plug.in/ns/ext/atom/forge.h>
-#include "BWidgets/Widget.hpp"
-#include "BWidgets/Window.hpp"
-#include "BWidgets/Label.hpp"
-#include "BWidgets/DrawingSurface.hpp"
-#include "BWidgets/HSwitch.hpp"
-#include "BWidgets/VSlider.hpp"
-#include "BWidgets/VSliderValue.hpp"
-#include "BWidgets/HSliderValue.hpp"
-#include "BWidgets/DialValue.hpp"
-
-#include "main.h"
+#include "BChoppr_GUI.hpp"
+#include "Ports.hpp"
 #include "screen.h"
 
-#ifndef MESSAGENR_
-#define MESSAGENR_
-enum MessageNr
-{
-	NO_MSG		= 0,
-	JACK_STOP_MSG	= 1,
-	MAX_MSG		= 1
-};
-#endif /* MESSAGENR_ */
 
-#define SCALEMIN -60
-#define SCALEMAX 30
-#define CAIRO_BG_COLOR 0.0, 0.0, 0.0, 1.0
-#define CAIRO_BG_COLOR2 0.2, 0.2, 0.2, 1.0
-#define CAIRO_TRANSPARENT 0.0, 0.0, 0.0, 0.0
-#define CAIRO_FG_COLOR 1.0, 1.0, 1.0, 1.0
-#define CAIRO_INK1 0.0, 1.0, 0.4
-#define CAIRO_INK2 0.8, 0.6, 0.2
-
-#define BG_FILE "surface.png"
-
-#define DB_CO(g) ((g) > -90.0f ? powf(10.0f, (g) * 0.05f) : 0.0f)
-#define CO_DB(g) ((g) > 0.0001f ? logf((g)) / 0.05f : -90.0f)
-#define LIM(g , max) ((g) > (max) ? (max) : (g))
-#define INT(g) (int) (g + 0.5)
-#define RESIZE(widget, x, y, w, h, sz) (widget).moveTo ((x) * (sz), (y) * (sz)); (widget).resize ((w) * (sz), (h) * (sz));
-
-const std::string messageStrings[MAX_MSG + 1] =
-{
-	"",
-	"*** Jack transport off or halted. ***"
-};
-
-class BSlizr_GUI : public BWidgets::Window
-{
-public:
-	BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow);
-	~BSlizr_GUI ();
-	void portEvent (uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer);
-	void send_record_on ();
-	void send_record_off ();
-	virtual void onConfigureRequest (BEvents::ExposeEvent* event) override;
-	void applyTheme (BStyles::Theme& theme) override;
-
-	LV2UI_Controller controller;
-	LV2UI_Write_Function write_function;
-
-
-private:
-	void resizeGUI ();
-	void rearrange_step_controllers (float nrSteps_newf);
-	static void valueChangedCallback (BEvents::Event* event);
-	bool init_Stepshape ();
-	void destroy_Stepshape ();
-	void redrawStepshape ();
-	bool init_mainMonitor ();
-	void destroy_mainMonitor ();
-	void add_monitor_data (BSlizrNotifications* notifications, uint32_t notificationsCount, uint32_t& end);
-	void redrawMainMonitor ();
-
-
-	BWidgets::Widget mContainer;
-	BWidgets::Widget sContainer;
-	BWidgets::HSwitch monitorSwitch;
-	BWidgets::DrawingSurface monitorDisplay;
-	BWidgets::Label monitorLabel;
-	BWidgets::VSlider scaleControl;
-	BWidgets::DrawingSurface stepshapeDisplay;
-	BWidgets::DialValue attackControl;
-	BWidgets::Label attackLabel;
-	BWidgets::DialValue releaseControl;
-	BWidgets::Label releaseLabel;
-	BWidgets::HSliderValue sequencesperbarControl;
-	BWidgets::Label sequencesperbarLabel;
-	BWidgets::HSliderValue nrStepsControl;
-	BWidgets::Label nrStepsLabel;
-	BWidgets::Label stepshapeLabel;
-	BWidgets::Label sequencemonitorLabel;
-	BWidgets::Label messageLabel;
-	std::array<BWidgets::VSliderValue, MAXSTEPS> stepControl;
-
-	cairo_surface_t* surface;
-	cairo_t* cr1;
-	cairo_t* cr2;
-	cairo_t* cr3;
-	cairo_t* cr4;
-	cairo_pattern_t* pat1;
-	cairo_pattern_t* pat2;
-	cairo_pattern_t* pat3;
-	cairo_pattern_t* pat4;
-	cairo_pattern_t* pat5;
-
-	struct
-	{
-		bool record_on;
-		uint32_t width;
-		uint32_t height;
-		std::array<BSlizrNotifications, MONITORBUFFERSIZE> data;
-		uint32_t horizonPos;
-	}  mainMonitor;
-
-	std::string pluginPath;
-	double sz;
-	cairo_surface_t* bgImageSurface;
-
-	float scale;
-	float attack;
-	float release;
-	float nrSteps;
-	float sequencesperbar;
-	std::array<float, MAXSTEPS> step;
-
-	LV2_Atom_Forge forge;
-	BSlizrURIs uris;
-	LV2_URID_Map* map;
-
-
-
-	// Definition of styles
-	BColors::ColorSet fgColors = {{{0.0, 0.75, 0.2, 1.0}, {0.2, 1.0, 0.6, 1.0}, {0.0, 0.2, 0.0, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
-	BColors::ColorSet txColors = {{{0.0, 1.0, 0.4, 1.0}, {1.0, 1.0, 1.0, 1.0}, {0.0, 0.5, 0.0, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
-	BColors::ColorSet bgColors = {{{0.15, 0.15, 0.15, 1.0}, {0.3, 0.3, 0.3, 1.0}, {0.05, 0.05, 0.05, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
-	BColors::Color ink = {0.0, 0.75, 0.2, 1.0};
-
-	BStyles::Border border = {{ink, 1.0}, 0.0, 2.0, 0.0};
-	BStyles::Fill widgetBg = BStyles::noFill;
-	BStyles::Fill screenBg = BStyles::Fill (BColors::Color (0.0, 0.0, 0.0, 0.75));
-	BStyles::Border screenBorder = BStyles::Border (BStyles::Line (BColors::Color (0.0, 0.0, 0.0, 0.75), 4.0));
-	BStyles::Font defaultFont = BStyles::Font ("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 12.0,
-						   BStyles::TEXT_ALIGN_CENTER, BStyles::TEXT_VALIGN_MIDDLE);
-	BStyles::StyleSet defaultStyles = {"default", {{"background", STYLEPTR (&BStyles::noFill)},
-						       {"border", STYLEPTR (&BStyles::noBorder)}}};
-	BStyles::StyleSet labelStyles = {"labels", {{"background", STYLEPTR (&BStyles::noFill)},
-						    {"border", STYLEPTR (&BStyles::noBorder)},
-						    {"textcolors", STYLEPTR (&txColors)},
-						    {"font", STYLEPTR (&defaultFont)}}};
-
-	BStyles::Theme theme = BStyles::Theme ({
-		defaultStyles,
-		{"B.Slizr", 	{{"background", STYLEPTR (&BStyles::blackFill)},
-				 {"border", STYLEPTR (&BStyles::noBorder)}}},
-		{"main", 	{{"background", STYLEPTR (&widgetBg)},
-				 {"border", STYLEPTR (&BStyles::noBorder)}}},
-		{"widget", 	{{"uses", STYLEPTR (&defaultStyles)}}},
-		{"monitor", 	{{"background", STYLEPTR (&BStyles::blackFill)},
-				 {"border", STYLEPTR (&border)}}},
-		{"dial", 	{{"uses", STYLEPTR (&defaultStyles)},
-				 {"fgcolors", STYLEPTR (&fgColors)},
-				 {"bgcolors", STYLEPTR (&bgColors)},
-				 {"textcolors", STYLEPTR (&fgColors)},
-				 {"font", STYLEPTR (&defaultFont)}}},
-		{"dial/focus", 	{{"background", STYLEPTR (&screenBg)},
-				 {"border", STYLEPTR (&screenBorder)},
-				 {"textcolors", STYLEPTR (&txColors)},
-				 {"font", STYLEPTR (&defaultFont)}}},
-		{"slider",	{{"uses", STYLEPTR (&defaultStyles)},
-				 {"fgcolors", STYLEPTR (&fgColors)},
-				 {"bgcolors", STYLEPTR (&bgColors)},
-				 {"textcolors", STYLEPTR (&fgColors)},
-				 {"font", STYLEPTR (&defaultFont)}}},
-		{"slider/focus",{{"background", STYLEPTR (&screenBg)},
-				 {"border", STYLEPTR (&screenBorder)},
-				 {"textcolors", STYLEPTR (&txColors)},
-				 {"font", STYLEPTR (&defaultFont)}}},
-		{"switch",	{{"uses", STYLEPTR (&defaultStyles)},
-				 {"fgcolors", STYLEPTR (&fgColors)},
-				 {"bgcolors", STYLEPTR (&bgColors)}}},
-		{"switch/focus",{{"background", STYLEPTR (&screenBg)},
-				 {"border", STYLEPTR (&screenBorder)},
-				 {"textcolors", STYLEPTR (&txColors)},
-				 {"font", STYLEPTR (&defaultFont)}}},
-		{"label",	{{"uses", STYLEPTR (&labelStyles)}}},
-		{"hilabel",	{{"uses", STYLEPTR (&labelStyles)},
-				 {"textcolors", STYLEPTR (&BColors::whites)}}},
-	});
-};
-
-
-BSlizr_GUI::BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow) :
-	Window (800, 560, "B.Slizr", parentWindow, true),
+BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow) :
+	Window (800, 560, "B.Choppr", parentWindow, true),
 	controller (NULL), write_function (NULL),
 
 	mContainer (0, 0, 800, 560, "main"),
-	sContainer (260, 330, 480, 130, "widget"),
+	sContainer (260, 320, 480, 140, "scontainer"),
 	monitorSwitch (690, 25, 40, 16, "switch", 0.0),
 	monitorDisplay (260, 70, 480, 240, "monitor"),
 	monitorLabel (680, 45, 60, 20, "label", "Monitor"),
@@ -242,39 +48,26 @@ BSlizr_GUI::BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *featu
 
 	surface (NULL), cr1 (NULL), cr2 (NULL), cr3 (NULL), cr4 (NULL), pat1 (NULL), pat2 (NULL), pat3 (NULL), pat4 (NULL), pat5 (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),  sz (1.0), bgImageSurface (nullptr),
-	scale (DB_CO(0.0)), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0), step (),
+	scale (DB_CO(0.0)), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0),
 	map (NULL)
 
 
 {
 	if (!init_mainMonitor () || !init_Stepshape ())
 	{
-		std::cerr << "BSlizr.lv2#GUI: Failed to init monitor." <<  std::endl;
+		std::cerr << "BChoppr.lv2#GUI: Failed to init monitor." <<  std::endl;
 		destroy_mainMonitor ();
 		destroy_Stepshape ();
 		throw std::bad_alloc ();
 	}
 
-	//Initialialize and configure stepControllers
-	for (int i = 0; i < MAXSTEPS; ++i)
-	{
-		stepControl[i] = BWidgets::VSliderValue ((i + 0.5) * 480 / MAXSTEPS - 10, 0, 28, 130, "slider", 1.0, 0.0, 1.0, 0.01, "%1.2f");
-		stepControl[i].setHardChangeable (false);
-		stepControl[i].setScrollable (true);
-		stepControl[i].rename ("slider");
-		stepControl[i].setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSlizr_GUI::valueChangedCallback);
-		stepControl[i].applyTheme (theme, "slider");
-		stepControl[i].getDisplayLabel ()->setState (BColors::ACTIVE);
-		sContainer.add (stepControl[i]);
-	}
-
 	// Set callbacks
-	monitorSwitch.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSlizr_GUI::valueChangedCallback);
-	scaleControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSlizr_GUI::valueChangedCallback);
-	attackControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSlizr_GUI::valueChangedCallback);
-	releaseControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSlizr_GUI::valueChangedCallback);
-	sequencesperbarControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSlizr_GUI::valueChangedCallback);
-	nrStepsControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSlizr_GUI::valueChangedCallback);
+	monitorSwitch.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+	scaleControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+	attackControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+	releaseControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+	sequencesperbarControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+	nrStepsControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 
 	// Configure widgets
 	bgImageSurface = cairo_image_surface_create_from_png ((pluginPath + BG_FILE).c_str());
@@ -287,6 +80,37 @@ BSlizr_GUI::BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *featu
 	sequencesperbarControl.setScrollable (true);
 	nrStepsControl.setScrollable (true);
 	applyTheme (theme);
+
+	//Initialialize and configure stepControllers
+	double sw = sContainer.getEffectiveWidth();
+	double sx = sContainer.getXOffset();
+	for (int i = 0; i < MAXSTEPS; ++i)
+	{
+		stepControl[i] = BWidgets::VSliderValue ((i + 0.5) * sw / MAXSTEPS + sx - 14, 40, 28, 100, "slider", 1.0, 0.0, 1.0, 0.01, "%1.2f");
+		stepControl[i].setHardChangeable (false);
+		stepControl[i].setScrollable (true);
+		stepControl[i].setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+		stepControl[i].applyTheme (theme, "slider");
+		stepControl[i].getDisplayLabel ()->setState (BColors::ACTIVE);
+		sContainer.add (stepControl[i]);
+	}
+
+	//Initialialize and configure markers
+	for (int i = 0; i < MAXSTEPS - 1; ++i)
+	{
+		markerWidgets[i] = Marker ((i + 1) * sw / MAXSTEPS + sx - 5, 10, 10, 16, "marker", (double(i) + 1.0) / MAXSTEPS, 0.0, 1.0, 0.0);
+		markerWidgets[i].setHasValue (false);
+		markerWidgets[i].setDraggable (true);
+		markerWidgets[i].setCallbackFunction (BEvents::EventType::POINTER_DRAG_EVENT, BChoppr_GUI::markerDraggedCallback);
+		markerWidgets[i].setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+		markerWidgets[i].applyTheme (theme, "slider");
+		sContainer.add (markerWidgets[i]);
+	}
+
+	setAutoMarkers ();
+	rearrange_controllers ();
+	redrawMainMonitor ();
+	redrawSContainer ();
 
 	// Pack widgets
 	mContainer.add (monitorSwitch);
@@ -324,14 +148,14 @@ BSlizr_GUI::BSlizr_GUI (const char *bundle_path, const LV2_Feature *const *featu
 	lv2_atom_forge_init (&forge,map);
 }
 
-BSlizr_GUI::~BSlizr_GUI()
+BChoppr_GUI::~BChoppr_GUI()
 {
 	send_record_off ();
 	destroy_mainMonitor ();
 	destroy_Stepshape ();
 }
 
-void BSlizr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void* buffer)
+void BChoppr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void* buffer)
 {
 	// Notify port
 	if ((format == uris.atom_eventTransfer) && (port_index == Notify))
@@ -351,8 +175,8 @@ void BSlizr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t f
 					const LV2_Atom_Vector* vec = (const LV2_Atom_Vector*) data;
 					if (vec->body.child_type == uris.atom_Float)
 					{
-						uint32_t notificationsCount = (uint32_t) ((data->size - sizeof(LV2_Atom_Vector_Body)) / sizeof (BSlizrNotifications));
-						BSlizrNotifications* notifications = (BSlizrNotifications*) (&vec->body + 1);
+						uint32_t notificationsCount = (uint32_t) ((data->size - sizeof(LV2_Atom_Vector_Body)) / sizeof (BChopprNotifications));
+						BChopprNotifications* notifications = (BChopprNotifications*) (&vec->body + 1);
 						if (notificationsCount > 0)
 						{
 							add_monitor_data (notifications, notificationsCount, mainMonitor.horizonPos);
@@ -360,7 +184,7 @@ void BSlizr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t f
 						}
 					}
 				}
-				else std::cerr << "BSlizr.lv2#GUI: Corrupt audio message." << std::endl;
+				else std::cerr << "BChoppr.lv2#GUI: Corrupt audio message." << std::endl;
 			}
 
 			// Message notification
@@ -379,7 +203,7 @@ void BSlizr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t f
 	}
 
 	// Scan remaining ports
-	else if ((format == 0) && (port_index >= Attack) && (port_index < Step_ + MAXSTEPS))
+	else if ((format == 0) && (port_index >= Attack) && (port_index < Controllers + NrControllers))
 	{
 	float* pval = (float*) buffer;
 	switch (port_index) {
@@ -398,24 +222,32 @@ void BSlizr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t f
 		case NrSteps:
 			if (nrSteps != *pval)
 			{
-				rearrange_step_controllers (*pval);
 				nrSteps = *pval;
+				rearrange_controllers ();
 			}
 			redrawMainMonitor ();
 			nrStepsControl.setValue (*pval);
 			break;
 		default:
-			if ((port_index >= Step_) and (port_index < Step_ + MAXSTEPS))
+			if ((port_index >= StepPositions) and (port_index < StepPositions + MAXSTEPS - 1))
 			{
-				step[port_index-Step_] = *pval;
-				stepControl[port_index-Step_].setValue (*pval);
+				setMarker (port_index-StepPositions, *pval);
+				setAutoMarkers ();
+				rearrange_controllers ();
+				redrawSContainer ();
+				redrawMainMonitor ();
+			}
+
+			else if ((port_index >= StepLevels) and (port_index < StepLevels + MAXSTEPS))
+			{
+				stepControl[port_index-StepLevels].setValue (*pval);
 			}
 		}
 	}
 
 }
 
-void BSlizr_GUI::resizeGUI()
+void BChoppr_GUI::resizeGUI()
 {
 	hide ();
 
@@ -450,8 +282,13 @@ void BSlizr_GUI::resizeGUI()
 	RESIZE (stepshapeLabel, 33, 323, 80, 20, sz);
 	RESIZE (sequencemonitorLabel, 263, 73, 120, 20, sz);
 	RESIZE (messageLabel, 420, 73, 280, 20,sz);
-	RESIZE (sContainer, 260, 330, 480, 130, sz);
-	for (int i = 0; i < MAXSTEPS; ++i) {RESIZE (stepControl[i], (i + 0.5) * 480 / nrSteps - 10, 0, 28, 130, sz);}
+	RESIZE (sContainer, 260, 320, 480, 140, sz);
+
+
+	double sw = sContainer.getEffectiveWidth();
+	double sx = sContainer.getXOffset();
+	for (int i = 0; i < MAXSTEPS; ++i) {RESIZE (stepControl[i], (i + 0.5) * sw / sz / nrSteps + sx / sz - 14, 40, 28, 100, sz);}
+	for (int i = 0; i < MAXSTEPS - 1; ++i) {RESIZE (markerWidgets[i], markerWidgets[i].getValue() * sw / sz + sx / sz - 5, 10, 10, 16, sz);}
 
 	// Update monitors
 	destroy_Stepshape ();
@@ -460,13 +297,14 @@ void BSlizr_GUI::resizeGUI()
 	destroy_mainMonitor ();
 	init_mainMonitor ();
 	redrawMainMonitor ();
+	redrawSContainer ();
 
 	// Apply changes
 	applyTheme (theme);
 	show ();
 }
 
-void BSlizr_GUI::applyTheme (BStyles::Theme& theme)
+void BChoppr_GUI::applyTheme (BStyles::Theme& theme)
 {
 	mContainer.applyTheme (theme);
 	monitorSwitch.applyTheme (theme);
@@ -493,7 +331,7 @@ void BSlizr_GUI::applyTheme (BStyles::Theme& theme)
 	}
 }
 
-void BSlizr_GUI::onConfigureRequest (BEvents::ExposeEvent* event)
+void BChoppr_GUI::onConfigureRequest (BEvents::ExposeEvent* event)
 {
 	Window::onConfigureRequest (event);
 
@@ -501,7 +339,7 @@ void BSlizr_GUI::onConfigureRequest (BEvents::ExposeEvent* event)
 	resizeGUI ();
 }
 
-void BSlizr_GUI::send_record_on ()
+void BChoppr_GUI::send_record_on ()
 {
 	uint8_t obj_buf[64];
 	lv2_atom_forge_set_buffer(&forge, obj_buf, sizeof(obj_buf));
@@ -513,7 +351,7 @@ void BSlizr_GUI::send_record_on ()
 	monitorSwitch.setValue (1.0);
 }
 
-void BSlizr_GUI::send_record_off ()
+void BChoppr_GUI::send_record_off ()
 {
 	uint8_t obj_buf[64];
 	lv2_atom_forge_set_buffer(&forge, obj_buf, sizeof(obj_buf));
@@ -525,25 +363,99 @@ void BSlizr_GUI::send_record_off ()
 	monitorSwitch.setValue (0.0);
 }
 
-void BSlizr_GUI::rearrange_step_controllers (float nrSteps_newf)
+void BChoppr_GUI::setMarker (const int markerNr, double value)
 {
-	int nrSteps_old = INT (nrSteps);
-	int nrSteps_new = INT (nrSteps_newf);
+	if ((markerNr < 0) || (markerNr >= MAXSTEPS - 1)) return;
 
-	if ((nrSteps_old < 1) || (nrSteps_old > MAXSTEPS) || (nrSteps_new < 1) || (nrSteps_old > MAXSTEPS)) return;
+	// Value 0.0: Automatic
+	if (value == 0.0)
+	{
+		markerWidgets[markerNr].setHasValue (false);
+	}
+
+	else
+	{
+		// Set value and switch off automatic
+		value = LIMIT (value, MINMARKERVALUE, 1.0);
+		markerWidgets[markerNr].setHasValue (true);
+		markerWidgets[markerNr].setValue (value);
+
+		// Validate ancessors
+		for (int i = markerNr - 1; i >= 0; --i)
+		{
+			if (markerWidgets[i].hasValue())
+			{
+				if (markerWidgets[i].getValue() > value) markerWidgets[i].setValue (value);
+				else break;
+			}
+		}
+
+		// Validate successors
+		for (int i = markerNr + 1; i < MAXSTEPS - 1; ++i)
+		{
+			if (markerWidgets[i].hasValue())
+			{
+				if (markerWidgets[i].getValue() < value) markerWidgets[i].setValue (value);
+				else break;
+			}
+		}
+	}
+}
+
+void BChoppr_GUI::setAutoMarkers ()
+{
+	int nrMarkers = nrSteps - 1;
+	int start = 0;
+	for (int i = 0; i < nrMarkers; ++i)
+	{
+		if (!markerWidgets[i].hasValue())
+		{
+			if ((i == nrMarkers - 1) || (markerWidgets[i + 1].hasValue()))
+			{
+				double anc = (start == 0 ? 0 : markerWidgets[start - 1].getValue());
+				double suc = (i == nrMarkers - 1 ? 1 : markerWidgets[i + 1].getValue());
+				double step = (suc <= anc ? 0 : (suc - anc) / (i + 2 - start));
+				for (int j = start; j <= i; ++j)
+				{
+					markerWidgets[j].setValue (anc + (j + 1 - start) * step);
+				}
+			}
+		}
+		else start = i + 1;
+	}
+}
+
+void BChoppr_GUI::rearrange_controllers ()
+{
+	int nrStepsi = INT (nrSteps);
+
+	if ((nrStepsi < 1) || (nrStepsi > MAXSTEPS)) return;
+
+	double sw = sContainer.getEffectiveWidth();
+	double sx = sContainer.getXOffset();
 
 	for (int i = 0; i < MAXSTEPS; ++i)
 	{
-		if (i < nrSteps_new)
+		if (i < nrStepsi)
 		{
-			stepControl[i].moveTo (((i + 0.5) * 480 / nrSteps_new - 10) * sz, 0);
+			stepControl[i].moveTo ((i + 0.5) * sw / nrStepsi + sx - 14 * sz, 40 * sz);
 			stepControl[i].show ();
 		}
 		else stepControl[i].hide ();
 	}
+
+	for (int i = 0; i < MAXSTEPS - 1; ++i)
+	{
+		if (i < nrStepsi - 1)
+		{
+			markerWidgets[i].moveTo (markerWidgets[i].getValue() * sw + sx - 5 * sz, 10 * sz);
+			markerWidgets[i].show ();
+		}
+		else markerWidgets[i].hide ();
+	}
 }
 
-void BSlizr_GUI::valueChangedCallback (BEvents::Event* event)
+void BChoppr_GUI::valueChangedCallback (BEvents::Event* event)
 {
 	if ((event) && (event->getWidget ()))
 	{
@@ -551,7 +463,7 @@ void BSlizr_GUI::valueChangedCallback (BEvents::Event* event)
 
 		if (widget->getMainWindow ())
 		{
-			BSlizr_GUI* ui = (BSlizr_GUI*) widget->getMainWindow ();
+			BChoppr_GUI* ui = (BChoppr_GUI*) widget->getMainWindow ();
 
 			// monitor on/off changed
 			if (widget == &ui->monitorSwitch)
@@ -609,20 +521,32 @@ void BSlizr_GUI::valueChangedCallback (BEvents::Event* event)
 			if (widget == &ui->nrStepsControl)
 			{
 				float nrSteps_new = (float) widget->getValue ();
-				if (nrSteps_new != ui->nrSteps) ui->rearrange_step_controllers (nrSteps_new);
-				ui->nrSteps = nrSteps_new;
-				ui->write_function(ui->controller, NrSteps, sizeof(ui->nrSteps), 0, &ui->nrSteps);
-				ui->redrawMainMonitor ();
+				if (nrSteps_new != ui->nrSteps)
+				{
+					ui->nrSteps = nrSteps_new;
+					ui->setAutoMarkers ();
+					ui->rearrange_controllers ();
+					ui->write_function(ui->controller, NrSteps, sizeof(ui->nrSteps), 0, &ui->nrSteps);
+					ui->redrawMainMonitor ();
+					ui->redrawSContainer ();
+				}
 				return;
 			}
 
 			// Step controllers changed
-			for (int i = 0; i < ui->nrSteps; i++)
+			for (int i = 0; i < MAXSTEPS; i++)
 			{
+				if ((i < MAXSTEPS - 1) && (widget == &ui->markerWidgets[i]))
+				{
+					float pos = (float) widget->getValue ();
+					ui->write_function(ui->controller, StepPositions + i , sizeof (pos), 0, &pos);
+					return;
+				}
+
 				if (widget == &ui->stepControl[i])
 				{
-					ui->step[i] = (float) widget->getValue ();
-					ui->write_function(ui->controller, Step_+i , sizeof(ui->step[i]), 0, &ui->step[i]);
+					float step = (float) widget->getValue ();
+					ui->write_function(ui->controller, StepLevels + i , sizeof (step), 0, &step);
 					return;
 				}
 			}
@@ -630,7 +554,56 @@ void BSlizr_GUI::valueChangedCallback (BEvents::Event* event)
 	}
 }
 
-bool BSlizr_GUI::init_Stepshape ()
+void BChoppr_GUI::markerDraggedCallback (BEvents::Event* event)
+{
+	if (!event) return;
+	BEvents::PointerEvent* pev = (BEvents::PointerEvent*) event;
+	if (pev->getButton() != BDevices::LEFT_BUTTON) return;
+	Marker* marker = (Marker*)event->getWidget();
+	if (!marker) return;
+	BChoppr_GUI* ui = (BChoppr_GUI*)marker->getMainWindow();
+	if (!ui) return;
+
+	for (int i = 0; i < ui->nrSteps - 1; ++i)
+	{
+		if (marker == &ui->markerWidgets[i])
+		{
+			double x0 = ui->sContainer.getXOffset();
+			double w = ui->sContainer. getEffectiveWidth();
+			double frac = (w > 0 ? (pev->getPosition().x + marker->getPosition().x - x0) / w : MINMARKERVALUE);
+			frac = LIMIT (frac, MINMARKERVALUE, 1.0);
+
+			// Limit to ancessors value
+			for (int j = i - 1; j >= 0; --j)
+			{
+				if (ui->markerWidgets[j].hasValue())
+				{
+					if (frac < ui->markerWidgets[j].getValue()) frac = ui->markerWidgets[j].getValue();
+					break;
+				}
+			}
+
+			// Limit to successors value
+			for (int j = i + 1; j < ui->nrSteps - 1; ++j)
+			{
+				if (ui->markerWidgets[j].hasValue())
+				{
+					if (frac > ui->markerWidgets[j].getValue()) frac = ui->markerWidgets[j].getValue();
+					break;
+				}
+			}
+
+			ui->setMarker (i, frac);
+			ui->setAutoMarkers();
+			ui->rearrange_controllers();
+			ui->redrawSContainer();
+			ui->redrawMainMonitor();
+			break;
+		}
+	}
+}
+
+bool BChoppr_GUI::init_Stepshape ()
 {
 	double height = stepshapeDisplay.getEffectiveHeight ();
 	pat5 = cairo_pattern_create_linear (0, 0, 0, height);
@@ -638,13 +611,13 @@ bool BSlizr_GUI::init_Stepshape ()
 	return (pat5 && (cairo_pattern_status (pat5) == CAIRO_STATUS_SUCCESS));
 }
 
-void BSlizr_GUI::destroy_Stepshape ()
+void BChoppr_GUI::destroy_Stepshape ()
 {
 	//Destroy also mainMonitors cairo data
 	if (pat5 && (cairo_pattern_status (pat5) == CAIRO_STATUS_SUCCESS)) cairo_pattern_destroy (pat5);
 }
 
-void BSlizr_GUI::redrawStepshape ()
+void BChoppr_GUI::redrawStepshape ()
 {
 	double width = stepshapeDisplay.getEffectiveWidth ();
 	double height = stepshapeDisplay.getEffectiveHeight ();
@@ -707,7 +680,7 @@ void BSlizr_GUI::redrawStepshape ()
 	stepshapeDisplay.update ();
 }
 
-bool BSlizr_GUI::init_mainMonitor ()
+bool BChoppr_GUI::init_mainMonitor ()
 {
 	//Initialize mainMonitor
 	mainMonitor.record_on = true;
@@ -748,7 +721,7 @@ bool BSlizr_GUI::init_mainMonitor ()
 			surface && (cairo_surface_status (surface) == CAIRO_STATUS_SUCCESS));
 }
 
-void BSlizr_GUI::destroy_mainMonitor ()
+void BChoppr_GUI::destroy_mainMonitor ()
 {
 	//Destroy also mainMonitors cairo data
 	if (pat4 && (cairo_pattern_status (pat4) == CAIRO_STATUS_SUCCESS)) cairo_pattern_destroy (pat4);
@@ -762,7 +735,7 @@ void BSlizr_GUI::destroy_mainMonitor ()
 	if (surface && (cairo_surface_status (surface) == CAIRO_STATUS_SUCCESS)) cairo_surface_destroy (surface);
 }
 
-void BSlizr_GUI::add_monitor_data (BSlizrNotifications* notifications, uint32_t notificationsCount, uint32_t& end)
+void BChoppr_GUI::add_monitor_data (BChopprNotifications* notifications, uint32_t notificationsCount, uint32_t& end)
 {
 	for (uint32_t i = 0; i < notificationsCount; ++i)
 	{
@@ -778,7 +751,7 @@ void BSlizr_GUI::add_monitor_data (BSlizrNotifications* notifications, uint32_t 
 	}
 }
 
-void BSlizr_GUI::redrawMainMonitor ()
+void BChoppr_GUI::redrawMainMonitor ()
 {
 	double width = monitorDisplay.getEffectiveWidth ();
 	double height = monitorDisplay.getEffectiveHeight ();
@@ -800,12 +773,11 @@ void BSlizr_GUI::redrawMainMonitor ()
 	cairo_move_to (cr, 0, 0.9 * height);
 	cairo_line_to (cr, width, 0.9 * height);
 
-	uint32_t steps = (uint32_t) nrSteps;
-	for (uint32_t i = 1; i < steps; ++i)
+	uint32_t steps = (uint32_t) nrSteps - 1;
+	for (uint32_t i = 0; i < steps; ++i)
 	{
-		uint32_t x = uint32_t (i * width / steps);
-		cairo_move_to (cr, x, 0);
-		cairo_line_to (cr, x, height);
+		cairo_move_to (cr, markerWidgets[i].getValue() * width, 0);
+		cairo_rel_line_to (cr, 0, height);
 	}
 	cairo_stroke (cr);
 
@@ -909,8 +881,31 @@ void BSlizr_GUI::redrawMainMonitor ()
 	cairo_paint (cr);
 
 	cairo_destroy (cr);
-
 	monitorDisplay.update ();
+}
+
+void BChoppr_GUI::redrawSContainer ()
+{
+	double width = sContainer.getEffectiveWidth ();
+	//double height = sContainer.getEffectiveHeight ();
+
+	cairo_surface_clear (sContainer.getDrawingSurface ());
+	cairo_t* cr = cairo_create (sContainer.getDrawingSurface ());
+	if (cairo_status (cr) != CAIRO_STATUS_SUCCESS) return;
+
+	for (int i = 0; i < nrSteps - 1; ++i)
+	{
+		cairo_set_line_width (cr, 1.0);
+		cairo_set_source_rgba (cr, CAIRO_RGBA (BColors::grey));
+		cairo_move_to (cr, markerWidgets[i].getValue() * width, 0);
+		cairo_rel_line_to (cr, 0, 30 * sz);
+		cairo_line_to (cr, (i + 1) / nrSteps * width, 40 * sz);
+		cairo_rel_line_to (cr, 0, 100 * sz);
+		cairo_stroke (cr);
+	}
+
+	cairo_destroy (cr);
+	sContainer.update();
 }
 
 LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin_uri, const char *bundle_path,
@@ -920,9 +915,9 @@ LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin
 	PuglNativeWindow parentWindow = 0;
 	LV2UI_Resize* resize = NULL;
 
-	if (strcmp(plugin_uri, BSLIZR_URI) != 0)
+	if (strcmp(plugin_uri, BCHOPPR_URI) != 0)
 	{
-		std::cerr << "BSlizr.lv2#GUI: GUI does not support plugin with URI " << plugin_uri << std::endl;
+		std::cerr << "BChoppr.lv2#GUI: GUI does not support plugin with URI " << plugin_uri << std::endl;
 		return NULL;
 	}
 
@@ -931,14 +926,14 @@ LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin
 		if (!strcmp(features[i]->URI, LV2_UI__parent)) parentWindow = (PuglNativeWindow) features[i]->data;
 		else if (!strcmp(features[i]->URI, LV2_UI__resize)) resize = (LV2UI_Resize*)features[i]->data;
 	}
-	if (parentWindow == 0) std::cerr << "BSlizr.lv2#GUI: No parent window.\n";
+	if (parentWindow == 0) std::cerr << "BChoppr.lv2#GUI: No parent window.\n";
 
 	// New instance
-	BSlizr_GUI* ui;
-	try {ui = new BSlizr_GUI (bundle_path, features, parentWindow);}
+	BChoppr_GUI* ui;
+	try {ui = new BChoppr_GUI (bundle_path, features, parentWindow);}
 	catch (std::exception& exc)
 	{
-		std::cerr << "BSlizr.lv2#GUI: Instantiation failed. " << exc.what () << std::endl;
+		std::cerr << "BChoppr.lv2#GUI: Instantiation failed. " << exc.what () << std::endl;
 		return NULL;
 	}
 
@@ -952,7 +947,7 @@ LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin
 	if ((screenWidth < 820) || (screenHeight < 600)) sz = 0.66;
 
 	/*
-	std::cerr << "BSlizr_GUI.lv2 screen size " << screenWidth << " x " << screenHeight <<
+	std::cerr << "BChoppr_GUI.lv2 screen size " << screenWidth << " x " << screenHeight <<
 			". Set GUI size to " << 800 * sz << " x " << 560 * sz << ".\n";
 	*/
 
@@ -965,20 +960,20 @@ LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin
 
 void cleanup(LV2UI_Handle ui)
 {
-	BSlizr_GUI* pluginGui = (BSlizr_GUI*) ui;
+	BChoppr_GUI* pluginGui = (BChoppr_GUI*) ui;
 	delete pluginGui;
 }
 
 void portEvent(LV2UI_Handle ui, uint32_t port_index, uint32_t buffer_size,
 	uint32_t format, const void* buffer)
 {
-	BSlizr_GUI* pluginGui = (BSlizr_GUI*) ui;
+	BChoppr_GUI* pluginGui = (BChoppr_GUI*) ui;
 	pluginGui->portEvent(port_index, buffer_size, format, buffer);
 }
 
 static int callIdle (LV2UI_Handle ui)
 {
-	BSlizr_GUI* pluginGui = (BSlizr_GUI*) ui;
+	BChoppr_GUI* pluginGui = (BChoppr_GUI*) ui;
 	pluginGui->handleEvents ();
 	return 0;
 }
@@ -992,7 +987,7 @@ static const void* extensionData(const char* uri)
 }
 
 const LV2UI_Descriptor guiDescriptor = {
-		BSLIZR_GUI_URI,
+		BCHOPPR_GUI_URI,
 		instantiate,
 		cleanup,
 		portEvent,

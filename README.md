@@ -1,21 +1,15 @@
-# B.Slizr
-formerly known as B.Slicer
+# B.Choppr
+An audio stream chopping LV2 plugin.
 
-Description: LV2 audio effect plugin for sequenced slicing of stereo audio input signals. Each slice can be levelled up or down to get a step sequencer-like effect.
-
-![screenshot](https://raw.githubusercontent.com/sjaehn/bmusic-bslicer/master/Screenshot.png "Screenshot from B.Slizr")
+Description: B.Choppr cuts the audio input stream into a repeated sequence of up to 16 chops. Each chop can be leveled up or down (gating).
 
 Installation
 ------------
-a) Install the bslizr package for your system
-* [Arch linux](https://www.archlinux.org/packages/community/x86_64/bslizr/) by David Runge
-* [NixOS](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/audio/bslizr/default.nix) by Bart Brouns
-* Check https://repology.org/project/bslizr/versions for other systems
 
-b) Build your own binaries in the following three steps.
+Build your own binaries in the following three steps.
 
-Step 1: [Download the latest published version](https://github.com/sjaehn/BSlizr/releases) of B.Slizr. Or clone or
-[download the master](https://github.com/sjaehn/BSlizr/archive/master.zip) of this repository.
+Step 1: [Download the latest published version](https://github.com/sjaehn/BChoppr/releases) of B.Choppr. Or clone or
+[download the master](https://github.com/sjaehn/BChoppr/archive/master.zip) of this repository.
 
 Step 2: Install pkg-config and the development packages for x11, cairo, and lv2 if not done yet. On
 Debian-based systems you may run:
@@ -40,12 +34,12 @@ sudo make install PREFIX=/usr/local
 
 Running
 -------
-After the installation Ardour, Carla, and any other LV2 host should automatically detect B.Slizr.
+After the installation Ardour, Carla, and any other LV2 host should automatically detect B.Choppr.
 
 If jalv is installed, you can also call it
 
 ```
-jalv.gtk https://www.jahnichen.de/plugins/lv2/BSlizr
+jalv.gtk https://www.jahnichen.de/plugins/lv2/BChoppr
 ```
 
 to run it stand-alone and connect it to the JACK system.
@@ -53,12 +47,6 @@ to run it stand-alone and connect it to the JACK system.
 Notes:
 
 * **Jack transport is required to get information about beat / position**
-* If you use an older version (until v0.3) of this plugin, use the URI https://www.jahnichen.de/plugins/lv2/BSlicer instead.
-
-What's new
------------
-* Improved stability
-* Improved visibility of sliders
 
 Usage
 -----
@@ -80,7 +68,3 @@ Step shape
 * Attack
 * Decay
 * Monitor : Visualization of a single step
-
-Links
------
-* Video: https://www.youtube.com/watch?v=gLI2ozKdNDk
