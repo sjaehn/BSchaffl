@@ -24,15 +24,15 @@
 
 
 BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow) :
-	Window (800, 560, "B.Choppr", parentWindow, true),
+	Window (760, 560, "B.Choppr", parentWindow, true),
 	controller (NULL), write_function (NULL),
 
-	mContainer (0, 0, 800, 560, "main"),
-	sContainer (260, 320, 480, 140, "scontainer"),
+	mContainer (0, 0, 760, 560, "main"),
+	rContainer (260, 80, 480, 380, "rcontainer"),
+	sContainer (3, 240, 474, 137, "scontainer"),
 	monitorSwitch (690, 25, 40, 16, "switch", 0.0),
-	monitorDisplay (260, 70, 480, 240, "monitor"),
+	monitorDisplay (3, 3, 474, 237, "monitor"),
 	monitorLabel (680, 45, 60, 20, "label", "Monitor"),
-	scaleControl (760, 80, 14, 230, "slider", 0.0, SCALEMIN, SCALEMAX, 0.1),
 	stepshapeDisplay (30, 320, 180, 140, "monitor"),
 	attackControl (40, 465, 50, 60, "dial", 0.2, 0.01, 1.0, 0.01, "%1.2f"),
 	attackLabel (20, 520, 90, 20, "label", "Attack"),
@@ -40,11 +40,11 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	releaseLabel (130, 520, 90, 20, "label", "Release"),
 	sequencesperbarControl (260, 492, 120, 28, "slider", 1.0, 1.0, 8.0, 1.0, "%1.0f"),
 	sequencesperbarLabel (260, 520, 120, 20, "label", "Sequences per bar"),
-	nrStepsControl (400, 492, 380, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
-	nrStepsLabel (400, 520, 380, 20, "label", "Number of steps"),
+	nrStepsControl (400, 492, 340, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
+	nrStepsLabel (400, 520, 340, 20, "label", "Number of steps"),
 	stepshapeLabel (33, 323, 80, 20, "label", "Step shape"),
-	sequencemonitorLabel (263, 73, 120, 20, "label", "Sequence monitor"),
-	messageLabel (420, 73, 280, 20, "hilabel", ""),
+	sequencemonitorLabel (263, 83, 120, 20, "label", "Sequence monitor"),
+	messageLabel (420, 83, 280, 20, "hilabel", ""),
 
 	surface (NULL), cr1 (NULL), cr2 (NULL), cr3 (NULL), cr4 (NULL), pat1 (NULL), pat2 (NULL), pat3 (NULL), pat4 (NULL), pat5 (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),  sz (1.0), bgImageSurface (nullptr),
@@ -63,22 +63,24 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	// Set callbacks
 	monitorSwitch.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
-	scaleControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	attackControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	releaseControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	sequencesperbarControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	nrStepsControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+	monitorDisplay.setCallbackFunction (BEvents::EventType::WHEEL_SCROLL_EVENT, BChoppr_GUI::monitorScrolledCallback);
+	monitorDisplay.setCallbackFunction (BEvents::EventType::POINTER_DRAG_EVENT, BChoppr_GUI::monitorDraggedCallback);
 
 	// Configure widgets
 	bgImageSurface = cairo_image_surface_create_from_png ((pluginPath + BG_FILE).c_str());
 	widgetBg.loadFillFromCairoSurface (bgImageSurface);
-	scaleControl.setScrollable (true);
 	attackControl.setScrollable (true);
 	attackControl.setHardChangeable (false);
 	releaseControl.setScrollable (true);
 	releaseControl.setHardChangeable (false);
 	sequencesperbarControl.setScrollable (true);
 	nrStepsControl.setScrollable (true);
+	monitorDisplay.setScrollable (true);
+	monitorDisplay.setDraggable (true);
 	applyTheme (theme);
 
 	//Initialialize and configure stepControllers
@@ -113,10 +115,11 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	redrawSContainer ();
 
 	// Pack widgets
+	mContainer.add (rContainer);
+	rContainer.add (monitorDisplay);
+	rContainer.add (sContainer);
 	mContainer.add (monitorSwitch);
-	mContainer.add (monitorDisplay);
 	mContainer.add (monitorLabel);
-	mContainer.add (scaleControl);
 	mContainer.add (stepshapeDisplay);
 	mContainer.add (attackControl);
 	mContainer.add (attackLabel);
@@ -129,7 +132,6 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer.add (stepshapeLabel);
 	mContainer.add (sequencemonitorLabel);
 	mContainer.add (messageLabel);
-	mContainer.add (sContainer);
 	add (mContainer);
 
 	//Scan host features for URID map
@@ -255,7 +257,7 @@ void BChoppr_GUI::resizeGUI()
 	defaultFont.setFontSize (12 * sz);
 
 	// Resize Background
-	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 800 * sz, 560 * sz);
+	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 760 * sz, 560 * sz);
 	cairo_t* cr = cairo_create (surface);
 	cairo_scale (cr, sz, sz);
 	cairo_set_source_surface(cr, bgImageSurface, 0, 0);
@@ -265,11 +267,11 @@ void BChoppr_GUI::resizeGUI()
 	cairo_surface_destroy (surface);
 
 	// Resize widgets
-	RESIZE (mContainer, 0, 0, 800, 560, sz);
+	RESIZE (mContainer, 0, 0, 760, 560, sz);
+	RESIZE (rContainer, 260, 80, 480, 380, sz);
 	RESIZE (monitorSwitch, 690, 25, 40, 16, sz);
-	RESIZE (monitorDisplay, 260, 70, 480, 240, sz);
+	RESIZE (monitorDisplay, 3, 3, 474, 237, sz);
 	RESIZE (monitorLabel, 680, 45, 60, 20, sz);
-	RESIZE (scaleControl, 760, 80, 14, 230, sz);
 	RESIZE (stepshapeDisplay, 30, 320, 180, 140, sz);
 	RESIZE (attackControl, 40, 465, 50, 60, sz);
 	RESIZE (attackLabel, 20, 520, 90, 20, sz);
@@ -277,12 +279,12 @@ void BChoppr_GUI::resizeGUI()
 	RESIZE (releaseLabel, 130, 520, 90, 20, sz);
 	RESIZE (sequencesperbarControl, 260, 492, 120, 28, sz);
 	RESIZE (sequencesperbarLabel, 260, 520, 120, 20, sz);
-	RESIZE (nrStepsControl, 400, 492, 380, 28, sz);
-	RESIZE (nrStepsLabel, 400, 520, 380, 20, sz);
+	RESIZE (nrStepsControl, 400, 492, 340, 28, sz);
+	RESIZE (nrStepsLabel, 400, 520, 340, 20, sz);
 	RESIZE (stepshapeLabel, 33, 323, 80, 20, sz);
-	RESIZE (sequencemonitorLabel, 263, 73, 120, 20, sz);
-	RESIZE (messageLabel, 420, 73, 280, 20,sz);
-	RESIZE (sContainer, 260, 320, 480, 140, sz);
+	RESIZE (sequencemonitorLabel, 263, 83, 120, 20, sz);
+	RESIZE (messageLabel, 420, 83, 280, 20,sz);
+	RESIZE (sContainer, 3, 240, 474, 137, sz);
 
 
 	double sw = sContainer.getEffectiveWidth();
@@ -307,10 +309,10 @@ void BChoppr_GUI::resizeGUI()
 void BChoppr_GUI::applyTheme (BStyles::Theme& theme)
 {
 	mContainer.applyTheme (theme);
+	rContainer.applyTheme (theme);
 	monitorSwitch.applyTheme (theme);
 	monitorDisplay.applyTheme (theme);
 	monitorLabel.applyTheme (theme);
-	scaleControl.applyTheme (theme);
 	stepshapeDisplay.applyTheme (theme);
 	attackControl.applyTheme (theme);
 	attackLabel.applyTheme (theme);
@@ -335,7 +337,7 @@ void BChoppr_GUI::onConfigureRequest (BEvents::ExposeEvent* event)
 {
 	Window::onConfigureRequest (event);
 
-	sz = (getWidth() / 800 > getHeight() / 560 ? getHeight() / 560 : getWidth() / 800);
+	sz = (getWidth() / 760 > getHeight() / 560 ? getHeight() / 560 : getWidth() / 760);
 	resizeGUI ();
 }
 
@@ -482,15 +484,6 @@ void BChoppr_GUI::valueChangedCallback (BEvents::Event* event)
 				return;
 			}
 
-			// Scale changed
-			if (widget == &ui->scaleControl)
-			{
-				float value = (float) widget->getValue ();
-				ui->scale = DB_CO (value);
-				if (ui->scale < 0.0001f) ui->scale = 0.0001f;
-				ui->redrawMainMonitor ();
-			}
-
 			// Attack changed
 			if (widget == &ui->attackControl)
 			{
@@ -561,6 +554,7 @@ void BChoppr_GUI::markerDraggedCallback (BEvents::Event* event)
 	if (pev->getButton() != BDevices::LEFT_BUTTON) return;
 	Marker* marker = (Marker*)event->getWidget();
 	if (!marker) return;
+	marker->raiseToTop();
 	BChoppr_GUI* ui = (BChoppr_GUI*)marker->getMainWindow();
 	if (!ui) return;
 
@@ -603,6 +597,34 @@ void BChoppr_GUI::markerDraggedCallback (BEvents::Event* event)
 	}
 }
 
+void BChoppr_GUI::monitorScrolledCallback (BEvents::Event* event)
+{
+	if (!event) return;
+	BEvents::WheelEvent* wev = (BEvents::WheelEvent*) event;
+	BWidgets::Widget* widget = event->getWidget();
+	if (!widget) return;
+	BChoppr_GUI* ui = (BChoppr_GUI*)widget->getMainWindow();
+	if (!ui) return;
+
+	ui->scale += 0.1 * wev->getDelta().y * ui->scale;
+	if (ui->scale < 0.0001f) ui->scale = 0.0001f;
+	ui->redrawMainMonitor ();
+}
+
+void BChoppr_GUI::monitorDraggedCallback (BEvents::Event* event)
+{
+	if (!event) return;
+	BEvents::PointerEvent* wev = (BEvents::PointerEvent*) event;
+	BWidgets::Widget* widget = event->getWidget();
+	if (!widget) return;
+	BChoppr_GUI* ui = (BChoppr_GUI*)widget->getMainWindow();
+	if (!ui) return;
+
+	ui->scale += 0.01 * wev->getDelta().y * ui->scale;
+	if (ui->scale < 0.0001f) ui->scale = 0.0001f;
+	ui->redrawMainMonitor ();
+}
+
 bool BChoppr_GUI::init_Stepshape ()
 {
 	double height = stepshapeDisplay.getEffectiveHeight ();
@@ -629,7 +651,7 @@ void BChoppr_GUI::redrawStepshape ()
 	cairo_set_source_rgba (cr, CAIRO_BG_COLOR);
 	cairo_rectangle (cr, 0.0, 0.0, width, height);
 	cairo_fill (cr);
-	cairo_set_source_rgba (cr, CAIRO_BG_COLOR2);
+	cairo_set_source_rgba (cr, CAIRO_RGBA (BColors::grey));
 	cairo_set_line_width (cr, 1);
 	cairo_move_to (cr, 0, 0.2 * height);
 	cairo_line_to (cr, width, 0.2 * height);
@@ -764,7 +786,7 @@ void BChoppr_GUI::redrawMainMonitor ()
 	cairo_rectangle (cr, 0, 0, width, height);
 	cairo_fill (cr);
 
-	cairo_set_source_rgba (cr, CAIRO_BG_COLOR2);
+	cairo_set_source_rgba (cr, CAIRO_RGBA (BColors::grey));
 	cairo_set_line_width (cr, 1);
 	cairo_move_to (cr, 0, 0.1 * height);
 	cairo_line_to (cr, width, 0.1 * height);
@@ -887,11 +909,20 @@ void BChoppr_GUI::redrawMainMonitor ()
 void BChoppr_GUI::redrawSContainer ()
 {
 	double width = sContainer.getEffectiveWidth ();
+	double height = sContainer.getEffectiveHeight ();
 	//double height = sContainer.getEffectiveHeight ();
 
 	cairo_surface_clear (sContainer.getDrawingSurface ());
 	cairo_t* cr = cairo_create (sContainer.getDrawingSurface ());
 	if (cairo_status (cr) != CAIRO_STATUS_SUCCESS) return;
+
+	cairo_pattern_t* pat = cairo_pattern_create_linear (0, 0, 0, height);
+	cairo_pattern_add_color_stop_rgba (pat, 0.0, CAIRO_RGBA (BColors::black));
+	cairo_pattern_add_color_stop_rgba (pat, 1.0, 0.0, 0.0, 0.0, 0.5);
+	cairo_rectangle (cr, 0, 0, width, height);
+	cairo_set_source (cr, pat);
+	cairo_fill (cr);
+	cairo_pattern_destroy (pat);
 
 	for (int i = 0; i < nrSteps - 1; ++i)
 	{
@@ -948,10 +979,10 @@ LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin
 
 	/*
 	std::cerr << "BChoppr_GUI.lv2 screen size " << screenWidth << " x " << screenHeight <<
-			". Set GUI size to " << 800 * sz << " x " << 560 * sz << ".\n";
+			". Set GUI size to " << 760 * sz << " x " << 560 * sz << ".\n";
 	*/
 
-	if (resize) resize->ui_resize(resize->handle, 800 * sz, 560 * sz);
+	if (resize) resize->ui_resize(resize->handle, 760 * sz, 560 * sz);
 
 	*widget = (LV2UI_Widget) puglGetNativeWindow (ui->getPuglView ());
 	ui->send_record_on();

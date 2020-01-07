@@ -93,6 +93,8 @@ private:
 	void rearrange_controllers ();
 	static void valueChangedCallback (BEvents::Event* event);
 	static void markerDraggedCallback (BEvents::Event* event);
+        static void monitorScrolledCallback (BEvents::Event* event);
+        static void monitorDraggedCallback (BEvents::Event* event);
 	bool init_Stepshape ();
 	void destroy_Stepshape ();
 	void redrawStepshape ();
@@ -104,11 +106,11 @@ private:
 
 
 	BWidgets::Widget mContainer;
+        BWidgets::Widget rContainer;
 	BWidgets::DrawingSurface sContainer;
 	BWidgets::HSwitch monitorSwitch;
 	BWidgets::DrawingSurface monitorDisplay;
 	BWidgets::Label monitorLabel;
-	BWidgets::VSlider scaleControl;
 	BWidgets::DrawingSurface stepshapeDisplay;
 	BWidgets::DialValue attackControl;
 	BWidgets::Label attackLabel;
@@ -188,9 +190,11 @@ private:
 				 {"border", STYLEPTR (&BStyles::noBorder)}}},
 		{"widget", 	{{"uses", STYLEPTR (&defaultStyles)}}},
 		{"monitor", 	{{"background", STYLEPTR (&BStyles::blackFill)},
+				 {"border", STYLEPTR (&BStyles::noBorder)}}},
+		{"rcontainer", 	{{"background", STYLEPTR (&BStyles::noFill)},
 				 {"border", STYLEPTR (&border)}}},
-		{"scontainer", 	{{"background", STYLEPTR (&screenBg)},
-				 {"border", STYLEPTR (&border)}}},
+		{"scontainer", 	{{"background", STYLEPTR (&BStyles::noFill)},
+				 {"border", STYLEPTR (&BStyles::noBorder)}}},
 		{"dial", 	{{"uses", STYLEPTR (&defaultStyles)},
 				 {"fgcolors", STYLEPTR (&fgColors)},
 				 {"bgcolors", STYLEPTR (&bgColors)},

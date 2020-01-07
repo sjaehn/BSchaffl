@@ -1,7 +1,11 @@
 # B.Choppr
 An audio stream chopping LV2 plugin.
 
-Description: B.Choppr cuts the audio input stream into a repeated sequence of up to 16 chops. Each chop can be leveled up or down (gating).
+Description: B.Choppr cuts the audio input stream into a repeated sequence of up to 16 chops.
+Each chop can be leveled up or down (gating). B.Choppr is the successor of B.Slizr.
+
+B.Choppr is in development and should not be used for production, yet. Forward and backward
+compatibility are not guaranteed at this point of development.
 
 Installation
 ------------
@@ -50,19 +54,21 @@ Notes:
 
 Usage
 -----
-The plugin slices a stereo input, amplifies or silences the individual slices and send the whole sequence to the output. Although this affects only the audio signal, it needs a playback running (Jack transport).
+The plugin slices a stereo input, amplifies or silences the individual slices and send the whole
+sequence to the output. Although this affects only the audio signal, it needs a playback running
+(Jack transport).
 
 The interface is divided into three parts: step controls, monitor and step shape.
 
 Step controls
 * Sequences per bar : Number of sequences in one bar (1..8)
 * Number of steps : Number of steps in one sequence (1..16)
-* Step control : Coefficient for sound reduction for each individual step
+* Step markers: Defines the size of each step
+* Step level control : Sound level for each individual step
 
 Monitor
 * On/Off switch: Switches monitor and monitor <-> plugin communication on/off. Reduces CPU load.
-* Scale : Scales the visualization of the input / output signal
-* Monitor : Visualization (l + r signal) the input / output signal for a whole sequence
+* Monitor : Visualization (l + r signal) the input / output signal for a whole sequence. Use mouse wheel or drag to zoom in or out.
 
 Step shape
 * Attack
