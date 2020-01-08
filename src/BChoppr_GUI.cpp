@@ -31,9 +31,9 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	rContainer (260, 80, 480, 380, "rcontainer"),
 	sContainer (3, 240, 474, 137, "scontainer"),
 	monitorSwitch (690, 25, 40, 16, "switch", 0.0),
-	monitorDisplay (3, 3, 474, 237, "monitor"),
+	monitorDisplay (3, 3, 474, 237, "mmonitor"),
 	monitorLabel (680, 45, 60, 20, "label", "Monitor"),
-	stepshapeDisplay (30, 320, 180, 140, "monitor"),
+	stepshapeDisplay (30, 320, 180, 140, "smonitor"),
 	attackControl (40, 465, 50, 60, "dial", 0.2, 0.01, 1.0, 0.01, "%1.2f"),
 	attackLabel (20, 520, 90, 20, "label", "Attack"),
 	releaseControl (150, 465, 50, 60, "dial", 0.2, 0.01, 1.0, -0.01, "%1.2f"),
@@ -290,6 +290,7 @@ void BChoppr_GUI::resizeGUI()
 	RESIZE (messageLabel, 420, 83, 280, 20,sz);
 	RESIZE (sContainer, 3, 240, 474, 137, sz);
 	RESIZE (markerListBox, 12, -68, 86, 66, sz);
+	markerListBox.resizeItems (BUtilities::Point (80 * sz, 20 * sz));
 
 	double sw = sContainer.getEffectiveWidth();
 	double sx = sContainer.getXOffset();
