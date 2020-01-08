@@ -7,8 +7,8 @@ Each chop can be leveled up or down (gating). B.Choppr is the successor of B.Sli
 B.Choppr is in development and should not be used for production, yet. Forward and backward
 compatibility are not guaranteed at this point of development.
 
-Installation
-------------
+##Installation
+
 
 Build your own binaries in the following three steps.
 
@@ -36,8 +36,8 @@ sudo make install PREFIX=/usr/local
 ```
 
 
-Running
--------
+##Running
+
 After the installation Ardour, Carla, and any other LV2 host should automatically detect B.Choppr.
 
 If jalv is installed, you can also call it
@@ -46,31 +46,35 @@ If jalv is installed, you can also call it
 jalv.gtk https://www.jahnichen.de/plugins/lv2/BChoppr
 ```
 
-to run it stand-alone and connect it to the JACK system.
+to run it (pseudo) stand-alone and connect it to the JACK system.
 
-Notes:
+Note: **Jack transport is required to get information about beat / position**
 
-* **Jack transport is required to get information about beat / position**
+##Usage
 
-Usage
------
 The plugin slices a stereo input, amplifies or silences the individual slices and send the whole
 sequence to the output. Although this affects only the audio signal, it needs a playback running
 (Jack transport).
 
 The interface is divided into three parts: step controls, monitor and step shape.
 
-Step controls
-* Sequences per bar : Number of sequences in one bar (1..8)
-* Number of steps : Number of steps in one sequence (1..16)
-* Step markers: Defines the size of each step
-* Step level control : Sound level for each individual step
+###Step controls
+* **Sequences per bar** : Number of sequences in one bar (1..8)
+* **Number of steps** : Number of steps in one sequence (1..16)
+* **Step markers** : Defines the size of each step. Drag markers to relocate. Right click to switch between automatic and manual placement
+* **Step level control** : Sound level for each individual step
 
-Monitor
-* On/Off switch: Switches monitor and monitor <-> plugin communication on/off. Reduces CPU load.
-* Monitor : Visualization (l + r signal) the input / output signal for a whole sequence. Use mouse wheel or drag to zoom in or out.
+###Monitor
+* **On/Off switch** : Switches monitor and monitor <-> plugin communication on/off. Reduces CPU load.
+* **Monitor** : Visualization (l + r signal) the input / output signal for a whole sequence. Use mouse wheel or drag to zoom in or out.
 
-Step shape
-* Attack
-* Decay
-* Monitor : Visualization of a single step
+###Step shape
+* **Attack**
+* **Decay**
+* **Monitor** : Visualization of a single step
+
+##What's new
+* Define individual step size using markers
+
+##TODO
+* Non-linear step shapes

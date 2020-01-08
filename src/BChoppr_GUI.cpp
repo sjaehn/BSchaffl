@@ -45,6 +45,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	stepshapeLabel (33, 323, 80, 20, "label", "Step shape"),
 	sequencemonitorLabel (263, 83, 120, 20, "label", "Sequence monitor"),
 	messageLabel (420, 83, 280, 20, "hilabel", ""),
+	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),
 
 	surface (NULL), cr1 (NULL), cr2 (NULL), cr3 (NULL), cr4 (NULL), pat1 (NULL), pat2 (NULL), pat3 (NULL), pat4 (NULL), pat5 (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),  sz (1.0), bgImageSurface (nullptr),
@@ -69,6 +70,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	nrStepsControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	monitorDisplay.setCallbackFunction (BEvents::EventType::WHEEL_SCROLL_EVENT, BChoppr_GUI::monitorScrolledCallback);
 	monitorDisplay.setCallbackFunction (BEvents::EventType::POINTER_DRAG_EVENT, BChoppr_GUI::monitorDraggedCallback);
+	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::listBoxChangedCallback);
 
 	// Configure widgets
 	bgImageSurface = cairo_image_surface_create_from_png ((pluginPath + BG_FILE).c_str());
@@ -81,6 +83,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	nrStepsControl.setScrollable (true);
 	monitorDisplay.setScrollable (true);
 	monitorDisplay.setDraggable (true);
+	markerListBox.setOversize (true);
 	applyTheme (theme);
 
 	//Initialialize and configure stepControllers
@@ -103,6 +106,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 		markerWidgets[i] = Marker ((i + 1) * sw / MAXSTEPS + sx - 5, 10, 10, 16, "marker", (double(i) + 1.0) / MAXSTEPS, 0.0, 1.0, 0.0);
 		markerWidgets[i].setHasValue (false);
 		markerWidgets[i].setDraggable (true);
+		markerWidgets[i].setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BChoppr_GUI::markerClickedCallback);
 		markerWidgets[i].setCallbackFunction (BEvents::EventType::POINTER_DRAG_EVENT, BChoppr_GUI::markerDraggedCallback);
 		markerWidgets[i].setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 		markerWidgets[i].applyTheme (theme, "slider");
@@ -285,7 +289,7 @@ void BChoppr_GUI::resizeGUI()
 	RESIZE (sequencemonitorLabel, 263, 83, 120, 20, sz);
 	RESIZE (messageLabel, 420, 83, 280, 20,sz);
 	RESIZE (sContainer, 3, 240, 474, 137, sz);
-
+	RESIZE (markerListBox, 12, -68, 86, 66, sz);
 
 	double sw = sContainer.getEffectiveWidth();
 	double sx = sContainer.getXOffset();
@@ -326,6 +330,7 @@ void BChoppr_GUI::applyTheme (BStyles::Theme& theme)
 	sequencemonitorLabel.applyTheme (theme);
 	messageLabel.applyTheme (theme);
 	sContainer.applyTheme (theme);
+	markerListBox.applyTheme (theme);
 	for (int i = 0; i < MAXSTEPS; ++i)
 	{
 		stepControl[i].applyTheme (theme);
@@ -547,6 +552,47 @@ void BChoppr_GUI::valueChangedCallback (BEvents::Event* event)
 	}
 }
 
+void BChoppr_GUI::markerClickedCallback (BEvents::Event* event)
+{
+	if (!event) return;
+	BEvents::PointerEvent* pev = (BEvents::PointerEvent*) event;
+	if (pev->getButton() != BDevices::RIGHT_BUTTON) return;
+	Marker* marker = (Marker*)event->getWidget();
+	if (!marker) return;
+	marker->raiseToTop();
+	BChoppr_GUI* ui = (BChoppr_GUI*)marker->getMainWindow();
+	if (!ui) return;
+
+	for (int i = 0; i < ui->nrSteps - 1; ++i)
+	{
+		if (marker == &ui->markerWidgets[i])
+		{
+			Marker* oldMarker = (Marker*) ui->markerListBox.getParent();
+			ui->markerListBox.setValue (UNSELECTED);
+
+			if (oldMarker && (oldMarker == marker))
+			{
+				if (ui->markerListBox.isVisible()) ui->markerListBox.hide();
+				else ui->markerListBox.show ();
+			}
+
+			else if (oldMarker && (oldMarker != marker))
+			{
+				oldMarker->release (&ui->markerListBox);
+				marker->add (ui->markerListBox);
+				ui->markerListBox.show();
+			}
+
+			else
+			{
+				marker->add (ui->markerListBox);
+				ui->markerListBox.show();
+			}
+
+		}
+	}
+}
+
 void BChoppr_GUI::markerDraggedCallback (BEvents::Event* event)
 {
 	if (!event) return;
@@ -623,6 +669,29 @@ void BChoppr_GUI::monitorDraggedCallback (BEvents::Event* event)
 	ui->scale += 0.01 * wev->getDelta().y * ui->scale;
 	if (ui->scale < 0.0001f) ui->scale = 0.0001f;
 	ui->redrawMainMonitor ();
+}
+
+void BChoppr_GUI::listBoxChangedCallback (BEvents::Event* event)
+{
+	if (!event) return;
+	BEvents::ValueChangedEvent* vev = (BEvents::ValueChangedEvent*) event;
+	BWidgets::ListBox* lb = (BWidgets::ListBox*) vev->getWidget();
+	if (!lb) return;
+	Marker* m = (Marker*) lb->getParent();
+	if (!m) return;
+	BChoppr_GUI* ui = (BChoppr_GUI*)m->getMainWindow();
+	if (!ui) return;
+
+	double value = vev->getValue();
+	if (value == 1.0) m->setHasValue (false);
+	else if (value == 2.0) m->setHasValue (true);
+	else return;
+
+	lb->hide();
+	ui->setAutoMarkers();
+	ui->rearrange_controllers();
+	ui->redrawSContainer();
+	ui->redrawMainMonitor();
 }
 
 bool BChoppr_GUI::init_Stepshape ()

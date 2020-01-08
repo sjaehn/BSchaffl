@@ -33,6 +33,7 @@
 #include "BWidgets/VSliderValue.hpp"
 #include "BWidgets/HSliderValue.hpp"
 #include "BWidgets/DialValue.hpp"
+#include "BWidgets/ListBox.hpp"
 #include "Marker.hpp"
 
 #include "definitions.hpp"
@@ -92,9 +93,11 @@ private:
         void setAutoMarkers ();
 	void rearrange_controllers ();
 	static void valueChangedCallback (BEvents::Event* event);
+        static void markerClickedCallback (BEvents::Event* event);
 	static void markerDraggedCallback (BEvents::Event* event);
         static void monitorScrolledCallback (BEvents::Event* event);
         static void monitorDraggedCallback (BEvents::Event* event);
+        static void listBoxChangedCallback (BEvents::Event* event);
 	bool init_Stepshape ();
 	void destroy_Stepshape ();
 	void redrawStepshape ();
@@ -125,6 +128,8 @@ private:
 	BWidgets::Label messageLabel;
 	std::array<BWidgets::VSliderValue, MAXSTEPS> stepControl;
 	std::array<Marker, MAXSTEPS - 1> markerWidgets;
+        BWidgets::ListBox markerListBox;
+
 
 	cairo_surface_t* surface;
 	cairo_t* cr1;
@@ -170,6 +175,7 @@ private:
 
 	BStyles::Border border = {{ink, 1.0}, 0.0, 2.0, 0.0};
 	BStyles::Border blindborder = {{{0.0, 0.0, 0.0, 0.0}, 1.0}, 0.0, 2.0, 0.0};
+        BStyles::Border labelBorder = BStyles::Border (BStyles::noLine, 0.0, 4.0);
 	BStyles::Fill widgetBg = BStyles::noFill;
 	BStyles::Fill screenBg = BStyles::Fill (BColors::Color (0.0, 0.0, 0.0, 0.75));
 	BStyles::Border screenBorder = BStyles::Border (BStyles::Line (BColors::Color (0.0, 0.0, 0.0, 0.75), 4.0));
@@ -195,6 +201,15 @@ private:
 				 {"border", STYLEPTR (&border)}}},
 		{"scontainer", 	{{"background", STYLEPTR (&BStyles::noFill)},
 				 {"border", STYLEPTR (&BStyles::noBorder)}}},
+                {"listbox",	{{"border", STYLEPTR (&border)},
+ 				 {"background", STYLEPTR (&BStyles::blackFill)}}},
+ 		{"listbox/item",{{"uses", STYLEPTR (&defaultStyles)},
+ 				 {"border", STYLEPTR (&labelBorder)},
+ 				 {"textcolors", STYLEPTR (&BColors::whites)},
+ 				 {"font", STYLEPTR (&defaultFont)}}},
+ 		{"listbox/button",{{"border", STYLEPTR (&BColors::darks)},
+ 				 {"background", STYLEPTR (&BStyles::blackFill)},
+ 			 	 {"bgcolors", STYLEPTR (&BColors::darks)}}},
 		{"dial", 	{{"uses", STYLEPTR (&defaultStyles)},
 				 {"fgcolors", STYLEPTR (&fgColors)},
 				 {"bgcolors", STYLEPTR (&bgColors)},

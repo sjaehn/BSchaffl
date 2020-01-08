@@ -43,6 +43,12 @@ B_FILES = $(addprefix $(BUNDLE)/, $(FILES))
 DSP_INCL = src/Message.cpp
 
 GUI_INCL = \
+	src/BWidgets/BItems.cpp \
+	src/BWidgets/UpButton.cpp \
+	src/BWidgets/DownButton.cpp \
+	src/BWidgets/Button.cpp \
+	src/BWidgets/ChoiceBox.cpp \
+	src/BWidgets/ListBox.cpp \
 	src/BWidgets/DrawingSurface.cpp \
 	src/BWidgets/DialValue.cpp \
 	src/BWidgets/Dial.cpp \

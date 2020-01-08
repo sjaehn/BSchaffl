@@ -87,7 +87,13 @@ public:
         	focusLabel.resize ();
         }
 
-        void setHasValue (const bool hasValue) {noValue = !hasValue;}
+        void setHasValue (const bool hasValue)
+        {
+                noValue = !hasValue;
+                std::string valstr = (noValue ? "Auto" : BUtilities::to_string (value));
+        	focusLabel.setText(valstr);
+        	focusLabel.resize ();
+        }
 
         bool hasValue () const {return !noValue;}
 
