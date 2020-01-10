@@ -72,12 +72,11 @@ The interface is divided into three parts: step controls, monitor and step shape
 * **Monitor** : Visualization (l + r signal) the input / output signal for a whole sequence. Use mouse wheel or drag to zoom in or out.
 
 ### Step shape
-* **Attack**
-* **Decay**
+* **Blend** : Select between linear (for trapezoid shapes) und sinusoid blend between the steps
+* **Attack** : Time (fraction of the respective step length) to increase the level at the begin of each step
+* **Decay** : Time (fraction of the respective step length) to decrease the level at the end of each step
 * **Monitor** : Visualization of a single step
 
 ## What's new
 * Define individual step size using markers
-
-## TODO
-* Non-linear step shapes
+* Optional non-linear blend between steps

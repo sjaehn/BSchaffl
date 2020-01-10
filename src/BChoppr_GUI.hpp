@@ -62,7 +62,7 @@ enum MessageNr
 
 #define DB_CO(g) ((g) > -90.0f ? powf(10.0f, (g) * 0.05f) : 0.0f)
 #define CO_DB(g) ((g) > 0.0001f ? logf((g)) / 0.05f : -90.0f)
-#define LIM(g , max) ((g) > (max) ? (max) : (g))
+#define LIM(g , min, max) ((g) > (max) ? (max) : ((g) < (min) ? (min) : (g)))
 #define INT(g) (int) (g + 0.5)
 #define RESIZE(widget, x, y, w, h, sz) (widget).moveTo ((x) * (sz), (y) * (sz)); (widget).resize ((w) * (sz), (h) * (sz));
 
@@ -98,6 +98,7 @@ private:
         static void monitorScrolledCallback (BEvents::Event* event);
         static void monitorDraggedCallback (BEvents::Event* event);
         static void listBoxChangedCallback (BEvents::Event* event);
+        static void buttonClickedCallback (BEvents::Event* event);
 	bool init_Stepshape ();
 	void destroy_Stepshape ();
 	void redrawStepshape ();
@@ -106,6 +107,7 @@ private:
 	void add_monitor_data (BChopprNotifications* notifications, uint32_t notificationsCount, uint32_t& end);
 	void redrawMainMonitor ();
 	void redrawSContainer ();
+        void redrawButtons ();
 
 
 	BWidgets::Widget mContainer;
@@ -114,6 +116,8 @@ private:
 	BWidgets::HSwitch monitorSwitch;
 	BWidgets::DrawingSurface monitorDisplay;
 	BWidgets::Label monitorLabel;
+        BWidgets::DrawingSurface rectButton;
+        BWidgets::DrawingSurface sinButton;
 	BWidgets::DrawingSurface stepshapeDisplay;
 	BWidgets::DialValue attackControl;
 	BWidgets::Label attackLabel;
@@ -156,6 +160,7 @@ private:
 	cairo_surface_t* bgImageSurface;
 
 	float scale;
+        int blend;
 	float attack;
 	float release;
 	float nrSteps;
@@ -174,6 +179,7 @@ private:
 	BColors::Color ink = {0.0, 0.75, 0.2, 1.0};
 
 	BStyles::Border border = {{ink, 1.0}, 0.0, 2.0, 0.0};
+        BStyles::Border actborder = {{{1.0, 1.0, 1.0, 1.0}, 1.0}, 0.0, 2.0, 0.0};
 	BStyles::Border blindborder = {{{0.0, 0.0, 0.0, 0.0}, 1.0}, 0.0, 2.0, 0.0};
         BStyles::Border labelBorder = BStyles::Border (BStyles::noLine, 0.0, 4.0);
 	BStyles::Fill widgetBg = BStyles::noFill;
@@ -199,6 +205,10 @@ private:
 				 {"border", STYLEPTR (&BStyles::noBorder)}}},
  		{"smonitor", 	{{"background", STYLEPTR (&BStyles::blackFill)},
  				 {"border", STYLEPTR (&border)}}},
+ 		{"nbutton", 	{{"background", STYLEPTR (&BStyles::blackFill)},
+ 				 {"border", STYLEPTR (&border)}}},
+ 		{"abutton", 	{{"background", STYLEPTR (&BStyles::blackFill)},
+ 				 {"border", STYLEPTR (&actborder)}}},
 		{"rcontainer", 	{{"background", STYLEPTR (&BStyles::noFill)},
 				 {"border", STYLEPTR (&border)}}},
 		{"scontainer", 	{{"background", STYLEPTR (&BStyles::noFill)},

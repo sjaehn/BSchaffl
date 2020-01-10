@@ -33,7 +33,7 @@ BChoppr::BChoppr (double samplerate, const LV2_Feature* const* features) :
 	prevStep(0), actStep(0), nextStep(1),
 	audioInput1(NULL), audioInput2(NULL), audioOutput1(NULL), audioOutput2(NULL),
 	controllers {nullptr},
-	sequencesperbar (4), nrSteps(16), attack(0.2), release (0.2),
+	sequencesperbar (4), nrSteps(16), blend (1), attack(0.2), release (0.2),
 	stepLevels {1.0}, stepPositions {0.0}, stepAutoPositions {true},
 	controlPort1(NULL), controlPort2(NULL),  notifyPort(NULL),
 	record_on(true), monitorpos(-1), message ()
@@ -104,6 +104,7 @@ void BChoppr::run (uint32_t n_samples)
 	}
 
 	// Update controller values
+	blend = LIM (*(controllers[Blend - Controllers]), 1, 2);
 	attack = LIM (*(controllers[Attack - Controllers]), 0.01, 1.0);
 	release = LIM (*(controllers[Release - Controllers]), 0.01, 1.0);
 	sequencesperbar = LIM (round (*(controllers[SequencesPerBar - Controllers])), 1, 8);
@@ -358,38 +359,29 @@ void BChoppr::play(uint32_t start, uint32_t end)
 		}
 
 		// Calculate effect (vol) for the position
+		float act = stepLevels[actStep];
+		float prev = stepLevels[prevStep];
+		float next = stepLevels[nextStep];
 		float vol = stepLevels[actStep];
-		if (iStepFrac < attack)		// On attack
+
+		// On attack
+		if (iStepFrac < attack)
 		{
-			/*float prevSteppos = (prevStep == 0 ? 0 : stepPositions[prevStep - 1]);
-			float prevNextpos = (int (prevStep) == steps - 1 ? 1 : stepPositions[prevStep]);
-			float prevStepsize = prevNextpos - prevSteppos;
-			float prevReleaseSize = release * prevStepsize;
-			float actAttackSize = attack * stepsize;
-			if (prevReleaseSize + actAttackSize > 0)
+			if (prev < act)
 			{
-				vol = stepLevels[prevStep] + (stepLevels[actStep] - stepLevels[prevStep]) * (prevReleaseSize + pos - steppos) / (prevReleaseSize + actAttackSize);
-			}*/
-			if (stepLevels[prevStep] < stepLevels[actStep])
-			{
-				vol = stepLevels[prevStep] + (iStepFrac / attack) * (stepLevels[actStep] - stepLevels[prevStep]);
+				if (blend == 1) vol = prev + (iStepFrac / attack) * (vol - prev);
+				else if (blend == 2) vol = prev + 0.5 * (sin (M_PI * (iStepFrac / attack - 0.5)) + 1) * (vol - prev);
 			}
 
 		}
-		if (iStepFrac > (1 - release))	// On release
+
+		// On release
+		if (iStepFrac > (1 - release))
 		{
-			/*float nextSteppos = (nextStep == 0 ? 0 : stepPositions[nextStep - 1]);
-			float nextNextpos = (int (nextStep) == steps - 1 ? 1 : stepPositions[nextStep]);
-			float nextStepsize = nextNextpos - nextSteppos;
-			float nextAttackSize = attack * nextStepsize;
-			float actReleaseSize = release * stepsize;
-			if (actReleaseSize + nextAttackSize > 0)
+			if (next < act)
 			{
-				vol = stepLevels[actStep] + (stepLevels[nextStep] - stepLevels[actStep]) * (pos + actReleaseSize - nextpos) / (actReleaseSize + nextAttackSize);
-			}*/
-			if (stepLevels[nextStep] < stepLevels[actStep])
-			{
-				vol = vol - ((iStepFrac - (1 - release)) / release) * (stepLevels[actStep] - stepLevels[nextStep]);
+				if (blend == 1) vol = next + (((1 - iStepFrac)) / release) * (vol - next);
+				else if (blend == 2) vol = next + 0.5 * (sin (M_PI * ((1 - iStepFrac) / release - 0.5)) + 1) * (vol - next);
 			}
 		}
 

@@ -77,6 +77,7 @@ private:
 	float* controllers[NrControllers];
 	float sequencesperbar;
 	float nrSteps;
+	int blend;
 	float attack;
 	float release;
 	float stepLevels[MAXSTEPS];

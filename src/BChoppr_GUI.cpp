@@ -33,6 +33,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	monitorSwitch (690, 25, 40, 16, "switch", 0.0),
 	monitorDisplay (3, 3, 474, 237, "mmonitor"),
 	monitorLabel (680, 45, 60, 20, "label", "Monitor"),
+	rectButton (40, 270, 60, 40, "abutton"),
+	sinButton (140, 270, 60, 40, "nbutton"),
 	stepshapeDisplay (30, 320, 180, 140, "smonitor"),
 	attackControl (40, 465, 50, 60, "dial", 0.2, 0.01, 1.0, 0.01, "%1.2f"),
 	attackLabel (20, 520, 90, 20, "label", "Attack"),
@@ -49,9 +51,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	surface (NULL), cr1 (NULL), cr2 (NULL), cr3 (NULL), cr4 (NULL), pat1 (NULL), pat2 (NULL), pat3 (NULL), pat4 (NULL), pat5 (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),  sz (1.0), bgImageSurface (nullptr),
-	scale (DB_CO(0.0)), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0),
+	scale (DB_CO(0.0)), blend (1), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0),
 	map (NULL)
-
 
 {
 	if (!init_mainMonitor () || !init_Stepshape ())
@@ -71,6 +72,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	monitorDisplay.setCallbackFunction (BEvents::EventType::WHEEL_SCROLL_EVENT, BChoppr_GUI::monitorScrolledCallback);
 	monitorDisplay.setCallbackFunction (BEvents::EventType::POINTER_DRAG_EVENT, BChoppr_GUI::monitorDraggedCallback);
 	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::listBoxChangedCallback);
+	rectButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BChoppr_GUI::buttonClickedCallback);
+	sinButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BChoppr_GUI::buttonClickedCallback);
 
 	// Configure widgets
 	bgImageSurface = cairo_image_surface_create_from_png ((pluginPath + BG_FILE).c_str());
@@ -117,6 +120,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	rearrange_controllers ();
 	redrawMainMonitor ();
 	redrawSContainer ();
+	redrawButtons ();
 
 	// Pack widgets
 	mContainer.add (rContainer);
@@ -124,6 +128,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	rContainer.add (sContainer);
 	mContainer.add (monitorSwitch);
 	mContainer.add (monitorLabel);
+	mContainer.add (rectButton);
+	mContainer.add (sinButton);
 	mContainer.add (stepshapeDisplay);
 	mContainer.add (attackControl);
 	mContainer.add (attackLabel);
@@ -208,6 +214,18 @@ void BChoppr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 		}
 	}
 
+	// Blend
+	else if ((format == 0) && (port_index == Blend))
+	{
+		float* pval = (float*) buffer;
+		blend = LIM (*pval, 1.0f, 2.0f);
+		if (blend == 1) {rectButton.rename ("abutton"); sinButton.rename ("nbutton");}
+		if (blend == 2) {sinButton.rename ("abutton"); rectButton.rename ("nbutton");}
+		rectButton.applyTheme (theme);
+		sinButton.applyTheme (theme);
+		redrawStepshape ();
+	}
+
 	// Scan remaining ports
 	else if ((format == 0) && (port_index >= Attack) && (port_index < Controllers + NrControllers))
 	{
@@ -276,6 +294,8 @@ void BChoppr_GUI::resizeGUI()
 	RESIZE (monitorSwitch, 690, 25, 40, 16, sz);
 	RESIZE (monitorDisplay, 3, 3, 474, 237, sz);
 	RESIZE (monitorLabel, 680, 45, 60, 20, sz);
+	RESIZE (rectButton, 40, 270, 60, 40, sz);
+	RESIZE (sinButton, 140, 270, 60, 40, sz);
 	RESIZE (stepshapeDisplay, 30, 320, 180, 140, sz);
 	RESIZE (attackControl, 40, 465, 50, 60, sz);
 	RESIZE (attackLabel, 20, 520, 90, 20, sz);
@@ -305,6 +325,7 @@ void BChoppr_GUI::resizeGUI()
 	init_mainMonitor ();
 	redrawMainMonitor ();
 	redrawSContainer ();
+	redrawButtons ();
 
 	// Apply changes
 	applyTheme (theme);
@@ -318,6 +339,8 @@ void BChoppr_GUI::applyTheme (BStyles::Theme& theme)
 	monitorSwitch.applyTheme (theme);
 	monitorDisplay.applyTheme (theme);
 	monitorLabel.applyTheme (theme);
+	rectButton.applyTheme (theme);
+	sinButton.applyTheme (theme);
 	stepshapeDisplay.applyTheme (theme);
 	attackControl.applyTheme (theme);
 	attackLabel.applyTheme (theme);
@@ -695,6 +718,25 @@ void BChoppr_GUI::listBoxChangedCallback (BEvents::Event* event)
 	ui->redrawMainMonitor();
 }
 
+void BChoppr_GUI::buttonClickedCallback (BEvents::Event* event)
+{
+	if (!event) return;
+	BWidgets::DrawingSurface* w = (BWidgets::DrawingSurface*) event->getWidget();
+	if (!w) return;
+	BChoppr_GUI* ui = (BChoppr_GUI*) w->getMainWindow();
+	if (!ui) return;
+
+	if (w == &ui->rectButton) {ui->blend = 1; ui->sinButton.rename ("nbutton");}
+	if (w == &ui->sinButton) {ui->blend = 2; ui->rectButton.rename ("nbutton");}
+	w->rename ("abutton");
+	ui->rectButton.applyTheme (ui->theme);
+	ui->sinButton.applyTheme (ui->theme);
+	ui->redrawStepshape ();
+
+	float fblend = ui->blend;
+	ui->write_function(ui->controller, Blend, sizeof(fblend), 0, &fblend);
+}
+
 bool BChoppr_GUI::init_Stepshape ()
 {
 	double height = stepshapeDisplay.getEffectiveHeight ();
@@ -743,18 +785,34 @@ void BChoppr_GUI::redrawStepshape ()
 
 	cairo_move_to (cr, 0, 0.9 * height);
 	cairo_line_to (cr, width * 0.25, 0.9 * height);
-	if ((attack + release) > 1)
-	{
-		float crosspointX = attack / (attack + release);
-		float crosspointY = crosspointX / attack - (crosspointX - (1 - release)) / release;
-		cairo_line_to (cr, width* 0.25 + crosspointX * width * 0.5, 0.9 * height - 0.7 * height * crosspointY);
-	}
-	else
-	{
-		cairo_line_to (cr, width * 0.25 + attack * width * 0.5 , 0.2 * height);
-		cairo_line_to (cr, width * 0.75  - release * width * 0.5, 0.2 * height);
 
+	if (blend == 1)
+	{
+		if ((attack + release) > 1)
+		{
+			float crosspointX = attack / (attack + release);
+			float crosspointY = crosspointX / attack - (crosspointX - (1 - release)) / release;
+			cairo_line_to (cr, width * 0.25 + crosspointX * width * 0.5, 0.9 * height - 0.7 * height * crosspointY);
+		}
+		else
+		{
+			cairo_line_to (cr, width * 0.25 + attack * width * 0.5, 0.2 * height);
+			cairo_line_to (cr, width * 0.75  - release * width * 0.5, 0.2 * height);
+
+		}
 	}
+
+	else if (blend == 2)
+	{
+		for (double i = 0.0; i <= 1.0; i += 0.025)
+		{
+			double vol = 1.0;
+			if (i < attack) vol = sin (M_PI * (i / attack - 0.5));
+			if (i > (1 - release)) vol = vol * sin (M_PI * ((1 - i) / release - 0.5));
+			cairo_line_to (cr, width * (0.25 + 0.5 * i), height * (0.55 - 0.35 * vol));
+		}
+	}
+
 	cairo_line_to (cr, width * 0.75, 0.9 * height);
 	cairo_line_to (cr, width, 0.9 * height);
 
@@ -878,18 +936,18 @@ void BChoppr_GUI::redrawMainMonitor ()
 		cairo_surface_clear (surface);
 
 		// Draw input (cr, cr3) and output (cr2, cr4) curves
-		cairo_move_to (cr1, 0, height * (0.5  - (0.4 * LIM ((mainMonitor.data[0].inputMax / scale), 1.0f))));
-		cairo_move_to (cr2, 0, height * (0.5  - (0.4 * LIM ((mainMonitor.data[0].outputMax / scale), 1.0f))));
-		cairo_move_to (cr3, 0, height * (0.5  + (0.4 * LIM (-(mainMonitor.data[0].inputMin / scale), 1.0f))));
-		cairo_move_to (cr4, 0, height * (0.5  + (0.4 * LIM (-(mainMonitor.data[0].outputMin / scale), 1.0f))));
+		cairo_move_to (cr1, 0, height * (0.5  - (0.4 * LIM ((mainMonitor.data[0].inputMax / scale), 0.0f, 1.0f))));
+		cairo_move_to (cr2, 0, height * (0.5  - (0.4 * LIM ((mainMonitor.data[0].outputMax / scale), 0.0f, 1.0f))));
+		cairo_move_to (cr3, 0, height * (0.5  + (0.4 * LIM (-(mainMonitor.data[0].inputMin / scale), 0.0f, 1.0f))));
+		cairo_move_to (cr4, 0, height * (0.5  + (0.4 * LIM (-(mainMonitor.data[0].outputMin / scale), 0.0f, 1.0f))));
 
 		for (int i = 0; i < MONITORBUFFERSIZE; ++i)
 		{
 			double pos = ((double) i) / (MONITORBUFFERSIZE - 1.0f);
-			cairo_line_to (cr1, pos * width, height * (0.5  - (0.4 * LIM ((mainMonitor.data[i].inputMax / scale), 1.0f))));
-			cairo_line_to (cr2, pos * width, height * (0.5  - (0.4 * LIM ((mainMonitor.data[i].outputMax / scale), 1.0f))));
-			cairo_line_to (cr3, pos * width, height * (0.5  + (0.4 * LIM (-(mainMonitor.data[i].inputMin / scale), 1.0f))));
-			cairo_line_to (cr4, pos * width, height * (0.5  + (0.4 * LIM (-(mainMonitor.data[i].outputMin / scale), 1.0f))));
+			cairo_line_to (cr1, pos * width, height * (0.5  - (0.4 * LIM ((mainMonitor.data[i].inputMax / scale), 0.0f, 1.0f))));
+			cairo_line_to (cr2, pos * width, height * (0.5  - (0.4 * LIM ((mainMonitor.data[i].outputMax / scale), 0.0f, 1.0f))));
+			cairo_line_to (cr3, pos * width, height * (0.5  + (0.4 * LIM (-(mainMonitor.data[i].inputMin / scale), 0.0f, 1.0f))));
+			cairo_line_to (cr4, pos * width, height * (0.5  + (0.4 * LIM (-(mainMonitor.data[i].outputMin / scale), 0.0f, 1.0f))));
 		}
 
 		// Visualize input (cr, cr3) and output (cr2, cr4) curves
@@ -980,7 +1038,6 @@ void BChoppr_GUI::redrawSContainer ()
 {
 	double width = sContainer.getEffectiveWidth ();
 	double height = sContainer.getEffectiveHeight ();
-	//double height = sContainer.getEffectiveHeight ();
 
 	cairo_surface_clear (sContainer.getDrawingSurface ());
 	cairo_t* cr = cairo_create (sContainer.getDrawingSurface ());
@@ -1007,6 +1064,52 @@ void BChoppr_GUI::redrawSContainer ()
 
 	cairo_destroy (cr);
 	sContainer.update();
+}
+
+void BChoppr_GUI::redrawButtons ()
+{
+	// rectButton
+	double width = rectButton.getEffectiveWidth ();
+	double height = rectButton.getEffectiveHeight ();
+
+	cairo_surface_clear (rectButton.getDrawingSurface ());
+	cairo_t* cr = cairo_create (rectButton.getDrawingSurface ());
+	if (cairo_status (cr) != CAIRO_STATUS_SUCCESS) return;
+
+	cairo_set_source_rgba (cr, CAIRO_INK1, 1.0);
+	cairo_set_line_width (cr, 2.0);
+
+	cairo_move_to (cr, 0.05 * width, 0.9 * height);
+	cairo_line_to (cr, 0.25 * width, 0.9 * height);
+	cairo_line_to (cr, 0.3 * width, 0.1 * height);
+	cairo_line_to (cr, 0.7 * width, 0.1 * height);
+	cairo_line_to (cr, 0.75 * width, 0.9 * height);
+	cairo_line_to (cr, 0.95 * width, 0.9 * height);
+	cairo_stroke (cr);
+
+	cairo_destroy (cr);
+
+	// sinButton
+	width = sinButton.getEffectiveWidth ();
+	height = sinButton.getEffectiveHeight ();
+
+	cairo_surface_clear (sinButton.getDrawingSurface ());
+	cr = cairo_create (sinButton.getDrawingSurface ());
+	if (cairo_status (cr) != CAIRO_STATUS_SUCCESS) return;
+
+	cairo_set_source_rgba (cr, CAIRO_INK1, 1.0);
+	cairo_set_line_width (cr, 2.0);
+
+	cairo_move_to (cr, 0.05 * width, 0.9 * height);
+	cairo_line_to (cr, 0.15 * width, 0.9 * height);
+	for (int i = 0; i <= 10; ++i) cairo_line_to (cr, (0.15 + i * 0.03) * width, (0.5 - 0.4 * sin (double (i - 5) * M_PI / 10)) * height);
+	cairo_line_to (cr, 0.55 * width, 0.1 * height);
+	for (int i = 0; i <= 10; ++i) cairo_line_to (cr, (0.55 + i * 0.03) * width, (0.5 - 0.4 * sin (double (i + 5) * M_PI / 10)) * height);
+	cairo_line_to (cr, 0.95 * width, 0.9 * height);
+	cairo_stroke (cr);
+
+	cairo_destroy (cr);
+
 }
 
 LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin_uri, const char *bundle_path,

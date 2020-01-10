@@ -39,13 +39,14 @@ enum BChopprPortIndex
 	AudioOut_2	= 6,
 	NrAudioPorts	= 4,
 	Controllers	= 7,
-	Attack		= 7,
-	Release		= 8,
-	SequencesPerBar	= 9,
-	NrSteps		= 10,
-	StepPositions	= 11,
-	StepLevels	= 26,
-	NrControllers	= 35
+	Blend		= 7,
+	Attack		= 8,
+	Release		= 9,
+	SequencesPerBar	= 10,
+	NrSteps		= 11,
+	StepPositions	= 12,
+	StepLevels	= 27,
+	NrControllers	= 36
 };
 
 #endif /* PORTS_HPP_ */
