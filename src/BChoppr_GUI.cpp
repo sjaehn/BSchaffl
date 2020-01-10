@@ -223,6 +223,7 @@ void BChoppr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 		if (blend == 2) {sinButton.rename ("abutton"); rectButton.rename ("nbutton");}
 		rectButton.applyTheme (theme);
 		sinButton.applyTheme (theme);
+		redrawButtons ();
 		redrawStepshape ();
 	}
 
@@ -731,6 +732,7 @@ void BChoppr_GUI::buttonClickedCallback (BEvents::Event* event)
 	w->rename ("abutton");
 	ui->rectButton.applyTheme (ui->theme);
 	ui->sinButton.applyTheme (ui->theme);
+	ui->redrawButtons ();
 	ui->redrawStepshape ();
 
 	float fblend = ui->blend;
@@ -1076,7 +1078,7 @@ void BChoppr_GUI::redrawButtons ()
 	cairo_t* cr = cairo_create (rectButton.getDrawingSurface ());
 	if (cairo_status (cr) != CAIRO_STATUS_SUCCESS) return;
 
-	cairo_set_source_rgba (cr, CAIRO_INK1, 1.0);
+	cairo_set_source_rgba (cr, CAIRO_RGBA (*rectButton.getBorder()->getLine()->getColor()));
 	cairo_set_line_width (cr, 2.0);
 
 	cairo_move_to (cr, 0.05 * width, 0.9 * height);
@@ -1097,7 +1099,7 @@ void BChoppr_GUI::redrawButtons ()
 	cr = cairo_create (sinButton.getDrawingSurface ());
 	if (cairo_status (cr) != CAIRO_STATUS_SUCCESS) return;
 
-	cairo_set_source_rgba (cr, CAIRO_INK1, 1.0);
+	cairo_set_source_rgba (cr, CAIRO_RGBA (*sinButton.getBorder()->getLine()->getColor()));
 	cairo_set_line_width (cr, 2.0);
 
 	cairo_move_to (cr, 0.05 * width, 0.9 * height);

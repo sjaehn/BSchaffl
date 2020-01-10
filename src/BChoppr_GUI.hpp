@@ -179,7 +179,8 @@ private:
 	BColors::Color ink = {0.0, 0.75, 0.2, 1.0};
 
 	BStyles::Border border = {{ink, 1.0}, 0.0, 2.0, 0.0};
-        BStyles::Border actborder = {{{1.0, 1.0, 1.0, 1.0}, 1.0}, 0.0, 2.0, 0.0};
+        BStyles::Border actborder = {{{CAIRO_INK1, 1.0}, 2.0}, 0.0, 1.0, 0.0};
+        BStyles::Border inactborder = {{BColors::darkgrey, 1.0}, 0.0, 2.0, 0.0};
 	BStyles::Border blindborder = {{{0.0, 0.0, 0.0, 0.0}, 1.0}, 0.0, 2.0, 0.0};
         BStyles::Border labelBorder = BStyles::Border (BStyles::noLine, 0.0, 4.0);
 	BStyles::Fill widgetBg = BStyles::noFill;
@@ -206,7 +207,7 @@ private:
  		{"smonitor", 	{{"background", STYLEPTR (&BStyles::blackFill)},
  				 {"border", STYLEPTR (&border)}}},
  		{"nbutton", 	{{"background", STYLEPTR (&BStyles::blackFill)},
- 				 {"border", STYLEPTR (&border)}}},
+ 				 {"border", STYLEPTR (&inactborder)}}},
  		{"abutton", 	{{"background", STYLEPTR (&BStyles::blackFill)},
  				 {"border", STYLEPTR (&actborder)}}},
 		{"rcontainer", 	{{"background", STYLEPTR (&BStyles::noFill)},
