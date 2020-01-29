@@ -4,7 +4,7 @@ An audio stream chopping LV2 plugin.
 Description: B.Choppr cuts the audio input stream into a repeated sequence of up to 16 chops.
 Each chop can be leveled up or down (gating). B.Choppr is the successor of B.Slizr.
 
-![screenshot](https://raw.githubusercontent.com/sjaehn/BJumblr/master/doc/screenshot.png "Screenshot from B.Choppr")
+![screenshot](https://raw.githubusercontent.com/sjaehn/BChoppr/master/doc/screenshot.png "Screenshot from B.Choppr")
 
 ## Installation
 
