@@ -123,10 +123,13 @@ void BChoppr::run (uint32_t n_samples)
 	{
 		 float value = LIM (*(controllers[i + StepPositions - Controllers]), 0.0, 1.0);
 
-		 if ((value == 0.0f) && (!stepAutoPositions[i]))
+		 if (value == 0.0f)
 		 {
-			 stepAutoPositions[i] = true;
-			 recalculateAutoPositions();
+			 if (!stepAutoPositions[i])
+			 {
+				 stepAutoPositions[i] = true;
+				 recalculateAutoPositions();
+			 }
 		 }
 
 		 else if (stepPositions[i] != value)
