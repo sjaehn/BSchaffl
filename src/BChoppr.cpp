@@ -60,6 +60,8 @@ BChoppr::BChoppr (double samplerate, const LV2_Feature* const* features) :
 
 	// Initialize forge
 	lv2_atom_forge_init (&forge,map);
+
+	recalculateAutoPositions ();
 }
 
 BChoppr::~BChoppr () {}

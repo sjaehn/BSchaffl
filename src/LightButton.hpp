@@ -84,7 +84,7 @@ protected:
 
         			// Colors uses within this method
                                 BColors::Color tLo = *fgColors.getColor (getState ()); tLo.applyBrightness (BWIDGETS_DEFAULT_NORMALLIGHTED);
-                                BColors::Color tMid = *fgColors.getColor (getState ()); tMid.applyBrightness ((BWIDGETS_DEFAULT_ILLUMINATED + BWIDGETS_DEFAULT_NORMALLIGHTED) / 2);
+                                BColors::Color tMid = *fgColors.getColor (getState ()); tMid.applyBrightness (BWIDGETS_DEFAULT_ILLUMINATED);
         			BColors::Color cHi = *bgColors.getColor (getState ()); cHi.applyBrightness (BWIDGETS_DEFAULT_ILLUMINATED);
                                 BColors::Color cLo = *bgColors.getColor (getState ()); cLo.applyBrightness (BWIDGETS_DEFAULT_NORMALLIGHTED);
         			BColors::Color cMid = *bgColors.getColor (getState ()); cMid.applyBrightness ((BWIDGETS_DEFAULT_ILLUMINATED + BWIDGETS_DEFAULT_NORMALLIGHTED) / 2);

@@ -603,7 +603,7 @@ void BChoppr_GUI::valueChangedCallback (BEvents::Event* event)
 			{
 				if ((i < MAXSTEPS - 1) && (widget == &ui->markerWidgets[i]))
 				{
-					float pos = (float) widget->getValue ();
+					float pos = (ui->markerWidgets[i].hasValue() ? widget->getValue () : 0.0f);
 					ui->write_function(ui->controller, StepPositions + i , sizeof (pos), 0, &pos);
 					return;
 				}
@@ -680,7 +680,7 @@ void BChoppr_GUI::markerDraggedCallback (BEvents::Event* event)
 			double frac = (w > 0 ? (pev->getPosition().x + marker->getPosition().x - x0) / w : MINMARKERVALUE);
 			frac = LIMIT (frac, MINMARKERVALUE, 1.0);
 
-			// Limit to ancessors value
+			// Limit to antecessors value
 			for (int j = i - 1; j >= 0; --j)
 			{
 				if (ui->markerWidgets[j].hasValue())
