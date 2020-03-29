@@ -46,6 +46,7 @@ GUI_INCL = \
 	src/BWidgets/BItems.cpp \
 	src/BWidgets/UpButton.cpp \
 	src/BWidgets/DownButton.cpp \
+	src/BWidgets/ToggleButton.cpp \
 	src/BWidgets/Button.cpp \
 	src/BWidgets/ChoiceBox.cpp \
 	src/BWidgets/ListBox.cpp \

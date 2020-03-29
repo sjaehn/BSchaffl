@@ -77,5 +77,5 @@ The interface is divided into three parts: step controls, monitor and step shape
 * **Monitor** : Visualization of a single step
 
 ## What's new
-* Define individual step size using markers
-* Optional non-linear blend between steps
+* Bypass
+* Dry /wet

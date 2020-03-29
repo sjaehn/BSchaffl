@@ -30,9 +30,13 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer (0, 0, 760, 560, "main"),
 	rContainer (260, 80, 480, 380, "rcontainer"),
 	sContainer (3, 240, 474, 137, "scontainer"),
-	monitorSwitch (690, 25, 40, 16, "switch", 0.0),
+	monitorSwitch (570, 15, 40, 16, "switch", 0.0),
+	monitorLabel (560, 45, 60, 20, "label", "Monitor"),
+	bypassButton (638, 11, 24, 24, "redbutton"),
+	bypassLabel (620, 45, 60, 20, "label", "Bypass"),
+	drywetDial (690, 5, 40, 48, "dial", 1.0, 0.0, 1.0, 0.0, "%1.2f"),
+	drywetLabel (680, 45, 60, 20, "label", "Dry/wet"),
 	monitorDisplay (3, 3, 474, 237, "mmonitor"),
-	monitorLabel (680, 45, 60, 20, "label", "Monitor"),
 	rectButton (40, 270, 60, 40, "abutton"),
 	sinButton (140, 270, 60, 40, "nbutton"),
 	stepshapeDisplay (30, 320, 180, 140, "smonitor"),
@@ -51,7 +55,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	surface (NULL), cr1 (NULL), cr2 (NULL), cr3 (NULL), cr4 (NULL), pat1 (NULL), pat2 (NULL), pat3 (NULL), pat4 (NULL), pat5 (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),  sz (1.0), bgImageSurface (nullptr),
-	scale (DB_CO(0.0)), blend (1), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0),
+	scale (DB_CO(0.0)), bypass (0.0f), drywet (1.0f),
+	blend (1), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0),
 	map (NULL)
 
 {
@@ -65,6 +70,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	// Set callbacks
 	monitorSwitch.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+	bypassButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+	drywetDial.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	attackControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	releaseControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	sequencesperbarControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
@@ -128,6 +135,10 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	rContainer.add (sContainer);
 	mContainer.add (monitorSwitch);
 	mContainer.add (monitorLabel);
+	mContainer.add (bypassButton);
+	mContainer.add (bypassLabel);
+	mContainer.add (drywetDial);
+	mContainer.add (drywetLabel);
 	mContainer.add (rectButton);
 	mContainer.add (sinButton);
 	mContainer.add (stepshapeDisplay);
@@ -214,24 +225,31 @@ void BChoppr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 		}
 	}
 
-	// Blend
-	else if ((format == 0) && (port_index == Blend))
-	{
-		float* pval = (float*) buffer;
-		blend = LIM (*pval, 1.0f, 2.0f);
-		if (blend == 1) {rectButton.rename ("abutton"); sinButton.rename ("nbutton");}
-		if (blend == 2) {sinButton.rename ("abutton"); rectButton.rename ("nbutton");}
-		rectButton.applyTheme (theme);
-		sinButton.applyTheme (theme);
-		redrawButtons ();
-		redrawStepshape ();
-	}
-
 	// Scan remaining ports
-	else if ((format == 0) && (port_index >= Attack) && (port_index < Controllers + NrControllers))
+	else if ((format == 0) && (port_index >= Controllers) && (port_index < Controllers + NrControllers))
 	{
 	float* pval = (float*) buffer;
 	switch (port_index) {
+		case Bypass:
+			bypass = LIM (*pval, 0.0f, 1.0f);
+			bypassButton.setValue (*pval);
+			break;
+		case DryWet:
+			drywet = LIM (*pval, 0.0f, 1.0f);
+			drywetDial.setValue (*pval);
+			break;
+		case Blend:
+			{
+				float* pval = (float*) buffer;
+				blend = LIM (*pval, 1.0f, 2.0f);
+				if (blend == 1) {rectButton.rename ("abutton"); sinButton.rename ("nbutton");}
+				if (blend == 2) {sinButton.rename ("abutton"); rectButton.rename ("nbutton");}
+				rectButton.applyTheme (theme);
+				sinButton.applyTheme (theme);
+				redrawButtons ();
+				redrawStepshape ();
+			}
+			break;
 		case Attack:
 			attack = *pval;
 			attackControl.setValue (*pval);
@@ -292,9 +310,13 @@ void BChoppr_GUI::resizeGUI()
 	// Resize widgets
 	RESIZE (mContainer, 0, 0, 760, 560, sz);
 	RESIZE (rContainer, 260, 80, 480, 380, sz);
-	RESIZE (monitorSwitch, 690, 25, 40, 16, sz);
+	RESIZE (monitorSwitch, 570, 15, 40, 16, sz);
+	RESIZE (monitorLabel, 560, 45, 60, 20, sz);
+	RESIZE (bypassButton, 638, 11, 24, 24, sz);
+	RESIZE (bypassLabel, 620, 45, 60, 20, sz);
+	RESIZE (drywetDial, 690, 5, 40, 48, sz);
+	RESIZE (drywetLabel, 680, 45, 60, 20, sz);
 	RESIZE (monitorDisplay, 3, 3, 474, 237, sz);
-	RESIZE (monitorLabel, 680, 45, 60, 20, sz);
 	RESIZE (rectButton, 40, 270, 60, 40, sz);
 	RESIZE (sinButton, 140, 270, 60, 40, sz);
 	RESIZE (stepshapeDisplay, 30, 320, 180, 140, sz);
@@ -338,8 +360,12 @@ void BChoppr_GUI::applyTheme (BStyles::Theme& theme)
 	mContainer.applyTheme (theme);
 	rContainer.applyTheme (theme);
 	monitorSwitch.applyTheme (theme);
-	monitorDisplay.applyTheme (theme);
 	monitorLabel.applyTheme (theme);
+	bypassButton.applyTheme (theme);
+	bypassLabel.applyTheme (theme);
+	drywetDial.applyTheme (theme);
+	drywetLabel.applyTheme (theme);
+	monitorDisplay.applyTheme (theme);
 	rectButton.applyTheme (theme);
 	sinButton.applyTheme (theme);
 	stepshapeDisplay.applyTheme (theme);
@@ -511,6 +537,22 @@ void BChoppr_GUI::valueChangedCallback (BEvents::Event* event)
 					ui->mainMonitor.record_on = false;
 					ui->send_record_off ();
 				}
+				return;
+			}
+
+			// Bypass changed
+			if (widget == &ui->bypassButton)
+			{
+				ui->bypass = (float) widget->getValue ();
+				ui->write_function (ui->controller, Bypass, sizeof(ui->bypass), 0, &ui->bypass);
+				return;
+			}
+
+			// Dry/wet changed
+			if (widget == &ui->drywetDial)
+			{
+				ui->drywet = (float) widget->getValue ();
+				ui->write_function (ui->controller, DryWet, sizeof(ui->drywet), 0, &ui->drywet);
 				return;
 			}
 

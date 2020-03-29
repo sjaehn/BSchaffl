@@ -77,6 +77,8 @@ private:
 	float* controllers[NrControllers];
 	float sequencesperbar;
 	float nrSteps;
+	bool bypass;
+	float drywet;
 	int blend;
 	float attack;
 	float release;

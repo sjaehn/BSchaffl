@@ -34,7 +34,9 @@
 #include "BWidgets/HSliderValue.hpp"
 #include "BWidgets/DialValue.hpp"
 #include "BWidgets/ListBox.hpp"
+#include "BWidgets/ToggleButton.hpp"
 #include "Marker.hpp"
+#include "LightButton.hpp"
 
 #include "definitions.hpp"
 #include "Urids.hpp"
@@ -114,8 +116,12 @@ private:
         BWidgets::Widget rContainer;
 	BWidgets::DrawingSurface sContainer;
 	BWidgets::HSwitch monitorSwitch;
-	BWidgets::DrawingSurface monitorDisplay;
 	BWidgets::Label monitorLabel;
+        LightButton bypassButton;
+        BWidgets::Label bypassLabel;
+        BWidgets::DialValue drywetDial;
+        BWidgets::Label drywetLabel;
+	BWidgets::DrawingSurface monitorDisplay;
         BWidgets::DrawingSurface rectButton;
         BWidgets::DrawingSurface sinButton;
 	BWidgets::DrawingSurface stepshapeDisplay;
@@ -160,6 +166,8 @@ private:
 	cairo_surface_t* bgImageSurface;
 
 	float scale;
+        float bypass;
+        float drywet;
         int blend;
 	float attack;
 	float release;
@@ -174,6 +182,7 @@ private:
 
 	// Definition of styles
 	BColors::ColorSet fgColors = {{{0.0, 0.75, 0.2, 1.0}, {0.2, 1.0, 0.6, 1.0}, {0.0, 0.2, 0.0, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
+        BColors::ColorSet rdColors = {{{0.75, 0.0, 0.0, 1.0}, {1.0, 0.0, 0.0, 1.0}, {0.2, 0.0, 0.0, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::ColorSet txColors = {{{0.0, 1.0, 0.4, 1.0}, {1.0, 1.0, 1.0, 1.0}, {0.0, 0.5, 0.0, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::ColorSet bgColors = {{{0.15, 0.15, 0.15, 1.0}, {0.3, 0.3, 0.3, 1.0}, {0.05, 0.05, 0.05, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::Color ink = {0.0, 0.75, 0.2, 1.0};
@@ -228,6 +237,9 @@ private:
 				 {"bgcolors", STYLEPTR (&bgColors)},
 				 {"textcolors", STYLEPTR (&fgColors)},
 				 {"font", STYLEPTR (&defaultFont)}}},
+		{"redbutton", 	{{"uses", STYLEPTR (&defaultStyles)},
+				 {"fgcolors", STYLEPTR (&rdColors)},
+				 {"bgcolors", STYLEPTR (&bgColors)}}},
 		{"dial/focus", 	{{"background", STYLEPTR (&screenBg)},
 				 {"border", STYLEPTR (&screenBorder)},
 				 {"textcolors", STYLEPTR (&txColors)},

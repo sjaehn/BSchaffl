@@ -33,7 +33,8 @@ BChoppr::BChoppr (double samplerate, const LV2_Feature* const* features) :
 	prevStep(0), actStep(0), nextStep(1),
 	audioInput1(NULL), audioInput2(NULL), audioOutput1(NULL), audioOutput2(NULL),
 	controllers {nullptr},
-	sequencesperbar (4), nrSteps(16), blend (1), attack(0.2), release (0.2),
+	sequencesperbar (4), nrSteps(16),
+	bypass (false), drywet (1.0f), blend (1), attack(0.2), release (0.2),
 	stepLevels {1.0}, stepPositions {0.0}, stepAutoPositions {true},
 	controlPort1(NULL), controlPort2(NULL),  notifyPort(NULL),
 	record_on(true), monitorpos(-1), message ()
@@ -59,7 +60,6 @@ BChoppr::BChoppr (double samplerate, const LV2_Feature* const* features) :
 
 	// Initialize forge
 	lv2_atom_forge_init (&forge,map);
-
 }
 
 BChoppr::~BChoppr () {}
@@ -104,6 +104,8 @@ void BChoppr::run (uint32_t n_samples)
 	}
 
 	// Update controller values
+	bypass = (*controllers[Bypass - Controllers] != 0.0f);
+	drywet = LIM (*(controllers[DryWet - Controllers]), 0.0f, 1.0f);
 	blend = LIM (*(controllers[Blend - Controllers]), 1, 2);
 	attack = LIM (*(controllers[Attack - Controllers]), 0.01, 1.0);
 	release = LIM (*(controllers[Release - Controllers]), 0.01, 1.0);
@@ -329,65 +331,72 @@ void BChoppr::play(uint32_t start, uint32_t end)
 	//Silence if halted or bpm == 0
 	if ((speed == 0.0f) || (bpm < 1.0f))
 	{
-		memset(audioOutput1,0,(end-start)*sizeof(float));
-		memset(audioOutput2,0,(end-start)*sizeof(float));
+		memset(&audioOutput1[start], 0, (end-start)*sizeof(float));
+		memset(&audioOutput2[start], 0, (end-start)*sizeof(float));
 		return;
 	}
 
 	for (uint32_t i = start; i < end; ++i)
 	{
+		float effect1 = audioInput1[i];
+		float effect2 = audioInput2[i];
+
 		// Interpolate position within the loop
 		float relpos = (i - refFrame) * speed / (rate / (bpm / 60)) * sequencesperbar / beatsPerBar;	// Position relative to reference frame
 		float pos = MODFL (position + relpos);
 
-		// Calculate step number
-		int iStep;
-		for (iStep = 0; (iStep < steps - 1) && (stepPositions[iStep] < pos); ++iStep) {}
-
-		// Calculate fraction of active step
-		float steppos = (iStep == 0 ? 0 : stepPositions[iStep - 1]);
-		float nextpos = (int (iStep) == steps - 1 ? 1 : stepPositions[iStep]);
-		float stepsize = nextpos - steppos;
-		float iStepFrac = (stepsize <= 0 ? 0 : (pos - steppos) / stepsize);
-
-		// Move to the next step?
-		if (actStep != uint32_t (iStep))
+		if (!bypass)
 		{
-			prevStep = actStep;
-			actStep = iStep;
-			nextStep = (iStep < steps - 1 ? iStep + 1 : 0);
-		}
+			// Calculate step number
+			int iStep;
+			for (iStep = 0; (iStep < steps - 1) && (stepPositions[iStep] < pos); ++iStep) {}
 
-		// Calculate effect (vol) for the position
-		float act = stepLevels[actStep];
-		float prev = stepLevels[prevStep];
-		float next = stepLevels[nextStep];
-		float vol = stepLevels[actStep];
+			// Calculate fraction of active step
+			float steppos = (iStep == 0 ? 0 : stepPositions[iStep - 1]);
+			float nextpos = (int (iStep) == steps - 1 ? 1 : stepPositions[iStep]);
+			float stepsize = nextpos - steppos;
+			float iStepFrac = (stepsize <= 0 ? 0 : (pos - steppos) / stepsize);
 
-		// On attack
-		if (iStepFrac < attack)
-		{
-			if (prev < act)
+			// Move to the next step?
+			if (actStep != uint32_t (iStep))
 			{
-				if (blend == 1) vol = prev + (iStepFrac / attack) * (vol - prev);
-				else if (blend == 2) vol = prev + 0.5 * (sin (M_PI * (iStepFrac / attack - 0.5)) + 1) * (vol - prev);
+				prevStep = actStep;
+				actStep = iStep;
+				nextStep = (iStep < steps - 1 ? iStep + 1 : 0);
 			}
 
-		}
+			// Calculate effect (vol) for the position
+			float act = stepLevels[actStep];
+			float prev = stepLevels[prevStep];
+			float next = stepLevels[nextStep];
+			float vol = stepLevels[actStep];
 
-		// On release
-		if (iStepFrac > (1 - release))
-		{
-			if (next < act)
+			// On attack
+			if (iStepFrac < attack)
 			{
-				if (blend == 1) vol = next + (((1 - iStepFrac)) / release) * (vol - next);
-				else if (blend == 2) vol = next + 0.5 * (sin (M_PI * ((1 - iStepFrac) / release - 0.5)) + 1) * (vol - next);
+				if (prev < act)
+				{
+					if (blend == 1) vol = prev + (iStepFrac / attack) * (vol - prev);
+					else if (blend == 2) vol = prev + 0.5 * (sin (M_PI * (iStepFrac / attack - 0.5)) + 1) * (vol - prev);
+				}
+
 			}
+
+			// On release
+			if (iStepFrac > (1 - release))
+			{
+				if (next < act)
+				{
+					if (blend == 1) vol = next + (((1 - iStepFrac)) / release) * (vol - next);
+					else if (blend == 2) vol = next + 0.5 * (sin (M_PI * ((1 - iStepFrac) / release - 0.5)) + 1) * (vol - next);
+				}
+			}
+
+			// Apply effect on input
+			effect1 = audioInput1[i] * vol;
+			effect2 = audioInput2[i] * vol;
 		}
 
-		// Apply effect on input
-		float effect1 = audioInput1[i] * vol;
-		float effect2 = audioInput2[i] * vol;
 
 		// Analyze input and output data for GUI notification
 		if (record_on)
@@ -418,8 +427,8 @@ void BChoppr::play(uint32_t start, uint32_t end)
 		}
 
 		// Send effect to audio output
-		audioOutput1[i] = effect1;
-		audioOutput2[i] = effect2;
+		audioOutput1[i] = audioInput1[i] * (1 - drywet) + effect1 * drywet;
+		audioOutput2[i] = audioInput1[i] * (1 - drywet) + effect2 * drywet;
 	}
 }
 
