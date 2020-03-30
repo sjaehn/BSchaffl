@@ -85,6 +85,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	// Configure widgets
 	bgImageSurface = cairo_image_surface_create_from_png ((pluginPath + BG_FILE).c_str());
 	widgetBg.loadFillFromCairoSurface (bgImageSurface);
+	drywetDial.setScrollable (true);
+	drywetDial.setHardChangeable (false);
 	attackControl.setScrollable (true);
 	attackControl.setHardChangeable (false);
 	releaseControl.setScrollable (true);
