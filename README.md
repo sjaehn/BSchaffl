@@ -54,11 +54,16 @@ Note: **Jack transport is required to get information about beat / position**
 
 ## Usage
 
-The plugin slices a stereo input, amplifies or silences the individual slices and send the whole
+The plugin slices a stereo input stream, amplifies or silences the individual slices and send the whole
 sequence to the output. Although this affects only the audio signal, it needs a playback running
 (Jack transport).
 
-The interface is divided into three parts: step controls, monitor and step shape.
+In addition to the global controllers, the interface is divided into three parts: step controls,
+monitor and step shape.
+
+### Global
+* **Bypass** : Bypass B.Choppr
+* **Dry/wet** : Dry / wet mixing
 
 ### Step controls
 * **Sequences per bar** : Number of sequences in one bar (1..8)
