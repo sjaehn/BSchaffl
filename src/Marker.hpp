@@ -157,9 +157,12 @@ public:
         			cairo_clip (cr);
 
         			// Colors uses within this method
-                                BColors::Color cLo = *bgColors.getColor (getState ()); cLo.applyBrightness (BWIDGETS_DEFAULT_NORMALLIGHTED);
-        			BColors::Color cMid = *bgColors.getColor (getState ()); cMid.applyBrightness ((BWIDGETS_DEFAULT_ILLUMINATED + BWIDGETS_DEFAULT_NORMALLIGHTED) / 2);
-                                BColors::Color cHi = *bgColors.getColor (getState ()); cHi.applyBrightness (BWIDGETS_DEFAULT_ILLUMINATED);
+                                BColors::Color cLo = *bgColors.getColor (getState ());
+                                cLo.applyBrightness (noValue ? BWIDGETS_DEFAULT_NORMALLIGHTED : 2 * BWIDGETS_DEFAULT_ILLUMINATED);
+        			BColors::Color cMid = *bgColors.getColor (getState ());
+                                cMid.applyBrightness ((BWIDGETS_DEFAULT_ILLUMINATED + BWIDGETS_DEFAULT_NORMALLIGHTED) / 2);
+                                BColors::Color cHi = *bgColors.getColor (getState ());
+                                cHi.applyBrightness (BWIDGETS_DEFAULT_ILLUMINATED);
 
         			cairo_set_line_width (cr, 0.0);
                                 cairo_set_source_rgba (cr, CAIRO_RGBA (cMid));
