@@ -28,27 +28,29 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	controller (NULL), write_function (NULL),
 
 	mContainer (0, 0, 760, 560, "main"),
-	rContainer (260, 80, 480, 380, "rcontainer"),
-	sContainer (3, 240, 474, 137, "scontainer"),
+	rContainer (260, 80, 480, 360, "rcontainer"),
+	sContainer (3, 220, 474, 137, "scontainer"),
 	monitorSwitch (570, 15, 40, 16, "switch", 0.0),
 	monitorLabel (560, 45, 60, 20, "label", "Monitor"),
 	bypassButton (638, 11, 24, 24, "redbutton"),
 	bypassLabel (620, 45, 60, 20, "label", "Bypass"),
 	drywetDial (690, 5, 40, 48, "dial", 1.0, 0.0, 1.0, 0.0, "%1.2f"),
 	drywetLabel (680, 45, 60, 20, "label", "Dry/wet"),
-	monitorDisplay (3, 3, 474, 237, "mmonitor"),
-	rectButton (40, 270, 60, 40, "abutton"),
-	sinButton (140, 270, 60, 40, "nbutton"),
-	stepshapeDisplay (30, 320, 180, 140, "smonitor"),
+	monitorDisplay (3, 3, 474, 217, "mmonitor"),
+	rectButton (40, 250, 60, 40, "abutton"),
+	sinButton (140, 250, 60, 40, "nbutton"),
+	stepshapeDisplay (30, 300, 180, 140, "smonitor"),
 	attackControl (40, 465, 50, 60, "dial", 0.2, 0.01, 1.0, 0.01, "%1.2f"),
 	attackLabel (20, 520, 90, 20, "label", "Attack"),
 	releaseControl (150, 465, 50, 60, "dial", 0.2, 0.01, 1.0, -0.01, "%1.2f"),
 	releaseLabel (130, 520, 90, 20, "label", "Release"),
-	sequencesperbarControl (260, 492, 120, 28, "slider", 1.0, 1.0, 8.0, 1.0, "%1.0f"),
-	sequencesperbarLabel (260, 520, 120, 20, "label", "Sequences per bar"),
-	nrStepsControl (400, 492, 340, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
-	nrStepsLabel (400, 520, 340, 20, "label", "Number of steps"),
-	stepshapeLabel (33, 323, 80, 20, "label", "Step shape"),
+	sequencesperbarControl (260, 442, 120, 28, "slider", 1.0, 1.0, 8.0, 1.0, "%1.0f"),
+	sequencesperbarLabel (260, 470, 120, 20, "label", "Sequences per bar"),
+	markersAutoButton (655, 450, 80, 20, "button", "Auto"),
+	markersAutoLabel (655, 470, 80, 20, "label", "Markers"),
+	nrStepsControl (260, 492, 480, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
+	nrStepsLabel (260, 520, 480, 20, "label", "Number of steps"),
+	stepshapeLabel (33, 303, 80, 20, "label", "Step shape"),
 	sequencemonitorLabel (263, 83, 120, 20, "label", "Sequence monitor"),
 	messageLabel (420, 83, 280, 20, "hilabel", ""),
 	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),
@@ -79,6 +81,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	monitorDisplay.setCallbackFunction (BEvents::EventType::WHEEL_SCROLL_EVENT, BChoppr_GUI::monitorScrolledCallback);
 	monitorDisplay.setCallbackFunction (BEvents::EventType::POINTER_DRAG_EVENT, BChoppr_GUI::monitorDraggedCallback);
 	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::listBoxChangedCallback);
+	markersAutoButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::markersAutoClickedCallback);
 	rectButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BChoppr_GUI::buttonClickedCallback);
 	sinButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BChoppr_GUI::buttonClickedCallback);
 
@@ -150,6 +153,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer.add (releaseLabel);
 	mContainer.add (sequencesperbarControl);
 	mContainer.add (sequencesperbarLabel);
+	mContainer.add (markersAutoButton);
+	mContainer.add (markersAutoLabel);
 	mContainer.add (nrStepsControl);
 	mContainer.add (nrStepsLabel);
 	mContainer.add (stepshapeLabel);
@@ -319,21 +324,23 @@ void BChoppr_GUI::resizeGUI()
 	RESIZE (drywetDial, 690, 5, 40, 48, sz);
 	RESIZE (drywetLabel, 680, 45, 60, 20, sz);
 	RESIZE (monitorDisplay, 3, 3, 474, 237, sz);
-	RESIZE (rectButton, 40, 270, 60, 40, sz);
-	RESIZE (sinButton, 140, 270, 60, 40, sz);
-	RESIZE (stepshapeDisplay, 30, 320, 180, 140, sz);
+	RESIZE (rectButton, 40, 250, 60, 40, sz);
+	RESIZE (sinButton, 140, 250, 60, 40, sz);
+	RESIZE (stepshapeDisplay, 30, 300, 180, 140, sz);
 	RESIZE (attackControl, 40, 465, 50, 60, sz);
 	RESIZE (attackLabel, 20, 520, 90, 20, sz);
 	RESIZE (releaseControl, 150, 465, 50, 60, sz);
 	RESIZE (releaseLabel, 130, 520, 90, 20, sz);
-	RESIZE (sequencesperbarControl, 260, 492, 120, 28, sz);
-	RESIZE (sequencesperbarLabel, 260, 520, 120, 20, sz);
-	RESIZE (nrStepsControl, 400, 492, 340, 28, sz);
-	RESIZE (nrStepsLabel, 400, 520, 340, 20, sz);
-	RESIZE (stepshapeLabel, 33, 323, 80, 20, sz);
+	RESIZE (sequencesperbarControl, 260, 442, 120, 28, sz);
+	RESIZE (sequencesperbarLabel, 260, 470, 120, 20, sz);
+	RESIZE (markersAutoButton, 655, 450, 80, 20, sz);
+	RESIZE (markersAutoLabel, 655, 470, 80, 20, sz);
+	RESIZE (nrStepsControl, 260, 492, 480, 28, sz);
+	RESIZE (nrStepsLabel, 260, 520, 480, 20, sz);
+	RESIZE (stepshapeLabel, 33, 303, 80, 20, sz);
 	RESIZE (sequencemonitorLabel, 263, 83, 120, 20, sz);
 	RESIZE (messageLabel, 420, 83, 280, 20,sz);
-	RESIZE (sContainer, 3, 240, 474, 137, sz);
+	RESIZE (sContainer, 3, 220, 474, 137, sz);
 	RESIZE (markerListBox, 12, -68, 86, 66, sz);
 	markerListBox.resizeItems (BUtilities::Point (80 * sz, 20 * sz));
 
@@ -377,6 +384,8 @@ void BChoppr_GUI::applyTheme (BStyles::Theme& theme)
 	releaseLabel.applyTheme (theme);
 	sequencesperbarControl.applyTheme (theme);
 	sequencesperbarLabel.applyTheme (theme);
+	markersAutoButton.applyTheme (theme);
+	markersAutoLabel.applyTheme (theme);
 	nrStepsControl.applyTheme (theme);
 	nrStepsLabel.applyTheme (theme);
 	stepshapeLabel.applyTheme (theme);
@@ -757,6 +766,24 @@ void BChoppr_GUI::listBoxChangedCallback (BEvents::Event* event)
 	else return;
 
 	lb->hide();
+	ui->setAutoMarkers();
+	ui->rearrange_controllers();
+	ui->redrawSContainer();
+	ui->redrawMainMonitor();
+}
+
+void BChoppr_GUI::markersAutoClickedCallback (BEvents::Event* event)
+{
+	if (!event) return;
+	BEvents::ValueChangedEvent* vev = (BEvents::ValueChangedEvent*) event;
+	if (vev->getValue() == 0.0) return;
+	BWidgets::TextButton* tb = (BWidgets::TextButton*) vev->getWidget();
+	if (!tb) return;
+	BChoppr_GUI* ui = (BChoppr_GUI*)tb->getMainWindow();
+	if (!ui) return;
+
+	for (Marker& m : ui->markerWidgets) m.setHasValue (false);
+
 	ui->setAutoMarkers();
 	ui->rearrange_controllers();
 	ui->redrawSContainer();

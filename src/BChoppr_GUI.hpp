@@ -35,6 +35,7 @@
 #include "BWidgets/DialValue.hpp"
 #include "BWidgets/ListBox.hpp"
 #include "BWidgets/ToggleButton.hpp"
+#include "BWidgets/TextButton.hpp"
 #include "Marker.hpp"
 #include "LightButton.hpp"
 
@@ -100,6 +101,7 @@ private:
         static void monitorScrolledCallback (BEvents::Event* event);
         static void monitorDraggedCallback (BEvents::Event* event);
         static void listBoxChangedCallback (BEvents::Event* event);
+        static void markersAutoClickedCallback (BEvents::Event* event);
         static void buttonClickedCallback (BEvents::Event* event);
 	bool init_Stepshape ();
 	void destroy_Stepshape ();
@@ -131,6 +133,8 @@ private:
 	BWidgets::Label releaseLabel;
 	BWidgets::HSliderValue sequencesperbarControl;
 	BWidgets::Label sequencesperbarLabel;
+        BWidgets::TextButton markersAutoButton;
+        BWidgets::Label markersAutoLabel;
 	BWidgets::HSliderValue nrStepsControl;
 	BWidgets::Label nrStepsLabel;
 	BWidgets::Label stepshapeLabel;

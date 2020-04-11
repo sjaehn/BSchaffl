@@ -66,10 +66,11 @@ monitor and step shape.
 * **Dry/wet** : Dry / wet mixing
 
 ### Step controls
-* **Sequences per bar** : Number of sequences in one bar (1..8)
-* **Number of steps** : Number of steps in one sequence (1..16)
 * **Step markers** : Defines the size of each step. Drag markers to relocate. Right click to switch between automatic and manual placement
 * **Step level control** : Sound level for each individual step
+* **Sequences per bar** : Number of sequences in one bar (1..8)
+* **Auto markers** : Sets all markers to automatic placement
+* **Number of steps** : Number of steps in one sequence (1..16)
 
 ### Monitor
 * **On/Off switch** : Switches monitor and monitor <-> plugin communication on/off. Reduces CPU load.
@@ -82,5 +83,9 @@ monitor and step shape.
 * **Monitor** : Visualization of a single step
 
 ## What's new
-* Bypass
-* Dry /wet
+* Set all makers to "auto" at once
+
+## TODO
+* Swing option
+* Link to this site
+* Make a tutorial video
