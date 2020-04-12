@@ -46,7 +46,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	releaseLabel (130, 520, 90, 20, "label", "Release"),
 	sequencesperbarControl (260, 442, 120, 28, "slider", 1.0, 1.0, 8.0, 1.0, "%1.0f"),
 	sequencesperbarLabel (260, 470, 120, 20, "label", "Sequences per bar"),
-	swingControl (460, 442, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0, "%1.2f"),
+	swingControl (460, 442, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
 	swingLabel (460, 470, 120, 20, "label", "Steps swing"),
 	markersAutoButton (655, 450, 80, 20, "button", "Auto"),
 	markersAutoLabel (655, 470, 80, 20, "label", "Markers"),
@@ -322,14 +322,14 @@ void BChoppr_GUI::resizeGUI()
 
 	// Resize widgets
 	RESIZE (mContainer, 0, 0, 760, 560, sz);
-	RESIZE (rContainer, 260, 80, 480, 380, sz);
+	RESIZE (rContainer, 260, 80, 480, 360, sz);
 	RESIZE (monitorSwitch, 570, 15, 40, 16, sz);
 	RESIZE (monitorLabel, 560, 45, 60, 20, sz);
 	RESIZE (bypassButton, 638, 11, 24, 24, sz);
 	RESIZE (bypassLabel, 620, 45, 60, 20, sz);
 	RESIZE (drywetDial, 690, 5, 40, 48, sz);
 	RESIZE (drywetLabel, 680, 45, 60, 20, sz);
-	RESIZE (monitorDisplay, 3, 3, 474, 237, sz);
+	RESIZE (monitorDisplay, 3, 3, 474, 217, sz);
 	RESIZE (rectButton, 40, 250, 60, 40, sz);
 	RESIZE (sinButton, 140, 250, 60, 40, sz);
 	RESIZE (stepshapeDisplay, 30, 300, 180, 140, sz);
@@ -495,7 +495,7 @@ void BChoppr_GUI::setAutoMarkers ()
 				double anc = (start == 0 ? 0 : markerWidgets[start - 1].getValue());
 				double suc = (i == nrMarkers - 1 ? 1 : markerWidgets[i + 1].getValue());
 				double diff = suc - anc;
-				double dist = i - start + 1.0 + (int (i - start) & 1 ? ((start & 1) ? 2.0 - swing : swing) : 1.0); 
+				double dist = i - start + 1.0 + (int (i - start) & 1 ? ((start & 1) ? 2.0 - swing : swing) : 1.0);
 				double step = (diff < 0 ? 0 : diff / dist);
 				for (int j = start; j <= i; ++j)
 				{

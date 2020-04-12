@@ -38,6 +38,7 @@
 #include "BWidgets/TextButton.hpp"
 #include "Marker.hpp"
 #include "LightButton.hpp"
+#include "SwingHSlider.hpp"
 
 #include "definitions.hpp"
 #include "Urids.hpp"
@@ -133,7 +134,7 @@ private:
 	BWidgets::Label releaseLabel;
 	BWidgets::HSliderValue sequencesperbarControl;
 	BWidgets::Label sequencesperbarLabel;
-        BWidgets::HSliderValue swingControl;
+        SwingHSlider swingControl;
 	BWidgets::Label swingLabel;
         BWidgets::TextButton markersAutoButton;
         BWidgets::Label markersAutoLabel;

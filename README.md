@@ -10,6 +10,7 @@ Each chop can be leveled up or down (gating). B.Choppr is the successor of B.Sli
 
 a) Install the bchoppr package for your system
 * [Arch user repository](https://aur.archlinux.org/packages/bchoppr-git) by Milk Brewster
+* [Debian](https://kx.studio/Repositories:Plugins) by falkTX
 * Check https://repology.org/project/bchoppr/versions for other systems
 
 b) Build your own binaries in the following three steps.
@@ -69,6 +70,7 @@ monitor and step shape.
 * **Step markers** : Defines the size of each step. Drag markers to relocate. Right click to switch between automatic and manual placement
 * **Step level control** : Sound level for each individual step
 * **Sequences per bar** : Number of sequences in one bar (1..8)
+* **Steps swing** : Sets all automatic markers to a swing pattern (1:3..3:1)
 * **Auto markers** : Sets all markers to automatic placement
 * **Number of steps** : Number of steps in one sequence (1..16)
 
@@ -84,8 +86,8 @@ monitor and step shape.
 
 ## What's new
 * Set all makers to "auto" at once
+* Steps swing option
 
 ## TODO
-* More specific widget for swing option
 * Link to this site
 * Make a tutorial video
