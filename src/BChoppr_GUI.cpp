@@ -46,6 +46,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	releaseLabel (130, 520, 90, 20, "label", "Release"),
 	sequencesperbarControl (260, 442, 120, 28, "slider", 1.0, 1.0, 8.0, 1.0, "%1.0f"),
 	sequencesperbarLabel (260, 470, 120, 20, "label", "Sequences per bar"),
+	swingControl (460, 442, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0, "%1.2f"),
+	swingLabel (460, 470, 120, 20, "label", "Steps swing"),
 	markersAutoButton (655, 450, 80, 20, "button", "Auto"),
 	markersAutoLabel (655, 470, 80, 20, "label", "Markers"),
 	nrStepsControl (260, 492, 480, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
@@ -58,7 +60,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	surface (NULL), cr1 (NULL), cr2 (NULL), cr3 (NULL), cr4 (NULL), pat1 (NULL), pat2 (NULL), pat3 (NULL), pat4 (NULL), pat5 (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),  sz (1.0), bgImageSurface (nullptr),
 	scale (DB_CO(0.0)), bypass (0.0f), drywet (1.0f),
-	blend (1), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0),
+	blend (1), attack (0.2), release (0.2), nrSteps (16.0), sequencesperbar (4.0), swing (1.0),
 	map (NULL)
 
 {
@@ -77,6 +79,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	attackControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	releaseControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	sequencesperbarControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
+	swingControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	nrStepsControl.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::valueChangedCallback);
 	monitorDisplay.setCallbackFunction (BEvents::EventType::WHEEL_SCROLL_EVENT, BChoppr_GUI::monitorScrolledCallback);
 	monitorDisplay.setCallbackFunction (BEvents::EventType::POINTER_DRAG_EVENT, BChoppr_GUI::monitorDraggedCallback);
@@ -95,6 +98,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	releaseControl.setScrollable (true);
 	releaseControl.setHardChangeable (false);
 	sequencesperbarControl.setScrollable (true);
+	swingControl.setHardChangeable (false);
 	nrStepsControl.setScrollable (true);
 	monitorDisplay.setScrollable (true);
 	monitorDisplay.setDraggable (true);
@@ -153,6 +157,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer.add (releaseLabel);
 	mContainer.add (sequencesperbarControl);
 	mContainer.add (sequencesperbarLabel);
+	mContainer.add (swingControl);
+	mContainer.add (swingLabel);
 	mContainer.add (markersAutoButton);
 	mContainer.add (markersAutoLabel);
 	mContainer.add (nrStepsControl);
@@ -333,6 +339,8 @@ void BChoppr_GUI::resizeGUI()
 	RESIZE (releaseLabel, 130, 520, 90, 20, sz);
 	RESIZE (sequencesperbarControl, 260, 442, 120, 28, sz);
 	RESIZE (sequencesperbarLabel, 260, 470, 120, 20, sz);
+	RESIZE (swingControl, 460, 442, 120, 28, sz);
+	RESIZE (swingLabel, 460, 470, 120, 20, sz);
 	RESIZE (markersAutoButton, 655, 450, 80, 20, sz);
 	RESIZE (markersAutoLabel, 655, 470, 80, 20, sz);
 	RESIZE (nrStepsControl, 260, 492, 480, 28, sz);
@@ -384,6 +392,8 @@ void BChoppr_GUI::applyTheme (BStyles::Theme& theme)
 	releaseLabel.applyTheme (theme);
 	sequencesperbarControl.applyTheme (theme);
 	sequencesperbarLabel.applyTheme (theme);
+	swingControl.applyTheme (theme);
+	swingLabel.applyTheme (theme);
 	markersAutoButton.applyTheme (theme);
 	markersAutoLabel.applyTheme (theme);
 	nrStepsControl.applyTheme (theme);
@@ -481,12 +491,17 @@ void BChoppr_GUI::setAutoMarkers ()
 		{
 			if ((i == nrMarkers - 1) || (markerWidgets[i + 1].hasValue()))
 			{
+				double swing = 2.0 * swingControl.getValue() / (swingControl.getValue() + 1.0);
 				double anc = (start == 0 ? 0 : markerWidgets[start - 1].getValue());
 				double suc = (i == nrMarkers - 1 ? 1 : markerWidgets[i + 1].getValue());
-				double step = (suc <= anc ? 0 : (suc - anc) / (i + 2 - start));
+				double diff = suc - anc;
+				double dist = i - start + 1.0 + (int (i - start) & 1 ? ((start & 1) ? 2.0 - swing : swing) : 1.0); 
+				double step = (diff < 0 ? 0 : diff / dist);
 				for (int j = start; j <= i; ++j)
 				{
-					markerWidgets[j].setValue (anc + (j + 1 - start) * step);
+					double f = ((j & 1) ? 2.0 - swing : swing);
+					anc += f * step;
+					markerWidgets[j].setValue (anc);
 				}
 			}
 		}
@@ -590,6 +605,18 @@ void BChoppr_GUI::valueChangedCallback (BEvents::Event* event)
 			{
 				ui->sequencesperbar = (float) widget->getValue ();
 				ui->write_function(ui->controller, SequencesPerBar, sizeof(ui->sequencesperbar), 0, &ui->sequencesperbar);
+				return;
+			}
+
+			if (widget == &ui->swingControl)
+			{
+				ui->swing = (float) widget->getValue ();
+				ui->write_function(ui->controller, Swing, sizeof(ui->swing), 0, &ui->swing);
+
+				ui->setAutoMarkers();
+				ui->rearrange_controllers();
+				ui->redrawSContainer();
+				ui->redrawMainMonitor();
 				return;
 			}
 

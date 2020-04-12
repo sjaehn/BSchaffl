@@ -33,7 +33,7 @@ BChoppr::BChoppr (double samplerate, const LV2_Feature* const* features) :
 	prevStep(0), actStep(0), nextStep(1),
 	audioInput1(NULL), audioInput2(NULL), audioOutput1(NULL), audioOutput2(NULL),
 	controllers {nullptr},
-	sequencesperbar (4), nrSteps(16),
+	sequencesperbar (4), swing (1.0), nrSteps(16),
 	bypass (false), drywet (1.0f), blend (1), attack(0.2), release (0.2),
 	stepLevels {1.0}, stepPositions {0.0}, stepAutoPositions {true},
 	controlPort1(NULL), controlPort2(NULL),  notifyPort(NULL),
@@ -112,6 +112,13 @@ void BChoppr::run (uint32_t n_samples)
 	attack = LIM (*(controllers[Attack - Controllers]), 0.01, 1.0);
 	release = LIM (*(controllers[Release - Controllers]), 0.01, 1.0);
 	sequencesperbar = LIM (round (*(controllers[SequencesPerBar - Controllers])), 1, 8);
+
+	float new_swing = LIM (*(controllers[Swing - Controllers]), 0.333333, 3.0);
+	if (new_swing != swing)
+	{
+		swing = new_swing;
+		recalculateAutoPositions ();
+	}
 
 	float new_nrSteps = LIM (round(*(controllers[NrSteps - Controllers])), 1, 16);
 	if (new_nrSteps != nrSteps)
@@ -251,12 +258,17 @@ void BChoppr::recalculateAutoPositions ()
 		{
 			if ((i == nrMarkers - 1) || (!stepAutoPositions[i + 1]))
 			{
+				double s = 2.0 * swing / (swing + 1.0);
 				double anc = (start == 0 ? 0 : stepPositions[start - 1]);
 				double suc = (i == nrMarkers - 1 ? 1 : stepPositions[i + 1]);
-				double step = (suc <= anc ? 0 : (suc - anc) / (i + 2 - start));
+				double diff = suc - anc;
+				double dist = i - start + 1.0 + (int (i - start) & 1 ? ((start & 1) ? 2.0 - s : s) : 1.0);
+				double step = (diff < 0 ? 0 : diff / dist);
 				for (int j = start; j <= i; ++j)
 				{
-					stepPositions[j] = anc + (j + 1 - start) * step;
+					double f = ((j & 1) ? 2.0 - s : s);
+					anc += f * step;
+					stepPositions[j] = anc;
 				}
 			}
 		}

@@ -77,7 +77,7 @@ monitor and step shape.
 * **Monitor** : Visualization (l + r signal) the input / output signal for a whole sequence. Use mouse wheel or drag to zoom in or out.
 
 ### Step shape
-* **Blend** : Select between linear (for trapezoid shapes) und sinusoid blend between the steps
+* **Blend** : Select between linear (for trapezoid shapes) and sinusoidal blend between the steps
 * **Attack** : Time (fraction of the respective step length) to increase the level at the begin of each step
 * **Decay** : Time (fraction of the respective step length) to decrease the level at the end of each step
 * **Monitor** : Visualization of a single step
@@ -86,6 +86,6 @@ monitor and step shape.
 * Set all makers to "auto" at once
 
 ## TODO
-* Swing option
+* More specific widget for swing option
 * Link to this site
 * Make a tutorial video

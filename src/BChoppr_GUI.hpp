@@ -133,6 +133,8 @@ private:
 	BWidgets::Label releaseLabel;
 	BWidgets::HSliderValue sequencesperbarControl;
 	BWidgets::Label sequencesperbarLabel;
+        BWidgets::HSliderValue swingControl;
+	BWidgets::Label swingLabel;
         BWidgets::TextButton markersAutoButton;
         BWidgets::Label markersAutoLabel;
 	BWidgets::HSliderValue nrStepsControl;
@@ -177,6 +179,7 @@ private:
 	float release;
 	float nrSteps;
 	float sequencesperbar;
+        float swing;
 
 	LV2_Atom_Forge forge;
 	BChopprURIs uris;
