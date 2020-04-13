@@ -86,7 +86,8 @@ public:
 					double deltaFrac = event->getDelta ().x / scaleArea.getWidth ();
 					if (getStep () < 0) deltaFrac = -deltaFrac;
 					softValue += deltaFrac;
-					setValue (fractionToValue (valueToFraction (getValue()) + softValue));
+					double newValue = fractionToValue (valueToFraction (getValue()) + softValue);
+					setValue (LIMIT (newValue, 1.0 / 3.0, 3.0));
 				}
 			}
 		}
@@ -101,7 +102,8 @@ public:
 		{
 			double step = (getStep () != 0 ? getStep () : (max - min) / scaleArea.getWidth ());
 			double frac = valueToFraction (getValue()) + event->getDelta ().y * step;
-			setValue (fractionToValue (frac));
+			double newValue = fractionToValue (frac);
+			setValue (LIMIT (newValue, 1.0 / 3.0, 3.0));
 		}
 	}
 
