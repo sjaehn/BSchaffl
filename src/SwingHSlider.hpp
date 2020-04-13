@@ -38,16 +38,19 @@ public:
 	{
 		{
 			HSlider::setValue (val);
-			valueDisplay.setText
+			std::string valstr =
 			(
 				val < 1.0 ?
-				"1 : " + BUtilities::to_string (1/value, valFormat) :
+				"1 : " + BUtilities::to_string (1/val, valFormat) :
 				(
 					val == 1.0 ?
 					"1 : 1" :
-					BUtilities::to_string (value, valFormat) + " : 1"
+					BUtilities::to_string (val, valFormat) + " : 1"
 				)
 			);
+			valueDisplay.setText (valstr);
+			focusLabel.setText (valstr);
+
 		}
 	}
 
@@ -105,7 +108,7 @@ public:
 	virtual void update () override
 	{
 		HSliderValue::update();
-		valueDisplay.setText
+		std::string valstr =
 		(
 			value < 1.0 ?
 			"1 : " + BUtilities::to_string (1/value, valFormat) :
@@ -115,6 +118,8 @@ public:
 				BUtilities::to_string (value, valFormat) + " : 1"
 			)
 		);
+		valueDisplay.setText (valstr);
+		focusLabel.setText (valstr);
 	}
 
 protected:
