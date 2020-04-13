@@ -39,6 +39,7 @@
 #include "Marker.hpp"
 #include "LightButton.hpp"
 #include "SwingHSlider.hpp"
+#include "HaloButton.hpp"
 
 #include "definitions.hpp"
 #include "Urids.hpp"
@@ -63,6 +64,9 @@ enum MessageNr
 #define CAIRO_INK2 0.8, 0.6, 0.2
 
 #define BG_FILE "surface.png"
+#define HELP_URL "https://github.com/sjaehn/BChoppr/blob/master/README.md"
+#define YT_URL ""
+#define OPEN_CMD "xdg-open"
 
 #define DB_CO(g) ((g) > -90.0f ? powf(10.0f, (g) * 0.05f) : 0.0f)
 #define CO_DB(g) ((g) > 0.0001f ? logf((g)) / 0.05f : -90.0f)
@@ -104,6 +108,8 @@ private:
         static void listBoxChangedCallback (BEvents::Event* event);
         static void markersAutoClickedCallback (BEvents::Event* event);
         static void buttonClickedCallback (BEvents::Event* event);
+        static void helpButtonClickedCallback (BEvents::Event* event);
+	static void ytButtonClickedCallback (BEvents::Event* event);
 	bool init_Stepshape ();
 	void destroy_Stepshape ();
 	void redrawStepshape ();
@@ -124,6 +130,8 @@ private:
         BWidgets::Label bypassLabel;
         BWidgets::DialValue drywetDial;
         BWidgets::Label drywetLabel;
+        HaloButton helpButton;
+        HaloButton ytButton;
 	BWidgets::DrawingSurface monitorDisplay;
         BWidgets::DrawingSurface rectButton;
         BWidgets::DrawingSurface sinButton;

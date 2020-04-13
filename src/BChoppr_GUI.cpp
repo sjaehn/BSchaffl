@@ -36,6 +36,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	bypassLabel (620, 45, 60, 20, "label", "Bypass"),
 	drywetDial (690, 5, 40, 48, "dial", 1.0, 0.0, 1.0, 0.0, "%1.2f"),
 	drywetLabel (680, 45, 60, 20, "label", "Dry/wet"),
+	helpButton (20, 80, 24, 24, "halobutton", "Help"),
+	ytButton (50, 80, 24, 24, "halobutton", "Tutorial"),
 	monitorDisplay (3, 3, 474, 217, "mmonitor"),
 	rectButton (40, 250, 60, 40, "abutton"),
 	sinButton (140, 250, 60, 40, "nbutton"),
@@ -87,6 +89,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	markersAutoButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BChoppr_GUI::markersAutoClickedCallback);
 	rectButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BChoppr_GUI::buttonClickedCallback);
 	sinButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BChoppr_GUI::buttonClickedCallback);
+	helpButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, helpButtonClickedCallback);
+	ytButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, ytButtonClickedCallback);
 
 	// Configure widgets
 	bgImageSurface = cairo_image_surface_create_from_png ((pluginPath + BG_FILE).c_str());
@@ -148,6 +152,8 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer.add (bypassLabel);
 	mContainer.add (drywetDial);
 	mContainer.add (drywetLabel);
+	mContainer.add (helpButton);
+	mContainer.add (ytButton);
 	mContainer.add (rectButton);
 	mContainer.add (sinButton);
 	mContainer.add (stepshapeDisplay);
@@ -329,6 +335,8 @@ void BChoppr_GUI::resizeGUI()
 	RESIZE (bypassLabel, 620, 45, 60, 20, sz);
 	RESIZE (drywetDial, 690, 5, 40, 48, sz);
 	RESIZE (drywetLabel, 680, 45, 60, 20, sz);
+	RESIZE (helpButton, 20, 80, 24, 24, sz);
+	RESIZE (ytButton, 50, 80, 24, 24, sz);
 	RESIZE (monitorDisplay, 3, 3, 474, 217, sz);
 	RESIZE (rectButton, 40, 250, 60, 40, sz);
 	RESIZE (sinButton, 140, 250, 60, 40, sz);
@@ -382,6 +390,8 @@ void BChoppr_GUI::applyTheme (BStyles::Theme& theme)
 	bypassLabel.applyTheme (theme);
 	drywetDial.applyTheme (theme);
 	drywetLabel.applyTheme (theme);
+	helpButton.applyTheme (theme);
+	ytButton.applyTheme (theme);
 	monitorDisplay.applyTheme (theme);
 	rectButton.applyTheme (theme);
 	sinButton.applyTheme (theme);
@@ -836,6 +846,9 @@ void BChoppr_GUI::buttonClickedCallback (BEvents::Event* event)
 	float fblend = ui->blend;
 	ui->write_function(ui->controller, Blend, sizeof(fblend), 0, &fblend);
 }
+
+void BChoppr_GUI::helpButtonClickedCallback (BEvents::Event* event) {system(OPEN_CMD " " HELP_URL);}
+void BChoppr_GUI::ytButtonClickedCallback (BEvents::Event* event) {system(OPEN_CMD " " YT_URL);}
 
 bool BChoppr_GUI::init_Stepshape ()
 {
