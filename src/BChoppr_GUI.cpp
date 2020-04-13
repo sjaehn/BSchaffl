@@ -43,7 +43,7 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	attackControl (40, 465, 50, 60, "dial", 0.2, 0.01, 1.0, 0.01, "%1.2f"),
 	attackLabel (20, 520, 90, 20, "label", "Attack"),
 	releaseControl (150, 465, 50, 60, "dial", 0.2, 0.01, 1.0, -0.01, "%1.2f"),
-	releaseLabel (130, 520, 90, 20, "label", "Release"),
+	releaseLabel (130, 520, 90, 20, "label", "Decay"),
 	sequencesperbarControl (260, 442, 120, 28, "slider", 1.0, 1.0, 8.0, 1.0, "%1.0f"),
 	sequencesperbarLabel (260, 470, 120, 20, "label", "Sequences per bar"),
 	swingControl (460, 442, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
