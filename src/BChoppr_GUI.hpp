@@ -208,6 +208,7 @@ private:
         BStyles::Border inactborder = {{BColors::darkgrey, 1.0}, 0.0, 2.0, 0.0};
 	BStyles::Border blindborder = {{{0.0, 0.0, 0.0, 0.0}, 1.0}, 0.0, 2.0, 0.0};
         BStyles::Border labelBorder = BStyles::Border (BStyles::noLine, 0.0, 4.0);
+        BStyles::Border focusborder = BStyles::Border (BStyles::Line (BColors::Color (0.0, 0.0, 0.0, 0.5), 2.0));
 	BStyles::Fill widgetBg = BStyles::noFill;
 	BStyles::Fill screenBg = BStyles::Fill (BColors::Color (0.0, 0.0, 0.0, 0.75));
 	BStyles::Border screenBorder = BStyles::Border (BStyles::Line (BColors::Color (0.0, 0.0, 0.0, 0.75), 4.0));
@@ -219,6 +220,11 @@ private:
 						    {"border", STYLEPTR (&BStyles::noBorder)},
 						    {"textcolors", STYLEPTR (&txColors)},
 						    {"font", STYLEPTR (&defaultFont)}}};
+
+        BStyles::StyleSet focusStyles = {"labels", {{"background", STYLEPTR (&screenBg)},
+                        			    {"border", STYLEPTR (&focusborder)},
+                        			    {"textcolors", STYLEPTR (&txColors)},
+                        			    {"font", STYLEPTR (&defaultFont)}}};
 
 	BStyles::Theme theme = BStyles::Theme ({
 		defaultStyles,
@@ -256,6 +262,9 @@ private:
 		{"redbutton", 	{{"uses", STYLEPTR (&defaultStyles)},
 				 {"fgcolors", STYLEPTR (&rdColors)},
 				 {"bgcolors", STYLEPTR (&bgColors)}}},
+                {"halobutton", 	{{"uses", STYLEPTR (&defaultStyles)},
+ 				 {"fgcolors", STYLEPTR (&bgColors)}}},
+ 		{"halobutton/focus", {{"uses", STYLEPTR (&focusStyles)}}},
 		{"dial/focus", 	{{"background", STYLEPTR (&screenBg)},
 				 {"border", STYLEPTR (&screenBorder)},
 				 {"textcolors", STYLEPTR (&txColors)},

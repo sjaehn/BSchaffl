@@ -89,5 +89,4 @@ monitor and step shape.
 * Steps swing option
 
 ## TODO
-* Link to this site
 * Make a tutorial video
