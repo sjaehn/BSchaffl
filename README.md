@@ -87,6 +87,7 @@ monitor and step shape.
 ## What's new
 * Set all makers to "auto" at once
 * Steps swing option
+* Plugin description and video tutorial linked
 
-## TODO
-* Make a tutorial video
+## Links
+* Tutorial video: https://youtu.be/PuzoxiAs-h8
