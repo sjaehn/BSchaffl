@@ -281,6 +281,10 @@ void BChoppr_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 			sequencesperbar = *pval;
 			sequencesperbarControl.setValue (*pval);
 			break;
+		case Swing:
+			swing = *pval;
+			swingControl.setValue (*pval);
+			break;
 		case NrSteps:
 			if (nrSteps != *pval)
 			{

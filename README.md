@@ -85,7 +85,7 @@ monitor and step shape.
 * **Monitor** : Visualization of a single step
 
 ## What's new
-* Set all makers to "auto" at once
+* Set all markers to "auto" at once
 * Steps swing option
 * Plugin description and video tutorial linked
 
