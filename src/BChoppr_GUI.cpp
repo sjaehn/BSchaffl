@@ -30,12 +30,12 @@ BChoppr_GUI::BChoppr_GUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer (0, 0, 760, 560, "main"),
 	rContainer (260, 80, 480, 360, "rcontainer"),
 	sContainer (3, 220, 474, 137, "scontainer"),
-	monitorSwitch (570, 15, 40, 16, "switch", 0.0),
-	monitorLabel (560, 45, 60, 20, "label", "Monitor"),
-	bypassButton (638, 11, 24, 24, "redbutton"),
-	bypassLabel (620, 45, 60, 20, "label", "Bypass"),
-	drywetDial (690, 5, 40, 48, "dial", 1.0, 0.0, 1.0, 0.0, "%1.2f"),
-	drywetLabel (680, 45, 60, 20, "label", "Dry/wet"),
+	monitorSwitch (600, 15, 40, 16, "switch", 0.0),
+	monitorLabel (600, 35, 40, 20, "smlabel", "Monitor"),
+	bypassButton (662, 15, 16, 16, "redbutton"),
+	bypassLabel (650, 35, 40, 20, "smlabel", "Bypass"),
+	drywetDial (703, 5, 33, 40, "dial", 1.0, 0.0, 1.0, 0.0, "%1.2f"),
+	drywetLabel (700, 35, 40, 20, "smlabel", "Dry/wet"),
 	helpButton (20, 80, 24, 24, "halobutton", "Help"),
 	ytButton (50, 80, 24, 24, "halobutton", "Tutorial"),
 	monitorDisplay (3, 3, 474, 217, "mmonitor"),
@@ -319,6 +319,7 @@ void BChoppr_GUI::resizeGUI()
 
 	// Resize Fonts
 	defaultFont.setFontSize (12 * sz);
+	smFont.setFontSize (8 * sz);
 
 	// Resize Background
 	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 760 * sz, 560 * sz);
@@ -333,12 +334,12 @@ void BChoppr_GUI::resizeGUI()
 	// Resize widgets
 	RESIZE (mContainer, 0, 0, 760, 560, sz);
 	RESIZE (rContainer, 260, 80, 480, 360, sz);
-	RESIZE (monitorSwitch, 570, 15, 40, 16, sz);
-	RESIZE (monitorLabel, 560, 45, 60, 20, sz);
-	RESIZE (bypassButton, 638, 11, 24, 24, sz);
-	RESIZE (bypassLabel, 620, 45, 60, 20, sz);
-	RESIZE (drywetDial, 690, 5, 40, 48, sz);
-	RESIZE (drywetLabel, 680, 45, 60, 20, sz);
+	RESIZE (monitorSwitch, 600, 15, 40, 16, sz);
+	RESIZE (monitorLabel, 600, 35, 40, 20, sz);
+	RESIZE (bypassButton, 662, 15, 16, 16, sz);
+	RESIZE (bypassLabel, 650, 35, 40, 20, sz);
+	RESIZE (drywetDial, 703, 5, 33, 40, sz);
+	RESIZE (drywetLabel, 700, 35, 40, 20, sz);
 	RESIZE (helpButton, 20, 80, 24, 24, sz);
 	RESIZE (ytButton, 50, 80, 24, 24, sz);
 	RESIZE (monitorDisplay, 3, 3, 474, 217, sz);
