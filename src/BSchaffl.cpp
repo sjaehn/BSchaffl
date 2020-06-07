@@ -271,6 +271,16 @@ void BSchaffl::run (uint32_t n_samples)
 
 			// Store MIDI data
 			midiData.push_back (midi);
+			fprintf
+			(
+				stderr,
+				"BSchaffl.lv2 @ %1.10f: Schedule MIDI signal %i (%i,%i) to %1.10f\n",
+				inputSeq,
+				midi.msg[0],
+				midi.msg[1],
+				midi.msg[2],
+				midi.position
+			);
 		}
 
 		play (last_t, ev->time.frames);
@@ -304,12 +314,12 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 	while ((!midiData.empty()) && midiData.front().position <= endSeq)
 	{
 		// Calculate frame
-		int64_t frame = 0;
+		int64_t frame = start;
 		double seq = midiData.front().position;
 		if (seq >= startSeq)
 		{
-			frame = getFrameFromSequence (seq - startSeq);
-			frame = LIM (frame, 0, end);
+			frame = start + getFrameFromSequence (seq - startSeq);
+			//frame = LIM (frame, 0, end);
 		}
 
 		// Send MIDI
@@ -320,6 +330,20 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 		lv2_atom_forge_raw (&forge, &midiatom, sizeof (LV2_Atom));
 		lv2_atom_forge_raw (&forge, &midiData.front().msg, midiatom.size);
 		lv2_atom_forge_pad (&forge, sizeof (LV2_Atom) + midiatom.size);
+
+		fprintf
+		(
+			stderr, "BSchaffl.lv2 @ %1.10f - %1.10f: Send MIDI %i (%i, %i) at %1.10f (frame %li (%i - %i))\n",
+			startSeq,
+			endSeq,
+			midiData.front().msg[0],
+			midiData.front().msg[1],
+			midiData.front().msg[2],
+			midiData.front().position,
+			frame,
+			start,
+			end
+		);
 
 		// Remove sent data
 		midiData.pop_front();
