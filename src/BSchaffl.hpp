@@ -1,0 +1,138 @@
+/* B.Schaffl
+ * MIDI Pattern Delay Plugin
+ *
+ * Copyright (C) 2018 - 2020 by Sven Jähnichen
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+
+#ifndef BSCHAFFL_H_
+#define BSCHAFFL_H_
+
+#define MODFL(x) (x - floorf (x))
+
+#include <cmath>
+#include <array>
+#include <lv2/lv2plug.in/ns/ext/atom/atom.h>
+#include <lv2/lv2plug.in/ns/ext/atom/forge.h>
+#include "definitions.hpp"
+#include "Urids.hpp"
+#include "Ports.hpp"
+#include "Message.hpp"
+#include "Limit.hpp"
+#include "StaticArrayList.hpp"
+
+struct MidiData
+{
+	uint8_t msg[3];
+	size_t size;
+	double position;
+};
+
+const Limit controllerLimits [NR_CONTROLLERS] =
+{
+	{0.125, 4.0, 0},	// SEQ_LEN_VALUE
+	{0, 2, 1},		// SEQ_LEN_BASE
+	{0.333333, 3.0, 0},	// SWING
+	{1, 16, 1},		// NR_OF_STEPS
+	{0.0, 1.0, 0.0},	// STEP_POS
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},	// STEP_LEV
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0.0, 1.0, 0.0},
+	{0, 48000, 1}		// LATENCY
+};
+
+class BSchaffl
+{
+public:
+	BSchaffl (double samplerate, const LV2_Feature* const* features);
+	~BSchaffl ();
+
+	void connect_port (uint32_t port, void *data);
+	void run (uint32_t n_samples);
+
+	LV2_URID_Map* map;
+
+private:
+	double rate;
+	float bpm;
+	float speed;
+	int64_t bar;
+	float barBeat;
+	float beatsPerBar;
+	int beatUnit;
+	double positionSeq;
+	double latencySeq;
+	uint32_t refFrame;
+	bool uiOn;
+
+	StaticArrayList<MidiData, MIDIBUFFERSIZE> midiData;
+
+	// Data ports
+	LV2_Atom_Sequence* input;
+	LV2_Atom_Sequence* output;
+
+	// Controllers
+	float* controllerPtrs[NR_CONTROLLERS];
+	float controllers[NR_CONTROLLERS];
+	float stepPositions[MAXSTEPS - 1];
+	bool stepAutoPositions[MAXSTEPS - 1];
+
+	BSchafflURIs uris;
+
+	LV2_Atom_Forge forge;
+	LV2_Atom_Forge_Frame frame;
+
+	Message message;
+
+	double getSequenceFromBeats (const double beats);
+	double getBeatsFromSequence (const double sequence);
+	double getSequenceFromFrame (const int64_t frames);
+	int64_t getFrameFromSequence (const double sequence);
+	void recalculateAutoPositions ();
+	void play (uint32_t start, uint32_t end);
+	void notifyStatusToGui ();
+	void notifyMessageToGui ();
+
+};
+
+#endif /* BSCHAFFL_H_ */

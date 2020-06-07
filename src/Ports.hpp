@@ -1,7 +1,7 @@
-/* B.Choppr
- * Step Sequencer Effect Plugin
+/* B.Schaffl
+ * MIDI Pattern Delay Plugin
  *
- * Copyright (C) 2018, 2019 by Sven Jähnichen
+ * Copyright (C) 2018 - 2020 by Sven Jähnichen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,35 +21,27 @@
 #ifndef PORTS_HPP_
 #define PORTS_HPP_
 
-#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
-#include <lv2/lv2plug.in/ns/ext/atom/util.h>
-#include <lv2/lv2plug.in/ns/ext/urid/urid.h>
-#include <lv2/lv2plug.in/ns/ext/time/time.h>
-#include "definitions.hpp"
-
-enum BChopprPortIndex
+enum BSchafflPortIndex
 {
-	Control_1	= 0,
-	Control_2	= 1,
-	Notify		= 2,
-	AudioPorts	= 3,
-	AudioIn_1	= 3,
-	AudioIn_2	= 4,
-	AudioOut_1	= 5,
-	AudioOut_2	= 6,
-	NrAudioPorts	= 4,
-	Controllers	= 7,
-	Bypass		= 7,
-	DryWet		= 8,
-	Blend		= 9,
-	Attack		= 10,
-	Release		= 11,
-	SequencesPerBar	= 12,
-	Swing		= 13,
-	NrSteps		= 14,
-	StepPositions	= 15,
-	StepLevels	= 30,
-	NrControllers	= 39
+	INPUT		= 0,
+	OUTPUT		= 1,
+
+	CONTROLLERS	= 2,
+	SEQ_LEN_VALUE	= 0,
+	SEQ_LEN_BASE	= 1,
+	SWING		= 2,
+	NR_OF_STEPS	= 3,
+	STEP_POS	= 4,
+	STEP_LEV	= 19,
+	LATENCY		= 35,
+	NR_CONTROLLERS	= 36
+};
+
+enum BSchafflSeqLenBaseIndex
+{
+	SECONDS		= 0,
+	BEATS		= 1,
+	BARS		= 2
 };
 
 #endif /* PORTS_HPP_ */

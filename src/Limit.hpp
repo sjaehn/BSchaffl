@@ -1,7 +1,7 @@
-/* B.Schaffl
- * MIDI Pattern Delay Plugin
+/* B.Shapr
+ * Beat / envelope shaper LV2 plugin
  *
- * Copyright (C) 2018 - 2020 by Sven Jähnichen
+ * Copyright (C) 2019 by Sven Jähnichen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,15 +18,26 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef DEFINITIONS_HPP_
-#define DEFINITIONS_HPP_
+#ifndef LIMIT_HPP_
+#define LIMIT_HPP_
 
-#define NOTIFYBUFFERSIZE 64
-#define MONITORBUFFERSIZE 64
-#define MIDIBUFFERSIZE 256
-#define MAXSTEPS 16
-#define MINMARKERVALUE 0.000001
-#define BSCHAFFL_URI "https://www.jahnichen.de/plugins/lv2/BSchaffl"
-#define BSCHAFFLGUI_URI "https://www.jahnichen.de/plugins/lv2/BSchaffl#gui"
+#include <cmath>
 
-#endif /* DEFINITIONS_HPP_ */
+struct Limit
+{
+	float min;
+	float max;
+	float step;
+
+        float validate (float value) const
+        {
+                if (max <= min) return min;
+                if (value <= min) return min;
+                if (value >= max) return max;
+                if (step == 0) return value;
+		float newValue = (step > 0 ? min + round ((value - min) / step) * step : max - round ((max - value) / step) * step);
+		return (newValue >= min ? (newValue <= max ? newValue : max) : min);
+        }
+};
+
+#endif /* LIMIT_HPP_ */

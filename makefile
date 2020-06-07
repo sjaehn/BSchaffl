@@ -28,21 +28,25 @@ GUIPPFLAGS += -DPUGL_HAVE_CAIRO
 DSPFLAGS += `$(PKG_CONFIG) --cflags --libs $(LV2_LIBS)`
 GUIFLAGS += `$(PKG_CONFIG) --cflags --libs $(LV2_LIBS) $(GUI_LIBS)`
 
-BUNDLE = BChoppr.lv2
-DSP = BChoppr
-DSP_SRC = ./src/BChoppr.cpp
-GUI = BChoppr_GUI
-GUI_SRC = ./src/BChoppr_GUI.cpp
+BUNDLE = BSchaffl.lv2
+DSP = BSchaffl
+DSP_SRC = ./src/BSchaffl.cpp
+GUI = BSchafflGUI
+GUI_SRC = ./src/BSchafflGUI.cpp
 OBJ_EXT = .so
 DSP_OBJ = $(DSP)$(OBJ_EXT)
 GUI_OBJ = $(GUI)$(OBJ_EXT)
 B_OBJECTS = $(addprefix $(BUNDLE)/, $(DSP_OBJ) $(GUI_OBJ))
-FILES = manifest.ttl BChoppr.ttl surface.png LICENSE
-B_FILES = $(addprefix $(BUNDLE)/, $(FILES))
+ROOTFILES = manifest.ttl BSchaffl.ttl LICENSE
+INCFILES = inc/surface.png inc/in.png inc/amp.png inc/del.png inc/out.png
+B_FILES = $(addprefix $(BUNDLE)/, $(ROOTFILES) $(INCFILES))
 
 DSP_INCL = src/Message.cpp
 
 GUI_INCL = \
+	src/BWidgets/ImageIcon.cpp \
+	src/BWidgets/Icon.cpp \
+	src/BWidgets/ItemBox.cpp \
 	src/BWidgets/BItems.cpp \
 	src/BWidgets/UpButton.cpp \
 	src/BWidgets/DownButton.cpp \
@@ -51,6 +55,7 @@ GUI_INCL = \
 	src/BWidgets/Button.cpp \
 	src/BWidgets/ChoiceBox.cpp \
 	src/BWidgets/ListBox.cpp \
+	src/BWidgets/PopupListBox.cpp \
 	src/BWidgets/DrawingSurface.cpp \
 	src/BWidgets/DialValue.cpp \
 	src/BWidgets/Dial.cpp \
@@ -88,7 +93,9 @@ ifeq ($(shell $(PKG_CONFIG) --exists cairo || echo no), no)
 endif
 
 $(BUNDLE): clean $(DSP_OBJ) $(GUI_OBJ)
-	@cp $(FILES) $(BUNDLE)
+	@cp $(ROOTFILES) $(BUNDLE)
+	@mkdir -p $(BUNDLE)/inc
+	@cp $(INCFILES) $(BUNDLE)/inc
 
 all: $(BUNDLE)
 
@@ -107,22 +114,25 @@ $(GUI_OBJ): $(GUI_SRC)
 install:
 	@echo -n Install $(BUNDLE) to $(DESTDIR)$(LV2DIR)...
 	@$(INSTALL) -d $(DESTDIR)$(LV2DIR)/$(BUNDLE)
+	@$(INSTALL) -d $(DESTDIR)$(LV2DIR)/$(BUNDLE)/inc
 	@$(INSTALL_PROGRAM) -m755 $(B_OBJECTS) $(DESTDIR)$(LV2DIR)/$(BUNDLE)
-	@$(INSTALL_DATA) $(B_FILES) $(DESTDIR)$(LV2DIR)/$(BUNDLE)
-	@cp -R $(BUNDLE) $(DESTDIR)$(LV2DIR)
+	@$(INSTALL_DATA) $(addprefix $(BUNDLE)/, $(ROOTFILES)) $(DESTDIR)$(LV2DIR)/$(BUNDLE)
+	@$(INSTALL_DATA) $(addprefix $(BUNDLE)/, $(INCFILES)) $(DESTDIR)$(LV2DIR)/$(BUNDLE)/inc
 	@echo \ done.
 
 install-strip:
 	@echo -n "Install (stripped)" $(BUNDLE) to $(DESTDIR)$(LV2DIR)...
 	@$(INSTALL) -d $(DESTDIR)$(LV2DIR)/$(BUNDLE)
+	@$(INSTALL) -d $(DESTDIR)$(LV2DIR)/$(BUNDLE)/inc
 	@$(INSTALL_PROGRAM) -m755 $(STRIPFLAGS) $(B_OBJECTS) $(DESTDIR)$(LV2DIR)/$(BUNDLE)
-	@$(INSTALL_DATA) $(B_FILES) $(DESTDIR)$(LV2DIR)/$(BUNDLE)
-	@cp -R $(BUNDLE) $(DESTDIR)$(LV2DIR)
+	@$(INSTALL_DATA) $(addprefix $(BUNDLE)/, $(ROOTFILES)) $(DESTDIR)$(LV2DIR)/$(BUNDLE)
+	@$(INSTALL_DATA) $(addprefix $(BUNDLE)/, $(INCFILES)) $(DESTDIR)$(LV2DIR)/$(BUNDLE)/inc
 	@echo \ done.
 
 uninstall:
 	@echo -n Uninstall $(BUNDLE)...
-	@rm -f $(addprefix $(DESTDIR)$(LV2DIR)/$(BUNDLE)/, $(FILES))
+	@rm -f $(addprefix $(DESTDIR)$(LV2DIR)/$(BUNDLE)/, $(ROOTFILES) $(INCFILES))
+	-@rmdir $(DESTDIR)$(LV2DIR)/$(BUNDLE)/inc
 	@rm -f $(DESTDIR)$(LV2DIR)/$(BUNDLE)/$(GUI_OBJ)
 	@rm -f $(DESTDIR)$(LV2DIR)/$(BUNDLE)/$(DSP_OBJ)
 	-@rmdir $(DESTDIR)$(LV2DIR)/$(BUNDLE)
