@@ -78,7 +78,7 @@ const Limit controllerLimits [NR_CONTROLLERS] =
 	{0.0, 1.0, 0.0},
 	{0.0, 1.0, 0.0},
 	{0.0, 1.0, 0.0},
-	{0, 48000, 1}		// LATENCY
+	{0, 192000, 1}		// LATENCY
 };
 
 class BSchaffl

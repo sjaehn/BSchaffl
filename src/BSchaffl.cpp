@@ -271,6 +271,8 @@ void BSchaffl::run (uint32_t n_samples)
 			}
 
 			// Store MIDI data
+			// Clear wrong data first
+			while ((!midiData.empty()) && (midiData.back().position > midi.position)) midiData.pop_back();
 			midiData.push_back (midi);
 			fprintf
 			(
