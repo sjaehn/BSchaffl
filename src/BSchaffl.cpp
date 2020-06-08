@@ -267,7 +267,7 @@ void BSchaffl::run (uint32_t n_samples)
 			// Level MIDI NOTE_ON and NOTE_OFF
 			if (((midi.msg[0] & 0xF0) == 0x80) || ((midi.msg[0] & 0xF0) == 0x90))
 			{
-				midi.msg[3] = float (midi.msg[3]) * controllers[STEP_LEV + step];
+				midi.msg[2] = float (midi.msg[2]) * controllers[STEP_LEV + step];
 			}
 
 			// Store MIDI data
