@@ -47,6 +47,9 @@ const Limit controllerLimits [NR_CONTROLLERS] =
 	{0, 2, 1},		// SEQ_LEN_BASE
 	{0.333333, 3.0, 0},	// SWING
 	{1, 16, 1},		// NR_OF_STEPS
+	{0.0, 0.5, 0},		// QUANT_RANGE
+	{0, 1, 1},		// QUANT_MAP
+	{0, 1, 1},		// QUANT_POS
 	{0.0, 1.0, 0.0},	// STEP_POS
 	{0.0, 1.0, 0.0},
 	{0.0, 1.0, 0.0},

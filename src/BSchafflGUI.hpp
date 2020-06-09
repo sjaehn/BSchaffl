@@ -38,6 +38,7 @@
 #include "BWidgets/TextButton.hpp"
 #include "BWidgets/PopupListBox.hpp"
 #include "BWidgets/ImageIcon.hpp"
+#include "BWidgets/Text.hpp"
 #include "Marker.hpp"
 #include "LightButton.hpp"
 #include "SwingHSlider.hpp"
@@ -102,6 +103,18 @@ private:
         std::string pluginPath;
 
 	BWidgets::Widget mContainer;
+
+        BWidgets::ImageIcon smartQuantizationIcon;
+        BWidgets::Widget smartQuantizationContainer;
+        BWidgets::HSliderValue smartQuantizationRangeSlider;
+        BWidgets::HSwitch smartQuantizationMappingSwitch;
+        BWidgets::HSwitch smartQuantizationPositioningSwitch;
+        BWidgets::Text smartQuantizationText1;
+        BWidgets::Label smartQuantizationRangeLabel;
+        BWidgets::Text smartQuantizationText2;
+        BWidgets::Label smartQuantizationMappingLabel;
+        BWidgets::Label smartQuantizationPositionLabel;
+
         BWidgets::DrawingSurface sContainer;
         //HaloButton helpButton;
         //HaloButton ytButton;
@@ -151,6 +164,10 @@ private:
 						   BStyles::TEXT_ALIGN_CENTER, BStyles::TEXT_VALIGN_MIDDLE);
         BStyles::Font smFont = BStyles::Font ("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 8.0,
                                               BStyles::TEXT_ALIGN_CENTER, BStyles::TEXT_VALIGN_MIDDLE);
+      	BStyles::Font lfFont = BStyles::Font ("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 12.0,
+      						   BStyles::TEXT_ALIGN_LEFT, BStyles::TEXT_VALIGN_MIDDLE);
+      	BStyles::Font txFont = BStyles::Font ("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 12.0,
+      						   BStyles::TEXT_ALIGN_LEFT, BStyles::TEXT_VALIGN_TOP);
 
         BStyles::StyleSet defaultStyles = {"default", {{"background", STYLEPTR (&BStyles::noFill)},
 						       {"border", STYLEPTR (&BStyles::noBorder)}}};
@@ -162,6 +179,14 @@ private:
                                                  {"border", STYLEPTR (&BStyles::noBorder)},
                                                  {"textcolors", STYLEPTR (&txColors)},
                                                  {"font", STYLEPTR (&smFont)}}};
+        BStyles::StyleSet lfStyles = {"labels", {{"background", STYLEPTR (&BStyles::noFill)},
+                                              {"border", STYLEPTR (&BStyles::noBorder)},
+                                              {"textcolors", STYLEPTR (&txColors)},
+                                              {"font", STYLEPTR (&lfFont)}}};
+        BStyles::StyleSet txStyles = {"labels", {{"background", STYLEPTR (&BStyles::noFill)},
+                                              {"border", STYLEPTR (&BStyles::noBorder)},
+                                              {"textcolors", STYLEPTR (&txColors)},
+                                              {"font", STYLEPTR (&txFont)}}};
 
         BStyles::StyleSet focusStyles = {"labels", {{"background", STYLEPTR (&screenBg)},
                         			    {"border", STYLEPTR (&focusborder)},
@@ -175,6 +200,8 @@ private:
 		{"main", 	{{"background", STYLEPTR (&widgetBg)},
 				 {"border", STYLEPTR (&BStyles::noBorder)}}},
 		{"widget", 	{{"uses", STYLEPTR (&defaultStyles)}}},
+                {"screen", 	{{"background", STYLEPTR (&screenBg)},
+				 {"border", STYLEPTR (&BStyles::noBorder)}}},
 		{"mmonitor", 	{{"background", STYLEPTR (&BStyles::blackFill)},
 				 {"border", STYLEPTR (&BStyles::noBorder)}}},
  		{"smonitor", 	{{"background", STYLEPTR (&BStyles::blackFill)},
@@ -228,6 +255,8 @@ private:
 				 {"textcolors", STYLEPTR (&txColors)},
 				 {"font", STYLEPTR (&defaultFont)}}},
 		{"label",	{{"uses", STYLEPTR (&labelStyles)}}},
+                {"lflabel",	{{"uses", STYLEPTR (&lfStyles)}}},
+                {"text",	{{"uses", STYLEPTR (&txStyles)}}},
                 {"steplabel",	{{"uses", STYLEPTR (&smStyles)},
 				 {"border", STYLEPTR (&stepborder)}}},
                 {"actsteplabel",{{"uses", STYLEPTR (&smStyles)},

@@ -268,7 +268,14 @@ void BSchaffl::run (uint32_t n_samples)
 			// Level MIDI NOTE_ON and NOTE_OFF
 			if (((midi.msg[0] & 0xF0) == 0x80) || ((midi.msg[0] & 0xF0) == 0x90))
 			{
-				midi.msg[2] = float (midi.msg[2]) * controllers[STEP_LEV + step];
+				// Map step (smart quantization)
+				const float range = (controllers[QUANT_MAP] != 0.0f ? controllers[QUANT_RANGE] : 0.0);
+				int map = (1.0 - ifrac < range ? ((step + 1) % nrOfSteps) : step);
+				if ((midi.msg[0] & 0xF0) == 0x80) map = (map + nrOfSteps - 1) % nrOfSteps;
+
+				// Calculate and set amp
+				const float amp = controllers[STEP_LEV + map];
+				midi.msg[2] = float (midi.msg[2]) * amp;
 			}
 
 			// Store MIDI data

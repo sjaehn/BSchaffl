@@ -38,12 +38,13 @@ DSP_OBJ = $(DSP)$(OBJ_EXT)
 GUI_OBJ = $(GUI)$(OBJ_EXT)
 B_OBJECTS = $(addprefix $(BUNDLE)/, $(DSP_OBJ) $(GUI_OBJ))
 ROOTFILES = manifest.ttl BSchaffl.ttl LICENSE
-INCFILES = inc/surface.png inc/in.png inc/amp.png inc/del.png inc/out.png
+INCFILES = inc/*.png
 B_FILES = $(addprefix $(BUNDLE)/, $(ROOTFILES) $(INCFILES))
 
 DSP_INCL = src/Message.cpp
 
 GUI_INCL = \
+	src/BWidgets/Text.cpp \
 	src/BWidgets/ImageIcon.cpp \
 	src/BWidgets/Icon.cpp \
 	src/BWidgets/ItemBox.cpp \

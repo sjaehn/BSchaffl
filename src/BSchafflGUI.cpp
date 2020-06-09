@@ -24,17 +24,29 @@
 
 
 BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow) :
-	Window (760, 420, "B.Schaffl", parentWindow, true),
+	Window (880, 420, "B.Schaffl", parentWindow, true),
 	controller (NULL), write_function (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),
 
-	mContainer (0, 0, 760, 420, "main"),
-	sContainer (220, 90, 520, 210, "scontainer"),
+	mContainer (0, 0, 880, 420, "main"),
+
+	smartQuantizationIcon (20, 90, 300, 20, "widget", pluginPath + "inc/smart_quantization.png"),
+	smartQuantizationContainer (20, 110, 300, 180, "screen"),
+        smartQuantizationRangeSlider (10, 60, 80, 28, "slider", 0.25, 0.0, 0.5, 0.0, "%1.2f"),
+        smartQuantizationMappingSwitch (10, 136, 28, 14, "slider", 1.0),
+        smartQuantizationPositioningSwitch (10, 156, 28, 14, "slider", 0.0),
+        smartQuantizationText1 (10, 10, 280, 50, "text", "Smart quantization enables the alignment of MIDI signals to a step pattern if the signal is within a range from the step start or end."),
+        smartQuantizationRangeLabel (100, 70, 90, 20, "lflabel", "Range (steps)"),
+	smartQuantizationText2 (10, 100, 280, 30, "text", "MIDI signals can be mapped to a step and/or \"snapped\" to the start/end of a step."),
+        smartQuantizationMappingLabel (50, 133, 120, 20, "lflabel", "Step mapping"),
+        smartQuantizationPositionLabel (50, 153, 120, 20, "lflabel", "Signal positioning"),
+
+	sContainer (340, 90, 520, 210, "scontainer"),
 	//helpButton (20, 80, 24, 24, "halobutton", "Help"),
 	//ytButton (50, 80, 24, 24, "halobutton", "Tutorial"),
 	seqLenValueListbox
 	(
-		220, 320, 50, 20, 0, -220, 50, 220, "listbox",
+		340, 320, 50, 20, 0, -220, 50, 220, "listbox",
 		BItems::ItemList
 		({
 			{0.125, "1/8"}, {0.25, "1/4"}, {0.333333, "1/3"}, {0.5, "1/2"},
@@ -43,18 +55,18 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	),
 	seqLenBaseListbox
 	(
-		280, 320, 90, 20, 0, -80, 90, 80, "listbox",
+		400, 320, 90, 20, 0, -80, 90, 80, "listbox",
 		BItems::ItemList
 		({{0, "Second(s)"}, {1, "Beat(s)"}, {2, "Bar(s)"}}), 2.0
 	),
-	swingControl (450, 312, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
-	markersAutoButton (655, 320, 80, 20, "button", "Auto"),
-	nrStepsControl (220, 362, 520, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
+	swingControl (570, 312, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
+	markersAutoButton (775, 320, 80, 20, "button", "Auto"),
+	nrStepsControl (340, 362, 520, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
 	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),
 	latencyValue (0, 0, 0, 0, "widget", 0),
-	latencyDisplay (640, 10, 120, 10, "smlabel", ""),
+	latencyDisplay (760, 10, 120, 10, "smlabel", ""),
 	controllers{nullptr},
-	messageLabel (420, 63, 280, 20, "hilabel", ""),
+	messageLabel (420, 63, 400, 20, "hilabel", ""),
 	inIcon (4, 14, 32, 12, "widget", pluginPath + "inc/in.png"),
 	ampIcon (4, 90, 32, 12, "widget", pluginPath + "inc/amp.png"),
 	delIcon (4, 160, 32, 12, "widget", pluginPath + "inc/del.png"),
@@ -69,6 +81,10 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	controllers[SEQ_LEN_BASE] = &seqLenBaseListbox;
 	controllers[SWING] = &swingControl;
 	controllers[NR_OF_STEPS] = &nrStepsControl;
+	controllers[QUANT_RANGE] = &smartQuantizationRangeSlider;
+        controllers[QUANT_MAP] = &smartQuantizationMappingSwitch;
+        controllers[QUANT_POS] = &smartQuantizationPositioningSwitch;
+
 	for (int i = 0; i < MAXSTEPS - 1; ++i) controllers[STEP_POS + i] = &markerWidgets[i];
 	for (int i = 0; i < MAXSTEPS; ++i) controllers[STEP_LEV + i] = &stepControl[i];
 	controllers[LATENCY] = &latencyValue;
@@ -127,10 +143,22 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	applyTheme (theme);
 
 	// Pack widgets
+	smartQuantizationContainer.add (smartQuantizationRangeSlider);
+        smartQuantizationContainer.add (smartQuantizationMappingSwitch);
+        smartQuantizationContainer.add (smartQuantizationPositioningSwitch);
+        smartQuantizationContainer.add (smartQuantizationText1);
+        smartQuantizationContainer.add (smartQuantizationRangeLabel);
+	smartQuantizationContainer.add (smartQuantizationText2);
+        smartQuantizationContainer.add (smartQuantizationMappingLabel);
+        smartQuantizationContainer.add (smartQuantizationPositionLabel);
+
 	sContainer.add (inIcon);
 	sContainer.add (ampIcon);
 	sContainer.add (delIcon);
 	sContainer.add (outIcon);
+
+	mContainer.add (smartQuantizationIcon);
+	mContainer.add (smartQuantizationContainer);
 	mContainer.add (sContainer);
 	//mContainer.add (helpButton);
 	//mContainer.add (ytButton);
@@ -254,10 +282,12 @@ void BSchafflGUI::resizeGUI()
 
 	// Resize Fonts
 	defaultFont.setFontSize (12 * sz);
+	lfFont.setFontSize (12 * sz);
+	txFont.setFontSize (12 * sz);
 	smFont.setFontSize (8 * sz);
 
 	// Resize Background
-	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 760 * sz, 560 * sz);
+	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 880 * sz, 560 * sz);
 	cairo_t* cr = cairo_create (surface);
 	cairo_scale (cr, sz, sz);
 	cairo_set_source_surface(cr, bgImageSurface, 0, 0);
@@ -268,7 +298,7 @@ void BSchafflGUI::resizeGUI()
 
 	// TODO: Resize widgets
 	/*
-	RESIZE (mContainer, 0, 0, 760, 560, sz);
+	RESIZE (mContainer, 0, 0, 880, 560, sz);
 	RESIZE (rContainer, 260, 80, 480, 360, sz);
 	RESIZE (monitorSwitch, 600, 15, 40, 16, sz);
 	RESIZE (monitorLabel, 600, 35, 40, 20, sz);
@@ -318,6 +348,18 @@ void BSchafflGUI::resizeGUI()
 void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 {
 	mContainer.applyTheme (theme);
+
+	smartQuantizationIcon.applyTheme (theme);
+	smartQuantizationContainer.applyTheme (theme);
+        smartQuantizationRangeSlider.applyTheme (theme);
+        smartQuantizationMappingSwitch.applyTheme (theme);
+        smartQuantizationPositioningSwitch.applyTheme (theme);
+        smartQuantizationText1.applyTheme (theme);
+        smartQuantizationRangeLabel.applyTheme (theme);
+	smartQuantizationText2.applyTheme (theme);
+        smartQuantizationMappingLabel.applyTheme (theme);
+        smartQuantizationPositionLabel.applyTheme (theme);
+
 	sContainer.applyTheme (theme);
 	//helpButton.applyTheme (theme);
 	//ytButton.applyTheme (theme);
@@ -349,7 +391,7 @@ void BSchafflGUI::onConfigureRequest (BEvents::ExposeEvent* event)
 {
 	Window::onConfigureRequest (event);
 
-	sz = (getWidth() / 760 > getHeight() / 420 ? getHeight() / 420 : getWidth() / 760);
+	sz = (getWidth() / 880 > getHeight() / 420 ? getHeight() / 420 : getWidth() / 880);
 	resizeGUI ();
 }
 
@@ -746,9 +788,9 @@ LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin
 	double sz = 1.0;
 	int screenWidth  = getScreenWidth ();
 	int screenHeight = getScreenHeight ();
-	if ((screenWidth < 820) || (screenHeight < 440)) sz = 0.66;
+	if ((screenWidth < 940) || (screenHeight < 440)) sz = 0.66;
 
-	if (resize) resize->ui_resize(resize->handle, 760 * sz, 420 * sz);
+	if (resize) resize->ui_resize(resize->handle, 880 * sz, 420 * sz);
 
 	*widget = (LV2UI_Widget) puglGetNativeWindow (ui->getPuglView ());
 
