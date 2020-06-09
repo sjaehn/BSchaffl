@@ -49,6 +49,7 @@ struct BSchafflURIs
 	LV2_URID bschafflr_uiOff;
 	LV2_URID bschafflr_statusEvent;
 	LV2_URID bschafflr_step;
+	LV2_URID bschafflr_latency;
 	LV2_URID notify_event;
 	LV2_URID notify_key;
 	LV2_URID notify_messageEvent;
@@ -76,6 +77,7 @@ void getURIs (LV2_URID_Map* m, BSchafflURIs* uris)
 	uris->bschafflr_uiOff = m->map(m->handle, BSCHAFFL_URI "#BSchafflUiOff");
 	uris->bschafflr_statusEvent = m->map(m->handle, BSCHAFFL_URI "#BSchafflStatusEvent");
 	uris->bschafflr_step = m->map(m->handle, BSCHAFFL_URI "#BSchafflStep");
+	uris->bschafflr_latency = m->map(m->handle, BSCHAFFL_URI "#BSchafflLatency");
 	uris->notify_event = m->map(m->handle, BSCHAFFL_URI "#NOTIFYev");
 	uris->notify_key = m->map(m->handle, BSCHAFFL_URI "#NOTIFYkey");
 	uris->notify_messageEvent = m->map(m->handle, BSCHAFFL_URI "#NOTIFYmessageEvent");

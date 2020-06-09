@@ -175,8 +175,14 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 			// Status notification
 			if (obj->body.otype == uris.bschafflr_statusEvent)
 			{
-				const LV2_Atom* oPos = NULL;
-				lv2_atom_object_get(obj, uris.bschafflr_step, &oPos, 0);
+				const LV2_Atom *oPos = NULL, *oLat = NULL;
+				lv2_atom_object_get
+				(
+					obj,
+					uris.bschafflr_step, &oPos,
+					uris.bschafflr_latency, &oLat,
+					0
+				);
 				if (oPos && (oPos->type == uris.atom_Int))
 				{
 					const int step = LIMIT (((LV2_Atom_Int*)oPos)->body, 0, MAXSTEPS - 1);
@@ -200,6 +206,12 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 							outputStepLabel[i].applyTheme (theme);
 						}
 					}
+				}
+
+				if (oLat && (oLat->type == uris.atom_Float))
+				{
+					const float latencyMs = ((LV2_Atom_Float*)oLat)->body;
+					latencyDisplay.setText ((latencyMs > 0) ? "Latency: " + BUtilities::to_string (latencyMs, "%5.1f") + " ms" : "");
 				}
 			}
 
@@ -501,7 +513,7 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 			{
 				if (controllerNr == LATENCY)
 				{
-					ui->latencyDisplay.setText ((value > 0) ? "Latency: " + std::to_string (long(value)) + " frames" : "");
+					// Do nothing
 				}
 
 				else if ((controllerNr >= STEP_POS) && (controllerNr < STEP_POS + MAXSTEPS - 1))

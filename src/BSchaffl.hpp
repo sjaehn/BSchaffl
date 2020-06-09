@@ -102,6 +102,7 @@ private:
 	int beatUnit;
 	double positionSeq;
 	double latencySeq;
+	int64_t latencyFr;
 	uint32_t refFrame;
 	bool uiOn;
 

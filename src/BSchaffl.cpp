@@ -30,7 +30,8 @@
 BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 	map(NULL),
 	rate(samplerate), bpm(120.0f), speed(1), bar (0), barBeat (0),
-	beatsPerBar (4), beatUnit (4),  positionSeq (0.0), latencySeq (0.0),
+	beatsPerBar (4), beatUnit (4),  positionSeq (0.0),
+	latencySeq (0.0), latencyFr (0),
 	refFrame(0),
 	uiOn (false),
 	midiData (),
@@ -140,7 +141,7 @@ void BSchaffl::run (uint32_t n_samples)
 	}
 
 	// Report latency
-	const float latencyFr = floor (getFrameFromSequence (latencySeq));
+	latencyFr = getFrameFromSequence (latencySeq);
 	*controllerPtrs[LATENCY] = latencyFr;
 
 	// Prepare forge buffer and initialize atom sequence
@@ -411,7 +412,6 @@ void BSchaffl::recalculateAutoPositions ()
 	int start = 0;
 	for (int i = 0; i < nrMarkers; ++i)
 	{
-		//fprintf(stderr, "%f ", controllers[STEP_POS + i]);
 		if (stepAutoPositions[i])
 		{
 			if ((i == nrMarkers - 1) || (!stepAutoPositions[i + 1]))
@@ -432,7 +432,6 @@ void BSchaffl::recalculateAutoPositions ()
 		}
 		else start = i + 1;
 	}
-	//fprintf(stderr, "%i\n", nrMarkers);
 }
 
 void BSchaffl::notifyStatusToGui ()
@@ -442,12 +441,17 @@ void BSchaffl::notifyStatusToGui ()
 	const double seqPos = fmod (positionSeq, 1.0);
 	while ((outStep < controllers[NR_OF_STEPS] - 1) && (seqPos > stepPositions[outStep])) ++outStep;
 
+	// Calculate latency in ms
+	const float latencyMs = float (latencyFr) * 1000.0f / rate;
+
 	// Send notifications
 	LV2_Atom_Forge_Frame frame;
 	lv2_atom_forge_frame_time (&forge, 0);
 	lv2_atom_forge_object (&forge, &frame, 0, uris.bschafflr_statusEvent);
 	lv2_atom_forge_key (&forge, uris.bschafflr_step);
 	lv2_atom_forge_int (&forge, outStep);
+	lv2_atom_forge_key (&forge, uris.bschafflr_latency);
+	lv2_atom_forge_float (&forge, latencyMs);
 	lv2_atom_forge_pop (&forge, &frame);
 }
 

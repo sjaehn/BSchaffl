@@ -113,7 +113,7 @@ private:
 	std::array<BWidgets::VSliderValue, MAXSTEPS> stepControl;
 	std::array<Marker, MAXSTEPS - 1> markerWidgets;
         BWidgets::ListBox markerListBox;
-        BWidgets::ValueWidget latencyValue;
+        BWidgets::ValueWidget latencyValue;     // Dummy
         BWidgets::Label latencyDisplay;
         std::array<BWidgets::ValueWidget*, NR_CONTROLLERS> controllers;
         BWidgets::Label messageLabel;

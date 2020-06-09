@@ -59,7 +59,6 @@ TODO
 
 ## TODO's
 
-* Additionally report latency to GUI via AtomPort (some hosts do not forward latency via ControlPort to GUI)
 * Show warning if latency exceeds maximum
 * Smart quantization option: snap NOTE_ON to step start and NOTE_OFF to step end
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
@@ -67,6 +66,7 @@ TODO
 * Option to change output step
 * MIDI channel filter option
 * MIDI message filter option
+* Velocity swing option
 * Step shape editor
 * Write plugin manual
 * Make tutorial video
