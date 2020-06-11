@@ -130,6 +130,8 @@ void BSchaffl::run (uint32_t n_samples)
 	}
 
 	// Re-calculate latency
+	double qLatencySeq = (controllers[QUANT_POS] != 0.0f ? controllers[QUANT_RANGE] / controllers[NR_OF_STEPS] : 0.0);
+
 	latencySeq = 0;
 	const int nrSteps = controllers[NR_OF_STEPS];
 	for (int i = 0; i < nrSteps - 1; ++i)
@@ -139,6 +141,7 @@ void BSchaffl::run (uint32_t n_samples)
 		const double diffSeq = inStartSeq - outStartSeq;
 		if (diffSeq > latencySeq) latencySeq = diffSeq;
 	}
+	latencySeq += qLatencySeq;
 
 	// Report latency
 	latencyFr = getFrameFromSequence (latencySeq);
@@ -260,17 +263,19 @@ void BSchaffl::run (uint32_t n_samples)
 			const float ifrac = (iprev != inext ? (inputSeqPos - iprev) / (inext - iprev) : 0.0f);
 
 			// Calculate output position
+			const float qrange = (controllers[QUANT_POS] != 0.0f ? controllers[QUANT_RANGE] : 0.0);
 			const float oprev = (step == 0.0 ? 0.0f : stepPositions[step - 1]);
 			const float onext = (step >= nrOfSteps - 1 ? 1.0f : stepPositions[step]);
-			const float outputSeqPos = oprev + ifrac * (onext - oprev);
+			const float ofrac = (ifrac <= qrange ? 0.0f : (1.0f - ifrac < qrange ? 1.0f : ifrac));
+			const float outputSeqPos = oprev + ofrac * (onext - oprev);
 			midi.position = inputSeq + latencySeq + outputSeqPos - inputSeqPos;
 
 			// Level MIDI NOTE_ON and NOTE_OFF
 			if (((midi.msg[0] & 0xF0) == 0x80) || ((midi.msg[0] & 0xF0) == 0x90))
 			{
 				// Map step (smart quantization)
-				const float range = (controllers[QUANT_MAP] != 0.0f ? controllers[QUANT_RANGE] : 0.0);
-				int map = (1.0 - ifrac < range ? ((step + 1) % nrOfSteps) : step);
+				const float mrange = (controllers[QUANT_MAP] != 0.0f ? controllers[QUANT_RANGE] : 0.0);
+				int map = (1.0 - ifrac < mrange ? ((step + 1) % nrOfSteps) : step);
 				if ((midi.msg[0] & 0xF0) == 0x80) map = (map + nrOfSteps - 1) % nrOfSteps;
 
 				// Calculate and set amp
@@ -278,10 +283,37 @@ void BSchaffl::run (uint32_t n_samples)
 				midi.msg[2] = float (midi.msg[2]) * amp;
 			}
 
+			// Garbage collection
+			// Removes data from queue which are scheduled to a time point later than the latest possible time point
+			const double maxSeq = inputSeq + latencySeq + oprev + 1.0f * (onext - oprev) - inputSeqPos;
+			while ((!midiData.empty()) && (midiData.back().position > maxSeq))
+			{
+				fprintf
+				(
+					stderr,
+					"BSchaffl.lv2 @ %1.10f: Remove MIDI signal %i (%i,%i) from %1.10f (maxSeq = %1.10f)\n",
+					inputSeq,
+					midiData.back().msg[0],
+					midiData.back().msg[1],
+					midiData.back().msg[2],
+					midiData.back().position,
+					maxSeq
+				);
+
+				midiData.pop_back();
+			}
+
 			// Store MIDI data
-			// Clear wrong data first
-			while ((!midiData.empty()) && (midiData.back().position > midi.position)) midiData.pop_back();
-			midiData.push_back (midi);
+			// TODO Use insert
+			for (MidiData** m = midiData.end(); m >= midiData.begin(); --m)
+			{
+				if ((m == midiData.begin()) || ((**(m - 1)).position <= midi.position))
+				{
+					midiData.insert (m, midi);
+					break;
+				}
+			}
+			//midiData.push_back (midi);
 			fprintf
 			(
 				stderr,
