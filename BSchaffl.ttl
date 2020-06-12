@@ -115,7 +115,7 @@
                 lv2:index 6 ;
                 lv2:symbol "quantization_range" ;
                 lv2:name "Smart quantization range" ;
-                lv2:default 0.25 ;
+                lv2:default 0.0625 ;
                 lv2:minimum 0.0 ;
                 lv2:maximum 0.5 ;
 		units:unit <https://www.jahnichen.de/plugins/lv2/BSchaffl#units_step> ;

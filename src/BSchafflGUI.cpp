@@ -30,16 +30,24 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	mContainer (0, 0, 880, 420, "main"),
 
-	smartQuantizationIcon (20, 90, 300, 20, "widget", pluginPath + "inc/smart_quantization.png"),
-	smartQuantizationContainer (20, 110, 300, 180, "screen"),
+	smartQuantizationIcon (0, 0, 300, 20, "widget", pluginPath + "inc/smart_quantization.png"),
+	smartQuantizationContainer (0, 0, 300, 180, "screen"),
         smartQuantizationRangeSlider (10, 60, 80, 28, "slider", 0.25, 0.0, 0.5, 0.0, "%1.2f"),
         smartQuantizationMappingSwitch (10, 136, 28, 14, "slider", 1.0),
         smartQuantizationPositioningSwitch (10, 156, 28, 14, "slider", 0.0),
-        smartQuantizationText1 (10, 10, 280, 50, "text", "Smart quantization enables the alignment of MIDI signals to a step pattern if the signal is within a range from the step start or end."),
+        smartQuantizationText1 (10, 10, 280, 50, "text", "Synchronizes not exactly fitting MIDI signals (e.g., notes) with the step pattern if the signal is within a range from the step start or end."),
         smartQuantizationRangeLabel (100, 70, 90, 20, "lflabel", "Range (steps)"),
-	smartQuantizationText2 (10, 100, 280, 30, "text", "MIDI signals can be mapped to a step and/or \"snapped\" to the start/end of a step."),
-        smartQuantizationMappingLabel (50, 133, 120, 20, "lflabel", "Step mapping"),
-        smartQuantizationPositionLabel (50, 153, 120, 20, "lflabel", "Signal positioning"),
+	smartQuantizationText2 (10, 100, 280, 30, "text", "MIDI signals can just be assigned to a step or fit into a step or both."),
+        smartQuantizationMappingLabel (50, 133, 120, 20, "lflabel", "Assign to a step"),
+        smartQuantizationPositionLabel (50, 153, 120, 20, "lflabel", "Fit into a step"),
+	selectMenu
+	(
+		20, 90, 300, 310, "widget",
+		std::list<std::pair<Widget*, Widget*>>
+		({
+			{&smartQuantizationIcon, &smartQuantizationContainer}
+		})
+	),
 
 	sContainer (340, 90, 520, 210, "scontainer"),
 	//helpButton (20, 80, 24, 24, "halobutton", "Help"),
@@ -157,8 +165,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	sContainer.add (delIcon);
 	sContainer.add (outIcon);
 
-	mContainer.add (smartQuantizationIcon);
-	mContainer.add (smartQuantizationContainer);
+	mContainer.add (selectMenu);
 	mContainer.add (sContainer);
 	//mContainer.add (helpButton);
 	//mContainer.add (ytButton);
@@ -359,6 +366,8 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 	smartQuantizationText2.applyTheme (theme);
         smartQuantizationMappingLabel.applyTheme (theme);
         smartQuantizationPositionLabel.applyTheme (theme);
+
+	selectMenu.applyTheme (theme);
 
 	sContainer.applyTheme (theme);
 	//helpButton.applyTheme (theme);

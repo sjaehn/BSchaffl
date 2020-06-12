@@ -43,6 +43,7 @@
 #include "LightButton.hpp"
 #include "SwingHSlider.hpp"
 #include "HaloButton.hpp"
+#include "SelectMenu.hpp"
 
 #include "definitions.hpp"
 #include "Ports.hpp"
@@ -114,6 +115,7 @@ private:
         BWidgets::Text smartQuantizationText2;
         BWidgets::Label smartQuantizationMappingLabel;
         BWidgets::Label smartQuantizationPositionLabel;
+        SelectMenu selectMenu;
 
         BWidgets::DrawingSurface sContainer;
         //HaloButton helpButton;
