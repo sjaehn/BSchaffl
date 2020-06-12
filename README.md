@@ -59,7 +59,6 @@ TODO
 
 ## TODO's
 
-* Optional user-defined latency
 * Show warning if latency exceeds maximum
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
 * Select between: stretch note position only / stretch note length only / stretch note position & length

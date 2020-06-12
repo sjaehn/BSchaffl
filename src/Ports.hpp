@@ -34,10 +34,12 @@ enum BSchafflPortIndex
 	QUANT_RANGE	= 4,
 	QUANT_MAP	= 5,
 	QUANT_POS	= 6,
-	STEP_POS	= 7,
-	STEP_LEV	= 22,
-	LATENCY		= 38,
-	NR_CONTROLLERS	= 39
+	USR_LATENCY	= 7,
+	USR_LATENCY_FR	= 8,
+	STEP_POS	= 9,
+	STEP_LEV	= 24,
+	LATENCY		= 40,
+	NR_CONTROLLERS	= 41
 };
 
 enum BSchafflSeqLenBaseIndex

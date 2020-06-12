@@ -130,21 +130,31 @@ void BSchaffl::run (uint32_t n_samples)
 	}
 
 	// Re-calculate latency
-	double qLatencySeq = (controllers[QUANT_POS] != 0.0f ? controllers[QUANT_RANGE] / controllers[NR_OF_STEPS] : 0.0);
-
-	latencySeq = 0;
-	const int nrSteps = controllers[NR_OF_STEPS];
-	for (int i = 0; i < nrSteps - 1; ++i)
+	if (controllers[USR_LATENCY] != 0.0f)
 	{
-		const double inStartSeq = double (i) / double (nrSteps);
-		const double outStartSeq = (i == 0 ? 0.0 : stepPositions[i - 1]);
-		const double diffSeq = inStartSeq - outStartSeq;
-		if (diffSeq > latencySeq) latencySeq = diffSeq;
+		latencyFr = controllers[USR_LATENCY_FR];
+		latencySeq = getSequenceFromFrame (latencyFr);
 	}
-	latencySeq += qLatencySeq;
+
+	else
+	{
+		double qLatencySeq = (controllers[QUANT_POS] != 0.0f ? controllers[QUANT_RANGE] / controllers[NR_OF_STEPS] : 0.0);
+
+		latencySeq = 0;
+		const int nrSteps = controllers[NR_OF_STEPS];
+		for (int i = 0; i < nrSteps - 1; ++i)
+		{
+			const double inStartSeq = double (i) / double (nrSteps);
+			const double outStartSeq = (i == 0 ? 0.0 : stepPositions[i - 1]);
+			const double diffSeq = inStartSeq - outStartSeq;
+			if (diffSeq > latencySeq) latencySeq = diffSeq;
+		}
+
+		latencySeq += qLatencySeq;
+		latencyFr = getFrameFromSequence (latencySeq);
+	}
 
 	// Report latency
-	latencyFr = getFrameFromSequence (latencySeq);
 	*controllerPtrs[LATENCY] = latencyFr;
 
 	// Prepare forge buffer and initialize atom sequence

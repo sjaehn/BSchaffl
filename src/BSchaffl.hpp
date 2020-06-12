@@ -50,6 +50,8 @@ const Limit controllerLimits [NR_CONTROLLERS] =
 	{0.0, 0.5, 0},		// QUANT_RANGE
 	{0, 1, 1},		// QUANT_MAP
 	{0, 1, 1},		// QUANT_POS
+	{0, 1, 1},		// USR_LATENCY
+	{0, 192000, 1},		// USR_LATENCY_FR
 	{0.0, 1.0, 0.0},	// STEP_POS
 	{0.0, 1.0, 0.0},
 	{0.0, 1.0, 0.0},

@@ -124,8 +124,13 @@ private:
         BWidgets::Label smartQuantizationMappingLabel;
         BWidgets::Label smartQuantizationPositionLabel;
 
-        BWidgets::ImageIcon latencyIcon;
-        BWidgets::Widget latencyContainer;
+        BWidgets::ImageIcon userLatencyIcon;
+        BWidgets::Widget userLatencyContainer;
+        BWidgets::HSwitch userLatencySwitch;
+        BWidgets::Label userLatencyLabel;
+        BWidgets::RangeWidget userLatencyValue;
+        BWidgets::HSliderValue userLatencySlider;
+        BWidgets::PopupListBox userLatencyUnitListbox;
 
         SelectMenu selectMenu;
 

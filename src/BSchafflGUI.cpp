@@ -40,17 +40,27 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	smartQuantizationIcon (0, 0, 300, 20, "widget", pluginPath + "inc/smart_quantization.png"),
 	smartQuantizationContainer (0, 0, 300, 180, "screen"),
-        smartQuantizationRangeSlider (10, 60, 80, 28, "slider", 0.25, 0.0, 0.5, 0.0, "%1.2f"),
+        smartQuantizationRangeSlider (10, 60, 110, 28, "slider", 0.25, 0.0, 0.5, 0.0, "%1.2f"),
         smartQuantizationMappingSwitch (10, 136, 28, 14, "slider", 1.0),
         smartQuantizationPositioningSwitch (10, 156, 28, 14, "slider", 0.0),
         smartQuantizationText1 (10, 10, 280, 50, "text", "Synchronizes not exactly fitting MIDI signals (e.g., notes) with the step pattern if the signal is within a range from the step start or end."),
-        smartQuantizationRangeLabel (100, 70, 90, 20, "lflabel", "Range (steps)"),
+        smartQuantizationRangeLabel (130, 70, 90, 20, "lflabel", "Range (steps)"),
 	smartQuantizationText2 (10, 100, 280, 30, "text", "MIDI signals can just be assigned to a step or fit into a step or both."),
         smartQuantizationMappingLabel (50, 133, 120, 20, "lflabel", "Assign to a step"),
         smartQuantizationPositionLabel (50, 153, 120, 20, "lflabel", "Fit into a step"),
 
-	latencyIcon (0, 0, 300, 20, "widget", pluginPath + "inc/latency.png"),
-	latencyContainer (0, 0, 300, 80, "screen"),
+	userLatencyIcon (0, 0, 300, 20, "widget", pluginPath + "inc/latency.png"),
+	userLatencyContainer (0, 0, 300, 80, "screen"),
+	userLatencySwitch (10, 13, 28, 14, "slider", 0.0),
+	userLatencyLabel (50, 10, 180, 20, "lflabel", "User-defined latency"),
+	userLatencyValue (0, 0, 0, 0, "widget", 0.0, 0.0, 192000, 1.0),
+	userLatencySlider (10, 40, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
+	userLatencyUnitListbox
+	(
+		180, 50, 90, 20, 0, 20, 90, 40, "listbox",
+		BItems::ItemList ({BItems::Item({1, "Frames"})}),
+		1
+	),
 
 	selectMenu
 	(
@@ -60,7 +70,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 			{&midiChFilterIcon, &midiChFilterContainer},
 			{&midiMsgFilterIcon, &midiMsgFilterContainer},
 			{&smartQuantizationIcon, &smartQuantizationContainer},
-			{&latencyIcon, &latencyContainer}
+			{&userLatencyIcon, &userLatencyContainer}
 		})
 	),
 
@@ -107,6 +117,9 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	controllers[QUANT_RANGE] = &smartQuantizationRangeSlider;
         controllers[QUANT_MAP] = &smartQuantizationMappingSwitch;
         controllers[QUANT_POS] = &smartQuantizationPositioningSwitch;
+	controllers[USR_LATENCY] = &userLatencySwitch;
+	controllers[USR_LATENCY_FR] = &userLatencyValue;
+
 
 	for (int i = 0; i < MAXSTEPS - 1; ++i) controllers[STEP_POS + i] = &markerWidgets[i];
 	for (int i = 0; i < MAXSTEPS; ++i) controllers[STEP_LEV + i] = &stepControl[i];
@@ -114,6 +127,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	// Set callbacks
 	for (BWidgets::ValueWidget* v : controllers) v->setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
+	userLatencySlider.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::listBoxChangedCallback);
 	markersAutoButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::markersAutoClickedCallback);
 	//helpButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, helpButtonClickedCallback);
@@ -122,6 +136,8 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	// Configure widgets
 	bgImageSurface = cairo_image_surface_create_from_png ((pluginPath + BG_FILE).c_str());
 	widgetBg.loadFillFromCairoSurface (bgImageSurface);
+	userLatencySlider.hide();
+	userLatencyUnitListbox.hide();
 	nrStepsControl.setScrollable (true);
 	nrStepsControl.getDisplayLabel ()->setState (BColors::ACTIVE);
 	swingControl.getDisplayLabel ()->setState (BColors::ACTIVE);
@@ -178,6 +194,12 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	smartQuantizationContainer.add (smartQuantizationText2);
         smartQuantizationContainer.add (smartQuantizationMappingLabel);
         smartQuantizationContainer.add (smartQuantizationPositionLabel);
+
+	userLatencyContainer.add (userLatencySwitch);
+	userLatencyContainer.add (userLatencyLabel);
+	userLatencyContainer.add (userLatencyValue);
+	userLatencyContainer.add (userLatencySlider);
+	userLatencyContainer.add (userLatencyUnitListbox);
 
 	sContainer.add (inIcon);
 	sContainer.add (ampIcon);
@@ -290,6 +312,8 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 		float* pval = (float*) buffer;
 		const int controllerNr = port_index - CONTROLLERS;
 
+		if (controllerNr == USR_LATENCY_FR) userLatencySlider.setValue (*pval);
+
 		if ((controllerNr >= STEP_POS) && (controllerNr < STEP_POS + MAXSTEPS - 1))
 		{
 			setMarker (controllerNr - STEP_POS, *pval);
@@ -394,8 +418,13 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
         smartQuantizationMappingLabel.applyTheme (theme);
         smartQuantizationPositionLabel.applyTheme (theme);
 
-	latencyIcon.applyTheme (theme);
-        latencyContainer.applyTheme (theme);
+	userLatencyIcon.applyTheme (theme);
+        userLatencyContainer.applyTheme (theme);
+	userLatencySwitch.applyTheme (theme);
+	userLatencyLabel.applyTheme (theme);
+	userLatencyValue.applyTheme (theme);
+	userLatencySlider.applyTheme (theme);
+	userLatencyUnitListbox.applyTheme (theme);
 
 	selectMenu.applyTheme (theme);
 
@@ -597,6 +626,22 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 					// Do nothing
 				}
 
+				else if (controllerNr == USR_LATENCY)
+				{
+					if (value == 0.0)
+					{
+						ui->userLatencySlider.hide();
+						ui->userLatencyUnitListbox.hide();
+					}
+					else
+					{
+						ui->userLatencySlider.show();
+						ui->userLatencyUnitListbox.show();
+					}
+
+					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
+				}
+
 				else if ((controllerNr >= STEP_POS) && (controllerNr < STEP_POS + MAXSTEPS - 1))
 				{
 					float pos = (((Marker*)widget)->hasValue() ? value : 0.0f);
@@ -612,6 +657,11 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 				}
 
 				else ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
+			}
+
+			else if (widget == &ui->userLatencySlider)
+			{
+				ui->userLatencyValue.setValue (ui->userLatencySlider.getValue());
 			}
 		}
 	}
