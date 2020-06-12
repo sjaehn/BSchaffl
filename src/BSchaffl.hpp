@@ -134,6 +134,7 @@ private:
 	double getBeatsFromSequence (const double sequence);
 	double getSequenceFromFrame (const int64_t frames);
 	int64_t getFrameFromSequence (const double sequence);
+	void recalculateLatency();
 	void recalculateAutoPositions ();
 	void play (uint32_t start, uint32_t end);
 	void notifyStatusToGui ();

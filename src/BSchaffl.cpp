@@ -129,32 +129,7 @@ void BSchaffl::run (uint32_t n_samples)
 		}
 	}
 
-	// Re-calculate latency
-	if (controllers[USR_LATENCY] != 0.0f)
-	{
-		latencyFr = controllers[USR_LATENCY_FR];
-		latencySeq = getSequenceFromFrame (latencyFr);
-	}
-
-	else
-	{
-		double qLatencySeq = (controllers[QUANT_POS] != 0.0f ? controllers[QUANT_RANGE] / controllers[NR_OF_STEPS] : 0.0);
-
-		latencySeq = 0;
-		const int nrSteps = controllers[NR_OF_STEPS];
-		for (int i = 0; i < nrSteps - 1; ++i)
-		{
-			const double inStartSeq = double (i) / double (nrSteps);
-			const double outStartSeq = (i == 0 ? 0.0 : stepPositions[i - 1]);
-			const double diffSeq = inStartSeq - outStartSeq;
-			if (diffSeq > latencySeq) latencySeq = diffSeq;
-		}
-
-		latencySeq += qLatencySeq;
-		latencyFr = getFrameFromSequence (latencySeq);
-	}
-
-	// Report latency
+	recalculateLatency();
 	*controllerPtrs[LATENCY] = latencyFr;
 
 	// Prepare forge buffer and initialize atom sequence
@@ -248,6 +223,8 @@ void BSchaffl::run (uint32_t n_samples)
 					positionSeq = getSequenceFromBeats (barBeat + beatsPerBar * bar);
 					refFrame = ev->time.frames;
 				}
+
+				recalculateLatency();
 			}
 		}
 
@@ -327,12 +304,13 @@ void BSchaffl::run (uint32_t n_samples)
 			fprintf
 			(
 				stderr,
-				"BSchaffl.lv2 @ %1.10f: Schedule MIDI signal %i (%i,%i) to %1.10f\n",
+				"BSchaffl.lv2 @ %1.10f: Schedule MIDI signal %i (%i,%i) to %1.10f (latency = %f)\n",
 				inputSeq,
 				midi.msg[0],
 				midi.msg[1],
 				midi.msg[2],
-				midi.position
+				midi.position,
+				latencySeq
 			);
 		}
 
@@ -405,7 +383,7 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 
 double BSchaffl::getSequenceFromBeats (const double beats)
 {
-	if ((controllers[SEQ_LEN_VALUE] == 0.0) || (bpm == 0.0) || (beatsPerBar == 0.0)) return 0.0;
+	if (controllers[SEQ_LEN_VALUE] == 0.0) return 0.0;
 
 	switch (int (controllers[SEQ_LEN_BASE]))
 	{
@@ -431,27 +409,54 @@ double BSchaffl::getBeatsFromSequence (const double sequence)
 
 double BSchaffl::getSequenceFromFrame (const int64_t frames)
 {
-	if ((controllers[SEQ_LEN_VALUE] == 0.0) || (rate == 0) || (bpm == 0.0) || (beatsPerBar == 0.0)) return 0.0;
+	if (controllers[SEQ_LEN_VALUE] == 0.0) return 0.0;
 
 	switch (int (controllers[SEQ_LEN_BASE]))
 	{
-		case SECONDS: 	return frames * (1.0 / rate) / controllers[SEQ_LEN_VALUE] ;
-		case BEATS:	return (bpm ? frames * (speed / (rate / (bpm / 60))) / controllers[SEQ_LEN_VALUE] : 0.0);
-		case BARS:	return (bpm && beatsPerBar ? frames * (speed / (rate / (bpm / 60))) / (controllers[SEQ_LEN_VALUE] * beatsPerBar) : 0.0);
+		case SECONDS: 	return (rate ? frames * (1.0 / rate) / controllers[SEQ_LEN_VALUE] : 0.0);
+		case BEATS:	return (rate ? frames * speed * bpm / (60.0 * rate * controllers[SEQ_LEN_VALUE]) : 0.0);
+		case BARS:	return (rate && beatsPerBar ? frames * speed * bpm / (60.0 * rate * controllers[SEQ_LEN_VALUE] * beatsPerBar) : 0.0);
 		default:	return 0.0;
 	}
 }
 
 int64_t BSchaffl::getFrameFromSequence (const double sequence)
 {
-	if ((controllers[SEQ_LEN_VALUE] == 0.0) || (rate == 0) || (bpm == 0.0) || (beatsPerBar == 0.0) || (speed == 0.0)) return 0.0;
+	if (controllers[SEQ_LEN_VALUE] == 0.0) return 0.0;
 
 	switch (int (controllers[SEQ_LEN_BASE]))
 	{
-		case SECONDS: 	return sequence / ((1.0 / rate) / controllers[SEQ_LEN_VALUE]);
-		case BEATS:	return (bpm ? sequence / ((speed / (rate / (bpm / 60))) / controllers[SEQ_LEN_VALUE]) : 0.0);
-		case BARS:	return (bpm && beatsPerBar ? sequence / ((speed / (rate / (bpm / 60))) / (controllers[SEQ_LEN_VALUE] * beatsPerBar)) : 0.0);
+		case SECONDS: 	return sequence * rate * controllers[SEQ_LEN_VALUE];
+		case BEATS:	return (speed ? sequence * bpm * rate * controllers[SEQ_LEN_VALUE] / (speed * 60.0) : 0.0);
+		case BARS:	return (speed && beatsPerBar ? sequence * bpm * rate * controllers[SEQ_LEN_VALUE] / (speed * 60.0 * beatsPerBar) : 0.0);
 		default:	return 0.0;
+	}
+}
+
+void BSchaffl::recalculateLatency ()
+{
+	if (controllers[USR_LATENCY] != 0.0f)
+	{
+		latencyFr = controllers[USR_LATENCY_FR];
+		latencySeq = getSequenceFromFrame (latencyFr);
+	}
+
+	else
+	{
+		double qLatencySeq = (controllers[QUANT_POS] != 0.0f ? controllers[QUANT_RANGE] / controllers[NR_OF_STEPS] : 0.0);
+
+		latencySeq = 0;
+		const int nrSteps = controllers[NR_OF_STEPS];
+		for (int i = 0; i < nrSteps - 1; ++i)
+		{
+			const double inStartSeq = double (i) / double (nrSteps);
+			const double outStartSeq = (i == 0 ? 0.0 : stepPositions[i - 1]);
+			const double diffSeq = inStartSeq - outStartSeq;
+			if (diffSeq > latencySeq) latencySeq = diffSeq;
+		}
+
+		latencySeq += qLatencySeq;
+		latencyFr = getFrameFromSequence (latencySeq);
 	}
 }
 
