@@ -30,6 +30,12 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	mContainer (0, 0, 880, 420, "main"),
 
+	midiChFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_ch_filter.png"),
+	midiChFilterContainer (0, 0, 300, 180, "screen"),
+
+	midiMsgFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_msg_filter.png"),
+	midiMsgFilterContainer (0, 0, 300, 180, "screen"),
+
 	smartQuantizationIcon (0, 0, 300, 20, "widget", pluginPath + "inc/smart_quantization.png"),
 	smartQuantizationContainer (0, 0, 300, 180, "screen"),
         smartQuantizationRangeSlider (10, 60, 80, 28, "slider", 0.25, 0.0, 0.5, 0.0, "%1.2f"),
@@ -40,12 +46,19 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	smartQuantizationText2 (10, 100, 280, 30, "text", "MIDI signals can just be assigned to a step or fit into a step or both."),
         smartQuantizationMappingLabel (50, 133, 120, 20, "lflabel", "Assign to a step"),
         smartQuantizationPositionLabel (50, 153, 120, 20, "lflabel", "Fit into a step"),
+
+	latencyIcon (0, 0, 300, 20, "widget", pluginPath + "inc/latency.png"),
+	latencyContainer (0, 0, 300, 80, "screen"),
+
 	selectMenu
 	(
 		20, 90, 300, 310, "widget",
 		std::list<std::pair<Widget*, Widget*>>
 		({
-			{&smartQuantizationIcon, &smartQuantizationContainer}
+			{&midiChFilterIcon, &midiChFilterContainer},
+			{&midiMsgFilterIcon, &midiMsgFilterContainer},
+			{&smartQuantizationIcon, &smartQuantizationContainer},
+			{&latencyIcon, &latencyContainer}
 		})
 	),
 
@@ -356,6 +369,12 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 {
 	mContainer.applyTheme (theme);
 
+	midiChFilterIcon.applyTheme (theme);
+        midiChFilterContainer.applyTheme (theme);
+
+	midiMsgFilterIcon.applyTheme (theme);
+        midiMsgFilterContainer.applyTheme (theme);
+
 	smartQuantizationIcon.applyTheme (theme);
 	smartQuantizationContainer.applyTheme (theme);
         smartQuantizationRangeSlider.applyTheme (theme);
@@ -366,6 +385,9 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 	smartQuantizationText2.applyTheme (theme);
         smartQuantizationMappingLabel.applyTheme (theme);
         smartQuantizationPositionLabel.applyTheme (theme);
+
+	latencyIcon.applyTheme (theme);
+        latencyContainer.applyTheme (theme);
 
 	selectMenu.applyTheme (theme);
 

@@ -68,11 +68,11 @@ protected:
                         if (p.first && p.second)
                         {
                                 p.first->moveTo (0, y);
-                                y += p.first->getHeight();
+                                y += p.first->getHeight() + 10.0;
 
                                 if (newActivePair == &p)
                                 {
-                                        p.second->moveTo (0, y);
+                                        p.second->moveTo (0, y - 10.0);
                                         y += p.second->getHeight();
                                         p.second->show();
                                 }

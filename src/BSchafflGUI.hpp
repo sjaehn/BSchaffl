@@ -105,6 +105,12 @@ private:
 
 	BWidgets::Widget mContainer;
 
+        BWidgets::ImageIcon midiChFilterIcon;
+        BWidgets::Widget midiChFilterContainer;
+
+        BWidgets::ImageIcon midiMsgFilterIcon;
+        BWidgets::Widget midiMsgFilterContainer;
+
         BWidgets::ImageIcon smartQuantizationIcon;
         BWidgets::Widget smartQuantizationContainer;
         BWidgets::HSliderValue smartQuantizationRangeSlider;
@@ -115,6 +121,10 @@ private:
         BWidgets::Text smartQuantizationText2;
         BWidgets::Label smartQuantizationMappingLabel;
         BWidgets::Label smartQuantizationPositionLabel;
+
+        BWidgets::ImageIcon latencyIcon;
+        BWidgets::Widget latencyContainer;
+
         SelectMenu selectMenu;
 
         BWidgets::DrawingSurface sContainer;
