@@ -107,9 +107,11 @@ private:
 
         BWidgets::ImageIcon midiChFilterIcon;
         BWidgets::Widget midiChFilterContainer;
+        BWidgets::Text midiChFilterText;
 
         BWidgets::ImageIcon midiMsgFilterIcon;
         BWidgets::Widget midiMsgFilterContainer;
+        BWidgets::Text midiMsgFilterText;
 
         BWidgets::ImageIcon smartQuantizationIcon;
         BWidgets::Widget smartQuantizationContainer;

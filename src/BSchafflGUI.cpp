@@ -32,9 +32,11 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	midiChFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_ch_filter.png"),
 	midiChFilterContainer (0, 0, 300, 180, "screen"),
+	midiChFilterText (10, 10, 280, 50, "text", "TODO"),
 
 	midiMsgFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_msg_filter.png"),
 	midiMsgFilterContainer (0, 0, 300, 180, "screen"),
+	midiMsgFilterText (10, 10, 280, 50, "text", "TODO"),
 
 	smartQuantizationIcon (0, 0, 300, 20, "widget", pluginPath + "inc/smart_quantization.png"),
 	smartQuantizationContainer (0, 0, 300, 180, "screen"),
@@ -164,6 +166,10 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	applyTheme (theme);
 
 	// Pack widgets
+	midiChFilterContainer.add (midiChFilterText);
+
+	midiMsgFilterContainer.add (midiMsgFilterText);
+
 	smartQuantizationContainer.add (smartQuantizationRangeSlider);
         smartQuantizationContainer.add (smartQuantizationMappingSwitch);
         smartQuantizationContainer.add (smartQuantizationPositioningSwitch);
@@ -371,9 +377,11 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 
 	midiChFilterIcon.applyTheme (theme);
         midiChFilterContainer.applyTheme (theme);
+	midiChFilterText.applyTheme (theme);
 
 	midiMsgFilterIcon.applyTheme (theme);
         midiMsgFilterContainer.applyTheme (theme);
+	midiMsgFilterText.applyTheme (theme);
 
 	smartQuantizationIcon.applyTheme (theme);
 	smartQuantizationContainer.applyTheme (theme);
