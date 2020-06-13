@@ -232,9 +232,12 @@ void BSchaffl::run (uint32_t n_samples)
 		else if (ev->body.type == uris.midi_Event)
 		{
 			const uint8_t* const msg = (const uint8_t*)(ev + 1);
-			MidiData midi = {{0, 0, 0}, 0, 0};
+			MidiData midi = {{0, 0, 0}, 0, 0, false};
 			midi.size = LIM (ev->body.size, 0, 3);
 			memcpy (midi.msg, msg, midi.size);
+
+			// Filter channel and message
+			midi.process = filterMsg (midi.msg[0]) && (controllers[MIDI_CH_FILTER + (midi.msg[0] & 0x0F)] != 0.0f);
 
 			// Calculate position within sequence
 			const double inputSeq = positionSeq + getSequenceFromFrame (ev->time.frames - refFrame);
@@ -257,7 +260,7 @@ void BSchaffl::run (uint32_t n_samples)
 			const float outputSeqPos = oprev + ofrac * (onext - oprev);
 			midi.position =
 			(
-				(filterMsg (midi.msg[0]) && (controllers[MIDI_CH_FILTER + (midi.msg[0] & 0x0F)] != 0.0f))?
+				midi.process?
 				inputSeq + latencySeq + outputSeqPos - inputSeqPos :
 				inputSeq + latencySeq
 			);
@@ -269,8 +272,7 @@ void BSchaffl::run (uint32_t n_samples)
 					((midi.msg[0] & 0xF0) == 0x80) ||
 					((midi.msg[0] & 0xF0) == 0x90)
 				) &&
-				filterMsg (midi.msg[0]) &&
-				(controllers[MIDI_CH_FILTER + (midi.msg[0] & 0x0F)] != 0.0f)
+				midi.process
 			)
 			{
 				// Map step (smart quantization)
@@ -286,7 +288,20 @@ void BSchaffl::run (uint32_t n_samples)
 			// Garbage collection
 			// Removes data from queue which are scheduled to a time point later than the latest possible time point
 			const double maxSeq = inputSeq + latencySeq + oprev + 1.0f * (onext - oprev) - inputSeqPos;
-			while ((!midiData.empty()) && (midiData.back().position > maxSeq))
+			while
+			(
+				(!midiData.empty()) &&
+				(
+					(
+						(midiData.back().position > maxSeq) &&
+						(midiData.back().process)
+					) ||
+					(
+						(midiData.back().position > inputSeq + latencySeq) &&
+						(!midiData.back().process)
+					)
+				)
+			)
 			{
 				fprintf
 				(

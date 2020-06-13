@@ -39,6 +39,7 @@ struct MidiData
 	uint8_t msg[3];
 	size_t size;
 	double position;
+	bool process;
 };
 
 const Limit controllerLimits [NR_CONTROLLERS] =
