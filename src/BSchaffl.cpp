@@ -455,8 +455,8 @@ int64_t BSchaffl::getFrameFromSequence (const double sequence)
 	switch (int (controllers[SEQ_LEN_BASE]))
 	{
 		case SECONDS: 	return sequence * rate * controllers[SEQ_LEN_VALUE];
-		case BEATS:	return (speed ? sequence * bpm * rate * controllers[SEQ_LEN_VALUE] / (speed * 60.0) : 0.0);
-		case BARS:	return (speed && beatsPerBar ? sequence * bpm * rate * controllers[SEQ_LEN_VALUE] / (speed * 60.0 * beatsPerBar) : 0.0);
+		case BEATS:	return (speed && bpm ? 60 * sequence * rate * controllers[SEQ_LEN_VALUE] / (speed * bpm) : 0.0);
+		case BARS:	return (speed && bpm ? 60.0 * sequence * beatsPerBar * rate * controllers[SEQ_LEN_VALUE] / (speed * bpm) : 0.0);
 		default:	return 0.0;
 	}
 }
