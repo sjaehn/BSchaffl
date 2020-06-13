@@ -126,6 +126,7 @@ private:
 
         BWidgets::ImageIcon userLatencyIcon;
         BWidgets::Widget userLatencyContainer;
+        BWidgets::Text userLatencyText;
         BWidgets::HSwitch userLatencySwitch;
         BWidgets::Label userLatencyLabel;
         BWidgets::RangeWidget userLatencyValue;

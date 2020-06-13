@@ -45,19 +45,20 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
         smartQuantizationPositioningSwitch (10, 156, 28, 14, "slider", 0.0),
         smartQuantizationText1 (10, 10, 280, 50, "text", "Synchronizes not exactly fitting MIDI signals (e.g., notes) with the step pattern if the signal is within a range from the step start or end."),
         smartQuantizationRangeLabel (130, 70, 90, 20, "lflabel", "Range (steps)"),
-	smartQuantizationText2 (10, 100, 280, 30, "text", "MIDI signals can just be assigned to a step or fit into a step or both."),
+	smartQuantizationText2 (10, 100, 280, 30, "text", "MIDI signals can be synchonized just by assignment to a step or by fitting into a step or both."),
         smartQuantizationMappingLabel (50, 133, 120, 20, "lflabel", "Assign to a step"),
         smartQuantizationPositionLabel (50, 153, 120, 20, "lflabel", "Fit into a step"),
 
 	userLatencyIcon (0, 0, 300, 20, "widget", pluginPath + "inc/latency.png"),
-	userLatencyContainer (0, 0, 300, 80, "screen"),
-	userLatencySwitch (10, 13, 28, 14, "slider", 0.0),
-	userLatencyLabel (50, 10, 180, 20, "lflabel", "User-defined latency"),
+	userLatencyContainer (0, 0, 300, 120, "screen"),
+	userLatencyText (10, 10, 280, 30, "text", "The plugin calculates the latency by default. Alternatively, you may define a fixed latency."),
+	userLatencySwitch (10, 53, 28, 14, "slider", 0.0),
+	userLatencyLabel (50, 50, 180, 20, "lflabel", "User-defined latency"),
 	userLatencyValue (0, 0, 0, 0, "widget", 0.0, 0.0, 192000, 1.0),
-	userLatencySlider (10, 40, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
+	userLatencySlider (10, 80, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
 	userLatencyUnitListbox
 	(
-		180, 50, 90, 20, 0, 20, 90, 40, "listbox",
+		180, 90, 90, 20, 0, 20, 90, 40, "listbox",
 		BItems::ItemList ({BItems::Item({1, "Frames"})}),
 		1
 	),
@@ -195,6 +196,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
         smartQuantizationContainer.add (smartQuantizationMappingLabel);
         smartQuantizationContainer.add (smartQuantizationPositionLabel);
 
+	userLatencyContainer.add (userLatencyText);
 	userLatencyContainer.add (userLatencySwitch);
 	userLatencyContainer.add (userLatencyLabel);
 	userLatencyContainer.add (userLatencyValue);
@@ -420,6 +422,7 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 
 	userLatencyIcon.applyTheme (theme);
         userLatencyContainer.applyTheme (theme);
+	userLatencyText.applyTheme (theme);
 	userLatencySwitch.applyTheme (theme);
 	userLatencyLabel.applyTheme (theme);
 	userLatencyValue.applyTheme (theme);
