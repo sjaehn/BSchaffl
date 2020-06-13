@@ -73,7 +73,7 @@ const std::string messageStrings[MAX_MSG + 1] =
 	"*** Jack transport off or halted. ***"
 };
 
-const std::array<std::string, 7> midiMsgGroupTexts = {{"Note", "Key pressure", "Control change", "Program change", "Channel pressure", "Pitch bend", "System exclusive"}};
+const std::array<std::string, NR_MIDI_MSG_FILTERS> midiMsgGroupTexts = {{"Note", "Key pressure", "Control change", "Program change", "Channel pressure", "Pitch bend", "System exclusive"}};
 
 class BSchafflGUI : public BWidgets::Window
 {
@@ -110,14 +110,18 @@ private:
         BWidgets::ImageIcon midiChFilterIcon;
         BWidgets::Widget midiChFilterContainer;
         BWidgets::Text midiChFilterText;
+        BWidgets::HSwitch midiChFilterAllSwitch;
+        BWidgets::Label midiChFilterAllLabel;
+        std::array<BWidgets::HSwitch, NR_MIDI_CHS> midiChFilterSwitches;
+        std::array<BWidgets::Label, NR_MIDI_CHS> midiChFilterLabels;
 
         BWidgets::ImageIcon midiMsgFilterIcon;
         BWidgets::Widget midiMsgFilterContainer;
         BWidgets::Text midiMsgFilterText;
         BWidgets::HSwitch midiMsgFilterAllSwitch;
         BWidgets::Label midiMsgFilterAllLabel;
-        std::array<BWidgets::HSwitch, 7> midiMsgFilterSwitches;
-        std::array<BWidgets::Label, 7> midiMsgFilterLabels;
+        std::array<BWidgets::HSwitch, NR_MIDI_MSG_FILTERS> midiMsgFilterSwitches;
+        std::array<BWidgets::Label, NR_MIDI_MSG_FILTERS> midiMsgFilterLabels;
 
         BWidgets::ImageIcon smartQuantizationIcon;
         BWidgets::Widget smartQuantizationContainer;

@@ -47,6 +47,22 @@ const Limit controllerLimits [NR_CONTROLLERS] =
 	{0, 2, 1},		// SEQ_LEN_BASE
 	{0.333333, 3.0, 0},	// SWING
 	{1, 16, 1},		// NR_OF_STEPS
+	{0, 1, 1},		// MIDI_CH_FILTER
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
+	{0, 1, 1},
 	{0, 1, 1},		// MSG_FILTER_NOTE
 	{0, 1, 1},		// MSG_FILTER_KEYPR
 	{0, 1, 1},		// MSG_FILTER_CC

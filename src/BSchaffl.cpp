@@ -257,13 +257,21 @@ void BSchaffl::run (uint32_t n_samples)
 			const float outputSeqPos = oprev + ofrac * (onext - oprev);
 			midi.position =
 			(
-				filterMsg (midi.msg[0]) ?
+				(filterMsg (midi.msg[0]) && (controllers[MIDI_CH_FILTER + (midi.msg[0] & 0x0F)] != 0.0f))?
 				inputSeq + latencySeq + outputSeqPos - inputSeqPos :
 				inputSeq + latencySeq
 			);
 
 			// Level MIDI NOTE_ON and NOTE_OFF
-			if ((((midi.msg[0] & 0xF0) == 0x80) || ((midi.msg[0] & 0xF0) == 0x90)) && filterMsg (midi.msg[0]))
+			if
+			(
+				(
+					((midi.msg[0] & 0xF0) == 0x80) ||
+					((midi.msg[0] & 0xF0) == 0x90)
+				) &&
+				filterMsg (midi.msg[0]) &&
+				(controllers[MIDI_CH_FILTER + (midi.msg[0] & 0x0F)] != 0.0f)
+			)
 			{
 				// Map step (smart quantization)
 				const float mrange = (controllers[QUANT_MAP] != 0.0f ? controllers[QUANT_RANGE] : 0.0);

@@ -63,8 +63,6 @@ TODO
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
 * Select between: stretch note position only / stretch note length only / stretch note position & length
 * Option to change output step
-* MIDI channel filter option
-* MIDI message filter option
 * Velocity swing option
 * Step shape editor
 * Write plugin manual

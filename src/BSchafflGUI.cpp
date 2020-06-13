@@ -31,8 +31,10 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer (0, 0, 880, 420, "main"),
 
 	midiChFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_ch_filter.png"),
-	midiChFilterContainer (0, 0, 300, 180, "screen"),
-	midiChFilterText (10, 10, 280, 50, "text", "TODO"),
+	midiChFilterContainer (0, 0, 300, 140, "screen"),
+	midiChFilterText (10, 10, 280, 50, "text", "MIDI channels to be processed by the plugin."),
+	midiChFilterAllSwitch (10, 36, 28, 14, "slider", 1),
+	midiChFilterAllLabel (44, 33, 120, 20, "lflabel", "All"),
 
 	midiMsgFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_msg_filter.png"),
 	midiMsgFilterContainer (0, 0, 300, 200, "screen"),
@@ -119,6 +121,12 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		midiMsgFilterLabels[i] = BWidgets::Label (50, 53 + i * 20, 180, 20, "lflabel", midiMsgGroupTexts[i]);
 	}
 
+	for (unsigned int i = 0; i < midiChFilterSwitches.size(); ++i)
+	{
+		midiChFilterSwitches[i] = BWidgets::HSwitch (10 + 70.0 * int (i / 4), 56 + int (i % 4) * 20, 28, 14, "slider", 1);
+		midiChFilterLabels[i] = BWidgets::Label (44 + 70.0 * int (i / 4), 53  + int (i % 4) * 20, 36, 20, "lflabel", "#" + std::to_string (i + 1));
+	}
+
 	// Link widgets to controllers
 	controllers[SEQ_LEN_VALUE] = &seqLenValueListbox;
 	controllers[SEQ_LEN_BASE] = &seqLenBaseListbox;
@@ -130,7 +138,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	controllers[USR_LATENCY] = &userLatencySwitch;
 	controllers[USR_LATENCY_FR] = &userLatencyValue;
 
-
+	for (unsigned int i = 0; i < midiChFilterSwitches.size(); ++i) controllers[MIDI_CH_FILTER + i] = &midiChFilterSwitches[i];
 	for (unsigned int i = 0; i < midiMsgFilterSwitches.size(); ++i) controllers[MSG_FILTER_NOTE + i] = &midiMsgFilterSwitches[i];
 	for (int i = 0; i < MAXSTEPS - 1; ++i) controllers[STEP_POS + i] = &markerWidgets[i];
 	for (int i = 0; i < MAXSTEPS; ++i) controllers[STEP_LEV + i] = &stepControl[i];
@@ -138,6 +146,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	// Set callbacks
 	for (BWidgets::ValueWidget* v : controllers) v->setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
+	midiChFilterAllSwitch.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	midiMsgFilterAllSwitch.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	userLatencySlider.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::listBoxChangedCallback);
@@ -195,6 +204,13 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	// Pack widgets
 	midiChFilterContainer.add (midiChFilterText);
+	midiChFilterContainer.add (midiChFilterAllSwitch);
+	midiChFilterContainer.add (midiChFilterAllLabel);
+	for (unsigned int i = 0; i < midiChFilterSwitches.size(); ++i)
+	{
+		midiChFilterContainer.add (midiChFilterSwitches[i]);
+		midiChFilterContainer.add (midiChFilterLabels[i]);
+	}
 
 	midiMsgFilterContainer.add (midiMsgFilterText);
 	midiMsgFilterContainer.add (midiMsgFilterAllSwitch);
@@ -422,6 +438,13 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 	midiChFilterIcon.applyTheme (theme);
         midiChFilterContainer.applyTheme (theme);
 	midiChFilterText.applyTheme (theme);
+	midiChFilterAllSwitch.applyTheme (theme);
+	midiChFilterAllLabel.applyTheme (theme);
+	for (unsigned int i = 0; i < midiChFilterSwitches.size(); ++i)
+	{
+		midiChFilterSwitches[i].applyTheme (theme);
+		midiChFilterLabels[i].applyTheme (theme);
+	}
 
 	midiMsgFilterIcon.applyTheme (theme);
         midiMsgFilterContainer.applyTheme (theme);
@@ -654,7 +677,38 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 					// Do nothing
 				}
 
-				else if ((controllerNr >= MSG_FILTER_NOTE) && (controllerNr < MSG_FILTER_NOTE + 7))
+				else if ((controllerNr >= MIDI_CH_FILTER) && (controllerNr < MIDI_CH_FILTER + NR_MIDI_CHS))
+				{
+					int count = 0;
+					for (BWidgets::HSwitch& s : ui->midiChFilterSwitches)
+					{
+						if (s.getValue() != 0.0) ++count;
+					}
+
+					if (count == 0)
+					{
+						ui->midiChFilterAllSwitch.setState (BColors::NORMAL);
+						ui->midiChFilterAllLabel.setState (BColors::NORMAL);
+						ui->midiChFilterAllSwitch.setValue (0.0);
+					}
+
+					else if (count == NR_MIDI_CHS)
+					{
+						ui->midiChFilterAllSwitch.setState (BColors::NORMAL);
+						ui->midiChFilterAllLabel.setState (BColors::NORMAL);
+						ui->midiChFilterAllSwitch.setValue (1.0);
+					}
+
+					else
+					{
+						ui->midiChFilterAllSwitch.setState (BColors::INACTIVE);
+						ui->midiChFilterAllLabel.setState (BColors::INACTIVE);
+					}
+
+					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
+				}
+
+				else if ((controllerNr >= MSG_FILTER_NOTE) && (controllerNr < MSG_FILTER_NOTE + NR_MIDI_MSG_FILTERS))
 				{
 					int count = 0;
 					for (BWidgets::HSwitch& s : ui->midiMsgFilterSwitches)
@@ -669,7 +723,7 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 						ui->midiMsgFilterAllSwitch.setValue (0.0);
 					}
 
-					else if (count == 7)
+					else if (count == NR_MIDI_MSG_FILTERS)
 					{
 						ui->midiMsgFilterAllSwitch.setState (BColors::NORMAL);
 						ui->midiMsgFilterAllLabel.setState (BColors::NORMAL);
@@ -716,6 +770,11 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 				}
 
 				else ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
+			}
+
+			else if (widget == &ui->midiChFilterAllSwitch)
+			{
+				for (BWidgets::HSwitch& s : ui->midiChFilterSwitches) s.setValue (value);
 			}
 
 			else if (widget == &ui->midiMsgFilterAllSwitch)
