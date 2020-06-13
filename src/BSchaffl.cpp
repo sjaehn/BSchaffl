@@ -255,10 +255,15 @@ void BSchaffl::run (uint32_t n_samples)
 			const float onext = (step >= nrOfSteps - 1 ? 1.0f : stepPositions[step]);
 			const float ofrac = (ifrac <= qrange ? 0.0f : (1.0f - ifrac < qrange ? 1.0f : ifrac));
 			const float outputSeqPos = oprev + ofrac * (onext - oprev);
-			midi.position = inputSeq + latencySeq + outputSeqPos - inputSeqPos;
+			midi.position =
+			(
+				filterMsg (midi.msg[0]) ?
+				inputSeq + latencySeq + outputSeqPos - inputSeqPos :
+				inputSeq + latencySeq
+			);
 
 			// Level MIDI NOTE_ON and NOTE_OFF
-			if (((midi.msg[0] & 0xF0) == 0x80) || ((midi.msg[0] & 0xF0) == 0x90))
+			if ((((midi.msg[0] & 0xF0) == 0x80) || ((midi.msg[0] & 0xF0) == 0x90)) && filterMsg (midi.msg[0]))
 			{
 				// Map step (smart quantization)
 				const float mrange = (controllers[QUANT_MAP] != 0.0f ? controllers[QUANT_RANGE] : 0.0);
@@ -431,6 +436,21 @@ int64_t BSchaffl::getFrameFromSequence (const double sequence)
 		case BARS:	return (speed && beatsPerBar ? sequence * bpm * rate * controllers[SEQ_LEN_VALUE] / (speed * 60.0 * beatsPerBar) : 0.0);
 		default:	return 0.0;
 	}
+}
+
+bool BSchaffl::filterMsg (const uint8_t msg)
+{
+	uint8_t msgGroup = msg / 16;
+	return
+	(
+		msgGroup < 8 ?
+		false :
+		(
+			msgGroup == 8 ?
+			(controllers[MSG_FILTER_NOTE] != 0.0f) :
+			(controllers[MSG_FILTER_NOTE + msgGroup - 9] != 0.0f)
+		)
+	);
 }
 
 void BSchaffl::recalculateLatency ()

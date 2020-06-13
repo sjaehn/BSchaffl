@@ -73,6 +73,8 @@ const std::string messageStrings[MAX_MSG + 1] =
 	"*** Jack transport off or halted. ***"
 };
 
+const std::array<std::string, 7> midiMsgGroupTexts = {{"Note", "Key pressure", "Control change", "Program change", "Channel pressure", "Pitch bend", "System exclusive"}};
+
 class BSchafflGUI : public BWidgets::Window
 {
 public:
@@ -112,6 +114,10 @@ private:
         BWidgets::ImageIcon midiMsgFilterIcon;
         BWidgets::Widget midiMsgFilterContainer;
         BWidgets::Text midiMsgFilterText;
+        BWidgets::HSwitch midiMsgFilterAllSwitch;
+        BWidgets::Label midiMsgFilterAllLabel;
+        std::array<BWidgets::HSwitch, 7> midiMsgFilterSwitches;
+        std::array<BWidgets::Label, 7> midiMsgFilterLabels;
 
         BWidgets::ImageIcon smartQuantizationIcon;
         BWidgets::Widget smartQuantizationContainer;
@@ -165,7 +171,7 @@ private:
 	LV2_URID_Map* map;
 
 	// Definition of styles
-	BColors::ColorSet fgColors = {{{0.75, 0.75, 0.75, 1.0}, {1.0, 1.0, 1.0, 1.0}, {0.0, 0.2, 0.0, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
+	BColors::ColorSet fgColors = {{{0.75, 0.75, 0.75, 1.0}, {1.0, 1.0, 1.0, 1.0}, {0.2, 0.2, 0.2, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
         BColors::ColorSet rdColors = {{{0.75, 0.0, 0.0, 1.0}, {1.0, 0.25, 0.25, 1.0}, {0.2, 0.0, 0.0, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::ColorSet txColors = {{BColors::lightgrey, BColors::white, BColors::darkgrey, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::ColorSet bgColors = {{{0.15, 0.15, 0.15, 1.0}, {0.3, 0.3, 0.3, 1.0}, {0.05, 0.05, 0.05, 1.0}, {0.0, 0.0, 0.0, 0.0}}};

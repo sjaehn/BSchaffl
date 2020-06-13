@@ -35,19 +35,21 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	midiChFilterText (10, 10, 280, 50, "text", "TODO"),
 
 	midiMsgFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_msg_filter.png"),
-	midiMsgFilterContainer (0, 0, 300, 180, "screen"),
-	midiMsgFilterText (10, 10, 280, 50, "text", "TODO"),
+	midiMsgFilterContainer (0, 0, 300, 200, "screen"),
+	midiMsgFilterText (10, 10, 280, 20, "text", "MIDI messages to be processed by the plugin."),
+	midiMsgFilterAllSwitch (10, 36, 28, 14, "slider", 1),
+	midiMsgFilterAllLabel (50, 33, 120, 20, "lflabel", "All"),
 
 	smartQuantizationIcon (0, 0, 300, 20, "widget", pluginPath + "inc/smart_quantization.png"),
-	smartQuantizationContainer (0, 0, 300, 180, "screen"),
+	smartQuantizationContainer (0, 0, 300, 200, "screen"),
         smartQuantizationRangeSlider (10, 60, 110, 28, "slider", 0.25, 0.0, 0.5, 0.0, "%1.2f"),
-        smartQuantizationMappingSwitch (10, 136, 28, 14, "slider", 1.0),
-        smartQuantizationPositioningSwitch (10, 156, 28, 14, "slider", 0.0),
+        smartQuantizationMappingSwitch (10, 156, 28, 14, "slider", 1.0),
+        smartQuantizationPositioningSwitch (10, 176, 28, 14, "slider", 0.0),
         smartQuantizationText1 (10, 10, 280, 50, "text", "Synchronizes not exactly fitting MIDI signals (e.g., notes) with the step pattern if the signal is within a range from the step start or end."),
         smartQuantizationRangeLabel (130, 70, 90, 20, "lflabel", "Range (steps)"),
-	smartQuantizationText2 (10, 100, 280, 30, "text", "MIDI signals can be synchonized just by assignment to a step or by fitting into a step or both."),
-        smartQuantizationMappingLabel (50, 133, 120, 20, "lflabel", "Assign to a step"),
-        smartQuantizationPositionLabel (50, 153, 120, 20, "lflabel", "Fit into a step"),
+	smartQuantizationText2 (10, 100, 280, 50, "text", "MIDI signals can be synchonized just by assignment to a step or by fitting into a step or both."),
+        smartQuantizationMappingLabel (50, 153, 120, 20, "lflabel", "Assign to a step"),
+        smartQuantizationPositionLabel (50, 173, 120, 20, "lflabel", "Fit into a step"),
 
 	userLatencyIcon (0, 0, 300, 20, "widget", pluginPath + "inc/latency.png"),
 	userLatencyContainer (0, 0, 300, 120, "screen"),
@@ -110,6 +112,13 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	map (NULL)
 
 {
+	// Init
+	for (unsigned int i = 0; i < midiMsgFilterSwitches.size(); ++i)
+	{
+		midiMsgFilterSwitches[i] = BWidgets::HSwitch (10, 56 + i * 20, 28, 14, "slider", 1);
+		midiMsgFilterLabels[i] = BWidgets::Label (50, 53 + i * 20, 180, 20, "lflabel", midiMsgGroupTexts[i]);
+	}
+
 	// Link widgets to controllers
 	controllers[SEQ_LEN_VALUE] = &seqLenValueListbox;
 	controllers[SEQ_LEN_BASE] = &seqLenBaseListbox;
@@ -122,12 +131,14 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	controllers[USR_LATENCY_FR] = &userLatencyValue;
 
 
+	for (unsigned int i = 0; i < midiMsgFilterSwitches.size(); ++i) controllers[MSG_FILTER_NOTE + i] = &midiMsgFilterSwitches[i];
 	for (int i = 0; i < MAXSTEPS - 1; ++i) controllers[STEP_POS + i] = &markerWidgets[i];
 	for (int i = 0; i < MAXSTEPS; ++i) controllers[STEP_LEV + i] = &stepControl[i];
 	controllers[LATENCY] = &latencyValue;
 
 	// Set callbacks
 	for (BWidgets::ValueWidget* v : controllers) v->setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
+	midiMsgFilterAllSwitch.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	userLatencySlider.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::listBoxChangedCallback);
 	markersAutoButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::markersAutoClickedCallback);
@@ -186,6 +197,13 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	midiChFilterContainer.add (midiChFilterText);
 
 	midiMsgFilterContainer.add (midiMsgFilterText);
+	midiMsgFilterContainer.add (midiMsgFilterAllSwitch);
+	midiMsgFilterContainer.add (midiMsgFilterAllLabel);
+	for (unsigned int i = 0; i < midiMsgFilterSwitches.size(); ++i)
+	{
+		midiMsgFilterContainer.add (midiMsgFilterSwitches[i]);
+		midiMsgFilterContainer.add (midiMsgFilterLabels[i]);
+	}
 
 	smartQuantizationContainer.add (smartQuantizationRangeSlider);
         smartQuantizationContainer.add (smartQuantizationMappingSwitch);
@@ -408,6 +426,13 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 	midiMsgFilterIcon.applyTheme (theme);
         midiMsgFilterContainer.applyTheme (theme);
 	midiMsgFilterText.applyTheme (theme);
+	midiMsgFilterAllSwitch.applyTheme (theme);
+	midiMsgFilterAllLabel.applyTheme (theme);
+	for (unsigned int i = 0; i < midiMsgFilterSwitches.size(); ++i)
+	{
+		midiMsgFilterSwitches[i].applyTheme (theme);
+		midiMsgFilterLabels[i].applyTheme (theme);
+	}
 
 	smartQuantizationIcon.applyTheme (theme);
 	smartQuantizationContainer.applyTheme (theme);
@@ -629,6 +654,37 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 					// Do nothing
 				}
 
+				else if ((controllerNr >= MSG_FILTER_NOTE) && (controllerNr < MSG_FILTER_NOTE + 7))
+				{
+					int count = 0;
+					for (BWidgets::HSwitch& s : ui->midiMsgFilterSwitches)
+					{
+						if (s.getValue() != 0.0) ++count;
+					}
+
+					if (count == 0)
+					{
+						ui->midiMsgFilterAllSwitch.setState (BColors::NORMAL);
+						ui->midiMsgFilterAllLabel.setState (BColors::NORMAL);
+						ui->midiMsgFilterAllSwitch.setValue (0.0);
+					}
+
+					else if (count == 7)
+					{
+						ui->midiMsgFilterAllSwitch.setState (BColors::NORMAL);
+						ui->midiMsgFilterAllLabel.setState (BColors::NORMAL);
+						ui->midiMsgFilterAllSwitch.setValue (1.0);
+					}
+
+					else
+					{
+						ui->midiMsgFilterAllSwitch.setState (BColors::INACTIVE);
+						ui->midiMsgFilterAllLabel.setState (BColors::INACTIVE);
+					}
+
+					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
+				}
+
 				else if (controllerNr == USR_LATENCY)
 				{
 					if (value == 0.0)
@@ -660,6 +716,11 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 				}
 
 				else ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
+			}
+
+			else if (widget == &ui->midiMsgFilterAllSwitch)
+			{
+				for (BWidgets::HSwitch& s : ui->midiMsgFilterSwitches) s.setValue (value);
 			}
 
 			else if (widget == &ui->userLatencySlider)

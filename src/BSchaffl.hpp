@@ -47,6 +47,13 @@ const Limit controllerLimits [NR_CONTROLLERS] =
 	{0, 2, 1},		// SEQ_LEN_BASE
 	{0.333333, 3.0, 0},	// SWING
 	{1, 16, 1},		// NR_OF_STEPS
+	{0, 1, 1},		// MSG_FILTER_NOTE
+	{0, 1, 1},		// MSG_FILTER_KEYPR
+	{0, 1, 1},		// MSG_FILTER_CC
+	{0, 1, 1},		// MSG_FILTER_PROG
+	{0, 1, 1},		// MSG_FILTER_CHPR
+	{0, 1, 1},		// MSG_FILTER_PITCH
+	{0, 1, 1},		// MSG_FILTER_SYS
 	{0.0, 0.5, 0},		// QUANT_RANGE
 	{0, 1, 1},		// QUANT_MAP
 	{0, 1, 1},		// QUANT_POS
@@ -134,6 +141,7 @@ private:
 	double getBeatsFromSequence (const double sequence);
 	double getSequenceFromFrame (const int64_t frames);
 	int64_t getFrameFromSequence (const double sequence);
+	bool filterMsg (const uint8_t msg);
 	void recalculateLatency();
 	void recalculateAutoPositions ();
 	void play (uint32_t start, uint32_t end);
