@@ -54,12 +54,12 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
         smartQuantizationPositionLabel (50, 173, 120, 20, "lflabel", "Fit into a step"),
 
 	userLatencyIcon (0, 0, 300, 20, "widget", pluginPath + "inc/latency.png"),
-	userLatencyContainer (0, 0, 300, 120, "screen"),
-	userLatencyText (10, 10, 280, 30, "text", "The plugin calculates the latency by default. Alternatively, you may define a fixed latency."),
-	userLatencySwitch (10, 53, 28, 14, "slider", 0.0),
-	userLatencyLabel (50, 50, 180, 20, "lflabel", "User-defined latency"),
+	userLatencyContainer (0, 0, 300, 140, "screen"),
+	userLatencyText (10, 10, 280, 50, "text", "The plugin itself calculates the latency by default. Alternatively, you may define a fixed latency."),
+	userLatencySwitch (10, 73, 28, 14, "slider", 0.0),
+	userLatencyLabel (50, 70, 180, 20, "lflabel", "User-defined latency"),
 	userLatencyValue (0, 0, 0, 0, "widget", 0.0, 0.0, 192000, 1.0),
-	userLatencySlider (10, 80, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
+	userLatencySlider (10, 100, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
 	userLatencyUnitListbox
 	(
 		180, 90, 90, 20, 0, 20, 90, 40, "listbox",

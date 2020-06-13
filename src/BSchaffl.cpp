@@ -131,6 +131,8 @@ void BSchaffl::run (uint32_t n_samples)
 
 	recalculateLatency();
 	*controllerPtrs[LATENCY] = latencyFr;
+	if (latencyFr > 192000) message.setMessage (LATENCY_MAX_MSG);
+	else message.deleteMessage (LATENCY_MAX_MSG);
 
 	// Prepare forge buffer and initialize atom sequence
 	const uint32_t space = output->atom.size;

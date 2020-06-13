@@ -55,7 +55,8 @@ enum MessageNr
 {
 	NO_MSG		= 0,
 	JACK_STOP_MSG	= 1,
-	MAX_MSG		= 1
+        LATENCY_MAX_MSG = 2,
+	MAX_MSG		= 2
 };
 #endif /* MESSAGENR_ */
 
@@ -70,7 +71,8 @@ enum MessageNr
 const std::string messageStrings[MAX_MSG + 1] =
 {
 	"",
-	"*** Jack transport off or halted. ***"
+	"*** Jack transport off or halted. ***",
+        "*** Latency exceeds maximum of 192000 frames. ***"
 };
 
 const std::array<std::string, NR_MIDI_MSG_FILTERS> midiMsgGroupTexts = {{"Note", "Key pressure", "Control change", "Program change", "Channel pressure", "Pitch bend", "System exclusive"}};

@@ -29,7 +29,8 @@ enum MessageNr
 {
 	NO_MSG		= 0,
 	JACK_STOP_MSG	= 1,
-	MAX_MSG		= 1
+	LATENCY_MAX_MSG	= 2,
+	MAX_MSG		= 2
 };
 #endif /* MESSAGENR_ */
 
