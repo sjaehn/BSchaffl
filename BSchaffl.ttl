@@ -101,7 +101,7 @@
                 lv2:default 1.0 ;
                 lv2:minimum 0.0078125 ;
                 lv2:maximum 128.0 ;
-		rdfs:comment "Values lower than 1 (down to 1/128) mean reduction off odd step velocity. Values higher than 1 (up to 128) mean reduction off even step velocity." ;
+		rdfs:comment "Values lower than 1 (down to 1/128) mean reduction of odd step velocity. Values higher than 1 (up to 128) mean reduction of even step velocity." ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 5 ;
@@ -110,7 +110,7 @@
                 lv2:default 1.0 ;
                 lv2:minimum 0.333333 ;
                 lv2:maximum 3.0 ;
-		rdfs:comment "Values lower than 1 (down to 1/3) mean compression off odd steps for the benefit of the following even step. Values higher than 1 (up to 3) mean stretching off odd steps to the disadvantage of the following even step." ;
+		rdfs:comment "Values lower than 1 (down to 1/3) mean compression of odd steps for the benefit of the following even step. Values higher than 1 (up to 3) mean stretching of odd steps to the disadvantage of the following even step." ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 6 ;

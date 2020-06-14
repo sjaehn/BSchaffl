@@ -49,7 +49,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
         smartQuantizationPositioningSwitch (10, 176, 28, 14, "slider", 0.0),
         smartQuantizationText1 (10, 10, 280, 50, "text", "Synchronizes not exactly fitting MIDI signals (e.g., notes) with the step pattern if the signal is within a range from the step start or end."),
         smartQuantizationRangeLabel (130, 70, 90, 20, "lflabel", "Range (steps)"),
-	smartQuantizationText2 (10, 100, 280, 50, "text", "MIDI signals can be synchonized just by assignment to a step or by fitting into a step or both."),
+	smartQuantizationText2 (10, 100, 280, 50, "text", "MIDI signals can be synchronized just by assignment to a step or by fitting into a step or both."),
         smartQuantizationMappingLabel (50, 153, 120, 20, "lflabel", "Assign to a step"),
         smartQuantizationPositionLabel (50, 173, 120, 20, "lflabel", "Fit into a step"),
 
