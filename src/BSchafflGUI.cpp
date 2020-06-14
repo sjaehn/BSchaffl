@@ -97,7 +97,15 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		BItems::ItemList
 		({{0, "Second(s)"}, {1, "Beat(s)"}, {2, "Bar(s)"}}), 2.0
 	),
-	swingControl (570, 312, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
+	ampSwingControl
+	(
+		505, 312, 120, 28, "slider", 1.0, 0.0078125, 128.0, 0.0, "%3.1f",
+		[] (const double val, const double min, const double max)
+		{return (val >= 1.0 ? 1.0 - 0.5 / LIMIT (val, min, max) : 0.5 * LIMIT (val, min, max));},
+		[] (const double frac, const double min, const double max)
+		{return (frac >= 0.5 ? 0.5 / (1.0 - LIMIT (frac, 0, 1)) : 2 * LIMIT (frac, 0, 1));}
+	),
+	swingControl (640, 312, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
 	markersAutoButton (775, 320, 80, 20, "button", "Auto"),
 	nrStepsControl (340, 362, 520, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
 	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),
@@ -130,6 +138,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	// Link widgets to controllers
 	controllers[SEQ_LEN_VALUE] = &seqLenValueListbox;
 	controllers[SEQ_LEN_BASE] = &seqLenBaseListbox;
+	controllers[AMP_SWING] = &ampSwingControl;
 	controllers[SWING] = &swingControl;
 	controllers[NR_OF_STEPS] = &nrStepsControl;
 	controllers[QUANT_RANGE] = &smartQuantizationRangeSlider;
@@ -169,13 +178,17 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	double sx = sContainer.getXOffset() + 40;
 	for (int i = 0; i < MAXSTEPS; ++i)
 	{
-		stepControl[i] = BWidgets::VSliderValue ((i + 0.5) * sw / MAXSTEPS + sx - 14, 40, 28, 100, "slider", 1.0, 0.0, 1.0, 0.01, "%1.2f");
+		stepControl[i] = BWidgets::VSlider ((i + 0.5) * sw / MAXSTEPS + sx - 7, 60, 14, 80, "slider", 1.0, 0.0, 1.0, 0.01);
 		stepControl[i].setHardChangeable (false);
 		stepControl[i].setScrollable (true);
 		stepControl[i].setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 		stepControl[i].applyTheme (theme, "slider");
-		stepControl[i].getDisplayLabel ()->setState (BColors::ACTIVE);
 		sContainer.add (stepControl[i]);
+
+		stepControlLabel[i] = BWidgets::Label ((i + 0.5) * sw / MAXSTEPS + sx - 14, 40, 28, 20, "mlabel", "1.00");
+		stepControlLabel[i].applyTheme (theme, "mlabel");
+		stepControlLabel[i].setState (BColors::ACTIVE);
+		sContainer.add (stepControlLabel[i]);
 
 		inputStepLabel[i] = BWidgets::Label (sx + (i + 0.1) * sw / MAXSTEPS, 10, 0.8 * sw / MAXSTEPS, 20, "steplabel", "#" + std::to_string (i + 1));
 		sContainer.add (inputStepLabel[i]);
@@ -248,6 +261,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	//mContainer.add (ytButton);
 	mContainer.add (seqLenValueListbox);
 	mContainer.add (seqLenBaseListbox);
+	mContainer.add (ampSwingControl);
 	mContainer.add (swingControl);
 	mContainer.add (markersAutoButton);
 	mContainer.add (nrStepsControl);
@@ -370,6 +384,7 @@ void BSchafflGUI::resizeGUI()
 	defaultFont.setFontSize (12 * sz);
 	lfFont.setFontSize (12 * sz);
 	txFont.setFontSize (12 * sz);
+	mdFont.setFontSize (10 * sz);
 	smFont.setFontSize (8 * sz);
 
 	// Resize Background
@@ -485,6 +500,7 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 
 	seqLenValueListbox.applyTheme (theme);
 	seqLenBaseListbox.applyTheme (theme);
+	ampSwingControl.applyTheme (theme);
 	swingControl.applyTheme (theme);
 	markersAutoButton.applyTheme (theme);
 	nrStepsControl.applyTheme (theme);
@@ -500,7 +516,7 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 	for (int i = 0; i < MAXSTEPS; ++i)
 	{
 		stepControl[i].applyTheme (theme);
-		//stepControl[i].update ();	// TODO Remove if fixed in BWidgets TK
+		stepControlLabel[i].applyTheme (theme);
 		inputStepLabel[i].applyTheme (theme);
 		outputStepLabel[i].applyTheme (theme);
 	}
@@ -601,13 +617,19 @@ void BSchafflGUI::rearrange_controllers ()
 	const double sw = sContainer.getEffectiveWidth() - 40 * sz;
 	const double sx = sContainer.getXOffset() + 40 * sz;
 	const double inw = sw / nrStepsi;
+	const double oddf = (ampSwingControl.getValue() >= 1.0 ? 1.0 : ampSwingControl.getValue());
+	const double evenf = (ampSwingControl.getValue() >= 1.0 ? 1.0 / ampSwingControl.getValue() : 1.0);
 
 	for (int i = 0; i < MAXSTEPS; ++i)
 	{
 		if (i < nrStepsi)
 		{
-			stepControl[i].moveTo ((i + 0.5) * sw / nrStepsi + sx - 14 * sz, 40 * sz);
+			stepControl[i].setHeight ((14 + LIMIT (66 * ((i % 2) == 0 ? oddf : evenf), 0, 66 )) * sz);
+			stepControl[i].moveTo ((i + 0.5) * sw / nrStepsi + sx - 7 * sz, 140 * sz - stepControl[i].getHeight());
 			stepControl[i].show();
+
+			stepControlLabel[i].moveTo ((i + 0.5) * sw / nrStepsi + sx - 14 * sz, 40 * sz);
+			stepControlLabel[i].show();
 
 			inputStepLabel[i].moveTo (sx + (i + 0.1) * sw / nrStepsi, 10 * sz);
 			inputStepLabel[i].setWidth (0.8 * inw);
@@ -632,6 +654,7 @@ void BSchafflGUI::rearrange_controllers ()
 		else
 		{
 			stepControl[i].hide ();
+			stepControlLabel[i].hide();
 			inputStepLabel[i].hide();
 			outputStepLabel[i].hide();
 		}
@@ -759,6 +782,18 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 				{
 					float pos = (((Marker*)widget)->hasValue() ? value : 0.0f);
 					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &pos);
+				}
+
+				else if ((controllerNr >= STEP_LEV) && (controllerNr < STEP_LEV + MAXSTEPS))
+				{
+					ui->stepControlLabel[controllerNr - STEP_LEV].setText (BUtilities::to_string (value, "%1.2f"));
+					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
+				}
+
+				else if (controllerNr == AMP_SWING)
+				{
+					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
+					ui->rearrange_controllers();
 				}
 
 				else if ((controllerNr == SWING) || (controllerNr == NR_OF_STEPS))

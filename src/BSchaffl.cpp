@@ -283,8 +283,10 @@ void BSchaffl::run (uint32_t n_samples)
 				if ((midi.msg[0] & 0xF0) == 0x80) map = (map + nrOfSteps - 1) % nrOfSteps;
 
 				// Calculate and set amp
+				float aswing = ((map % 2) == 0 ? controllers[AMP_SWING] : 1.0 / controllers[AMP_SWING]);
+				aswing = LIM (aswing, 0, 1);
 				const float amp = controllers[STEP_LEV + map];
-				midi.msg[2] = float (midi.msg[2]) * amp;
+				midi.msg[2] = float (midi.msg[2]) * amp * aswing;
 			}
 
 			// Garbage collection
