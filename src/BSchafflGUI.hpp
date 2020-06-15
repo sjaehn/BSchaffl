@@ -108,7 +108,7 @@ private:
         std::string pluginPath;
 
 	BWidgets::Widget mContainer;
-        
+
         HaloButton helpButton;
         //HaloButton ytButton;
 
@@ -186,6 +186,7 @@ private:
 	BColors::ColorSet bgColors = {{{0.15, 0.15, 0.15, 1.0}, {0.3, 0.3, 0.3, 1.0}, {0.05, 0.05, 0.05, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 
 	BStyles::Border border = {{BColors::darkgrey, 1.0}, 0.0, 2.0, 0.0};
+        BStyles::Border menuborder = {{BColors::darkgrey, 1.0}, 0.0, 0.0, 0.0};
         BStyles::Border actborder = {{BColors::white, 2.0}, 0.0, 1.0, 0.0};
         BStyles::Border stepborder = {{BColors::darkgrey, 1.0}, 0.0, 2.0, 3.0};
 	BStyles::Border blindborder = {{{0.0, 0.0, 0.0, 0.0}, 1.0}, 0.0, 2.0, 0.0};
@@ -255,7 +256,7 @@ private:
 				 {"border", STYLEPTR (&border)}}},
 		{"scontainer", 	{{"background", STYLEPTR (&BStyles::noFill)},
 				 {"border", STYLEPTR (&border)}}},
-                {"listbox",	{{"border", STYLEPTR (&border)},
+                {"listbox",	{{"border", STYLEPTR (&menuborder)},
  				 {"background", STYLEPTR (&BStyles::blackFill)}}},
  		{"listbox/item",{{"uses", STYLEPTR (&defaultStyles)},
  				 {"border", STYLEPTR (&labelBorder)},
@@ -264,6 +265,24 @@ private:
  		{"listbox/button",{{"border", STYLEPTR (&BColors::darks)},
  				 {"background", STYLEPTR (&BStyles::blackFill)},
  			 	 {"bgcolors", STYLEPTR (&BColors::darks)}}},
+ 		{"menu",	{{"border", STYLEPTR (&menuborder)},
+ 				 {"background", STYLEPTR (&BStyles::blackFill)}}},
+ 		{"menu/item",	{{"uses", STYLEPTR (&defaultStyles)},
+ 			 	 {"border", STYLEPTR (&BStyles::noBorder)},
+ 				 {"textcolors", STYLEPTR (&BColors::whites)},
+ 				 {"font", STYLEPTR (&defaultFont)}}},
+ 		{"menu/button",	{{"border", STYLEPTR (&BStyles::noBorder)},
+ 				 {"background", STYLEPTR (&BStyles::blackFill)},
+ 				 {"bgcolors", STYLEPTR (&bgColors)}}},
+ 		{"menu/listbox",{{"border", STYLEPTR (&menuborder)},
+ 				 {"background", STYLEPTR (&BStyles::blackFill)}}},
+ 		{"menu/listbox/item",{{"uses", STYLEPTR (&defaultStyles)},
+ 				 {"border", STYLEPTR (&BStyles::noBorder)},
+ 				 {"textcolors", STYLEPTR (&BColors::whites)},
+ 				 {"font", STYLEPTR (&defaultFont)}}},
+ 		{"menu/listbox/button",{{"border", STYLEPTR (&BStyles::noBorder)},
+ 				 {"background", STYLEPTR (&BStyles::blackFill)},
+ 				 {"bgcolors", STYLEPTR (&bgColors)}}},
 		{"dial", 	{{"uses", STYLEPTR (&defaultStyles)},
 				 {"fgcolors", STYLEPTR (&fgColors)},
 				 {"bgcolors", STYLEPTR (&bgColors)},

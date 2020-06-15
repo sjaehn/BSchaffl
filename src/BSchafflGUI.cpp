@@ -65,7 +65,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	userLatencySlider (10, 100, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
 	userLatencyUnitListbox
 	(
-		180, 90, 90, 20, 0, 20, 90, 40, "listbox",
+		180, 90, 90, 20, 0, 20, 90, 40, "menu",
 		BItems::ItemList ({BItems::Item({1, "Frames"})}),
 		1
 	),
@@ -86,7 +86,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	seqLenValueListbox
 	(
-		340, 320, 50, 20, 0, -220, 50, 220, "listbox",
+		340, 320, 50, 20, 0, -220, 50, 220, "menu",
 		BItems::ItemList
 		({
 			{0.125, "1/8"}, {0.25, "1/4"}, {0.333333, "1/3"}, {0.5, "1/2"},
@@ -95,7 +95,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	),
 	seqLenBaseListbox
 	(
-		400, 320, 90, 20, 0, -80, 90, 80, "listbox",
+		400, 320, 90, 20, 0, -80, 90, 80, "menu",
 		BItems::ItemList
 		({{0, "Second(s)"}, {1, "Beat(s)"}, {2, "Bar(s)"}}), 2.0
 	),
@@ -111,6 +111,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	markersAutoButton (775, 320, 80, 20, "button", "Auto"),
 	nrStepsControl (340, 362, 520, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
 	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),
+
 	latencyValue (0, 0, 0, 0, "widget", 0),
 	latencyDisplay (760, 10, 120, 10, "smlabel", ""),
 	controllers{nullptr},
@@ -390,7 +391,7 @@ void BSchafflGUI::resizeGUI()
 	smFont.setFontSize (8 * sz);
 
 	// Resize Background
-	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 880 * sz, 560 * sz);
+	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 880 * sz, 420 * sz);
 	cairo_t* cr = cairo_create (surface);
 	cairo_scale (cr, sz, sz);
 	cairo_set_source_surface(cr, bgImageSurface, 0, 0);
@@ -399,48 +400,90 @@ void BSchafflGUI::resizeGUI()
 	cairo_destroy (cr);
 	cairo_surface_destroy (surface);
 
-	// TODO: Resize widgets
-	/*
-	RESIZE (mContainer, 0, 0, 880, 560, sz);
-	RESIZE (rContainer, 260, 80, 480, 360, sz);
-	RESIZE (monitorSwitch, 600, 15, 40, 16, sz);
-	RESIZE (monitorLabel, 600, 35, 40, 20, sz);
-	RESIZE (bypassButton, 662, 15, 16, 16, sz);
-	RESIZE (bypassLabel, 650, 35, 40, 20, sz);
-	RESIZE (drywetDial, 703, 5, 33, 40, sz);
-	RESIZE (drywetLabel, 700, 35, 40, 20, sz);
-	RESIZE (helpButton, 20, 80, 24, 24, sz);
-	RESIZE (ytButton, 50, 80, 24, 24, sz);
-	RESIZE (monitorDisplay, 3, 3, 474, 217, sz);
-	RESIZE (rectButton, 40, 250, 60, 40, sz);
-	RESIZE (sinButton, 140, 250, 60, 40, sz);
-	RESIZE (stepshapeDisplay, 30, 300, 180, 140, sz);
-	RESIZE (attackControl, 40, 465, 50, 60, sz);
-	RESIZE (attackLabel, 20, 520, 90, 20, sz);
-	RESIZE (releaseControl, 150, 465, 50, 60, sz);
-	RESIZE (releaseLabel, 130, 520, 90, 20, sz);
-	RESIZE (sequencesperbarControl, 260, 442, 120, 28, sz);
-	RESIZE (sequencesperbarLabel, 260, 470, 120, 20, sz);
-	RESIZE (swingControl, 460, 442, 120, 28, sz);
-	RESIZE (swingLabel, 460, 470, 120, 20, sz);
-	RESIZE (markersAutoButton, 655, 450, 80, 20, sz);
-	RESIZE (markersAutoLabel, 655, 470, 80, 20, sz);
-	RESIZE (nrStepsControl, 260, 492, 480, 28, sz);
-	RESIZE (nrStepsLabel, 260, 520, 480, 20, sz);
-	RESIZE (stepshapeLabel, 33, 303, 80, 20, sz);
-	RESIZE (sequencemonitorLabel, 263, 83, 120, 20, sz);
-	RESIZE (messageLabel, 420, 83, 280, 20,sz);
-	RESIZE (sContainer, 3, 220, 474, 137, sz);
+	// Resize widgets
+	RESIZE (mContainer, 0, 0, 880, 420, sz);
+
+	RESIZE (helpButton, 810, 60, 24, 24, sz);
+
+	RESIZE (midiChFilterIcon, 0, 0, 300, 20, sz);
+	RESIZE (midiChFilterContainer, 0, 0, 300, 140, sz);
+	RESIZE (midiChFilterText, 10, 10, 280, 50, sz);
+	RESIZE (midiChFilterAllSwitch, 10, 36, 28, 14, sz);
+	RESIZE (midiChFilterAllLabel, 44, 33, 120, 20, sz);
+	for (unsigned int i = 0; i < midiChFilterSwitches.size(); ++i)
+	{
+		RESIZE (midiChFilterSwitches[i], 10 + 70.0 * int (i / 4), 56 + int (i % 4) * 20, 28, 14, sz);
+		RESIZE (midiChFilterLabels[i], 44 + 70.0 * int (i / 4), 53  + int (i % 4) * 20, 36, 20, sz);
+	}
+
+	RESIZE (midiMsgFilterIcon, 0, 0, 300, 20, sz);
+	RESIZE (midiMsgFilterContainer, 0, 0, 300, 200, sz);
+	RESIZE (midiMsgFilterText, 10, 10, 280, 20, sz);
+	RESIZE (midiMsgFilterAllSwitch, 10, 36, 28, 14, sz);
+	RESIZE (midiMsgFilterAllLabel, 50, 33, 120, 20, sz);
+	for (unsigned int i = 0; i < midiMsgFilterSwitches.size(); ++i)
+	{
+		RESIZE (midiMsgFilterSwitches[i], 10, 56 + i * 20, 28, 14, sz);
+		RESIZE (midiMsgFilterLabels[i], 50, 53 + i * 20, 180, 20, sz);
+	}
+
+	RESIZE (smartQuantizationIcon, 0, 0, 300, 20, sz);
+	RESIZE (smartQuantizationContainer, 0, 0, 300, 200, sz);
+	RESIZE (smartQuantizationRangeSlider, 10, 60, 110, 28, sz);
+	RESIZE (smartQuantizationMappingSwitch, 10, 156, 28, 14, sz);
+	RESIZE (smartQuantizationPositioningSwitch, 10, 176, 28, 14, sz);
+	RESIZE (smartQuantizationText1, 10, 10, 280, 50, sz);
+	RESIZE (smartQuantizationRangeLabel, 130, 70, 90, 20, sz);
+	RESIZE (smartQuantizationText2, 10, 100, 280, 50, sz);
+	RESIZE (smartQuantizationMappingLabel, 50, 153, 120, 20, sz);
+	RESIZE (smartQuantizationPositionLabel, 50, 173, 120, 20, sz);
+
+	RESIZE (userLatencyIcon, 0, 0, 300, 20, sz);
+	RESIZE (userLatencyContainer, 0, 0, 300, 140, sz);
+	RESIZE (userLatencyText, 10, 10, 280, 50, sz);
+	RESIZE (userLatencySwitch, 10, 73, 28, 14, sz);
+	RESIZE (userLatencyLabel, 50, 70, 180, 20, sz);
+	RESIZE (userLatencySlider, 10, 100, 160, 28, sz);
+	RESIZE (userLatencyUnitListbox, 180, 90, 90, 20, sz);
+	userLatencyUnitListbox.resizeListBox (BUtilities::Point (90 * sz, 40 * sz));
+	userLatencyUnitListbox.moveListBox (BUtilities::Point (0, 20 * sz));
+	userLatencyUnitListbox.resizeListBoxItems (BUtilities::Point (40 * sz, 20 * sz));
+
+	RESIZE (selectMenu, 20, 90, 300, 310, sz);
+
+	RESIZE (sContainer, 340, 90, 520, 210, sz);
+
+	RESIZE (seqLenValueListbox, 340, 320, 50, 20, sz);
+	seqLenValueListbox.resizeListBox (BUtilities::Point (50 * sz, 220 * sz));
+	seqLenValueListbox.moveListBox (BUtilities::Point (0, -220 * sz));
+	seqLenValueListbox.resizeListBoxItems (BUtilities::Point (50 * sz, 20 * sz));
+	RESIZE (seqLenBaseListbox, 400, 320, 90, 20, sz);
+	seqLenBaseListbox.resizeListBox (BUtilities::Point (90 * sz, 80 * sz));
+	seqLenBaseListbox.moveListBox (BUtilities::Point (0, -80 * sz));
+	seqLenBaseListbox.resizeListBoxItems (BUtilities::Point (90 * sz, 20 * sz));
+	RESIZE (ampSwingControl, 505, 312, 120, 28, sz);
+	RESIZE (swingControl, 640, 312, 120, 28, sz);
+	RESIZE (markersAutoButton, 775, 320, 80, 20, sz);
+	RESIZE (nrStepsControl, 340, 362, 520, 28, sz);
 	RESIZE (markerListBox, 12, -68, 86, 66, sz);
 	markerListBox.resizeItems (BUtilities::Point (80 * sz, 20 * sz));
 
-	double sw = sContainer.getEffectiveWidth();
-	double sx = sContainer.getXOffset();
-	for (int i = 0; i < MAXSTEPS; ++i) {RESIZE (stepControl[i], (i + 0.5) * sw / sz / nrSteps + sx / sz - 14, 40, 28, 100, sz);}
-	for (int i = 0; i < MAXSTEPS - 1; ++i) {RESIZE (markerWidgets[i], markerWidgets[i].getValue() * sw / sz + sx / sz - 5, 10, 10, 16, sz);}
-	*/
+	RESIZE (messageLabel, 420, 63, 400, 20, sz);
+	RESIZE (latencyDisplay, 760, 10, 120, 10, sz);
+
+	RESIZE (inIcon, 4, 14, 32, 12, sz);
+	RESIZE (ampIcon, 4, 90, 32, 12, sz);
+	RESIZE (delIcon, 4, 160, 32, 12, sz);
+	RESIZE (outIcon, 4, 184, 32, 12, sz);
+
+
+	//double sw = sContainer.getEffectiveWidth();
+	//double sx = sContainer.getXOffset();
+	//for (int i = 0; i < MAXSTEPS; ++i) {RESIZE (stepControl[i], (i + 0.5) * sw / sz / nrSteps + sx / sz - 14, 40, 28, 100, sz);}
+	//for (int i = 0; i < MAXSTEPS - 1; ++i) {RESIZE (markerWidgets[i], markerWidgets[i].getValue() * sw / sz + sx / sz - 5, 10, 10, 16, sz);}
 
 	// Update monitors
+	rearrange_controllers ();
 	redrawSContainer ();
 
 	// Apply changes
