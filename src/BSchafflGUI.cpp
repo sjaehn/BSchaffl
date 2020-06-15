@@ -30,6 +30,9 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	mContainer (0, 0, 880, 420, "main"),
 
+	helpButton (810, 60, 24, 24, "halobutton", "Help"),
+	//ytButton (50, 80, 24, 24, "halobutton", "Tutorial"),
+
 	midiChFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_ch_filter.png"),
 	midiChFilterContainer (0, 0, 300, 140, "screen"),
 	midiChFilterText (10, 10, 280, 50, "text", "MIDI channels to be processed by the plugin."),
@@ -80,8 +83,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	),
 
 	sContainer (340, 90, 520, 210, "scontainer"),
-	//helpButton (20, 80, 24, 24, "halobutton", "Help"),
-	//ytButton (50, 80, 24, 24, "halobutton", "Tutorial"),
+
 	seqLenValueListbox
 	(
 		340, 320, 50, 20, 0, -220, 50, 220, "listbox",
@@ -160,7 +162,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	userLatencySlider.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::listBoxChangedCallback);
 	markersAutoButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::markersAutoClickedCallback);
-	//helpButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, helpButtonClickedCallback);
+	helpButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, helpButtonClickedCallback);
 	//ytButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, ytButtonClickedCallback);
 
 	// Configure widgets
@@ -257,7 +259,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	mContainer.add (selectMenu);
 	mContainer.add (sContainer);
-	//mContainer.add (helpButton);
+	mContainer.add (helpButton);
 	//mContainer.add (ytButton);
 	mContainer.add (seqLenValueListbox);
 	mContainer.add (seqLenBaseListbox);
@@ -495,7 +497,7 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 	selectMenu.applyTheme (theme);
 
 	sContainer.applyTheme (theme);
-	//helpButton.applyTheme (theme);
+	helpButton.applyTheme (theme);
 	//ytButton.applyTheme (theme);
 
 	seqLenValueListbox.applyTheme (theme);
@@ -958,7 +960,7 @@ void BSchafflGUI::markersAutoClickedCallback (BEvents::Event* event)
 	ui->redrawSContainer();
 }
 
-//void BSchafflGUI::helpButtonClickedCallback (BEvents::Event* event) {system(OPEN_CMD " " HELP_URL);}
+void BSchafflGUI::helpButtonClickedCallback (BEvents::Event* event) {system(OPEN_CMD " " HELP_URL);}
 //void BSchafflGUI::ytButtonClickedCallback (BEvents::Event* event) {system(OPEN_CMD " " YT_URL);}
 
 void BSchafflGUI::redrawSContainer ()

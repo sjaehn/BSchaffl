@@ -151,8 +151,9 @@ Alternatively, the user may manually set a fixed latency of up to 192000 frames.
 * Select between: stretch note position only / stretch note length only / stretch note position & length
 * Option to change output step
 * Step shape editor
+* Resizable GUI
 * Make tutorial video
-* Link manual & tutorial in plugin
+* Link tutorial in plugin
 
 
 ## Links

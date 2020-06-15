@@ -61,9 +61,9 @@ enum MessageNr
 #endif /* MESSAGENR_ */
 
 #define BG_FILE "inc/surface.png"
-//#define HELP_URL "https://github.com/sjaehn/BSchaffl/blob/master/README.md"
+#define HELP_URL "https://github.com/sjaehn/BSchaffl/blob/master/README.md"
 //#define YT_URL " https://youtu.be/PuzoxiAs-h8"
-//#define OPEN_CMD "xdg-open"
+#define OPEN_CMD "xdg-open"
 
 #define LIM(g , min, max) ((g) > (max) ? (max) : ((g) < (min) ? (min) : (g)))
 #define RESIZE(widget, x, y, w, h, sz) (widget).moveTo ((x) * (sz), (y) * (sz)); (widget).resize ((w) * (sz), (h) * (sz));
@@ -102,12 +102,15 @@ private:
 	static void markerDraggedCallback (BEvents::Event* event);
         static void listBoxChangedCallback (BEvents::Event* event);
         static void markersAutoClickedCallback (BEvents::Event* event);
-        //static void helpButtonClickedCallback (BEvents::Event* event);
+        static void helpButtonClickedCallback (BEvents::Event* event);
 	//static void ytButtonClickedCallback (BEvents::Event* event);
 
         std::string pluginPath;
 
 	BWidgets::Widget mContainer;
+        
+        HaloButton helpButton;
+        //HaloButton ytButton;
 
         BWidgets::ImageIcon midiChFilterIcon;
         BWidgets::Widget midiChFilterContainer;
@@ -148,8 +151,6 @@ private:
         SelectMenu selectMenu;
 
         BWidgets::DrawingSurface sContainer;
-        //HaloButton helpButton;
-        //HaloButton ytButton;
 	BWidgets::PopupListBox seqLenValueListbox;
         BWidgets::PopupListBox seqLenBaseListbox;
         SwingHSlider ampSwingControl;
