@@ -32,7 +32,7 @@
 	units:render "%f steps" .
 
 <https://www.jahnichen.de/plugins/lv2/BSchaffl>
-        a lv2:Plugin, lv2:DelayPlugin, lv2:MIDIPlugin, doap:Project;
+        a lv2:Plugin, lv2:MIDIPlugin, doap:Project;
         doap:name "B.Schaffl" ;
         rdfs:comment "Pattern-controlled MIDI amp & time stretch plugin to produce shuffle / swing effects." ;
 	doap:maintainer <http://www.jahnichen.de/sjaehn#me> ;
