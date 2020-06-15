@@ -145,6 +145,11 @@ calculates the latency by default. This value (in ms) is shown in the top right 
 Alternatively, the user may manually set a fixed latency of up to 192000 frames.
 
 
+## Acknowledgments
+
+* Bart Brouns for ideas about principle and features
+
+
 ## TODO's
 
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
