@@ -222,7 +222,9 @@ void BSchaffl::run (uint32_t n_samples)
 					// Hard set new position if new data received
 					//float barsequencepos = ((LV2_Atom_Float*)oBbeat)->body * sequencesperbar / beatsPerBar; // Position within a bar (0..sequencesperbar)
 					//position = MODFL (barsequencepos);
+					fprintf(stderr, "BSchaffl.lv2: Change position %f -> ", positionSeq);
 					positionSeq = getSequenceFromBeats (barBeat + beatsPerBar * bar);
+					fprintf(stderr, "%f\n", positionSeq);
 					refFrame = ev->time.frames;
 				}
 
@@ -310,7 +312,7 @@ void BSchaffl::run (uint32_t n_samples)
 				fprintf
 				(
 					stderr,
-					"BSchaffl.lv2 @ %1.10f: Remove MIDI signal %i (%i,%i) from %1.10f (maxSeq = %1.10f)\n",
+					"BSchaffl.lv2 @ %f: Remove MIDI signal %i (%i,%i) from %f (maxSeq = %f)\n",
 					inputSeq,
 					midiData.back().msg[0],
 					midiData.back().msg[1],
@@ -336,13 +338,15 @@ void BSchaffl::run (uint32_t n_samples)
 			fprintf
 			(
 				stderr,
-				"BSchaffl.lv2 @ %1.10f: Schedule MIDI signal %i (%i,%i) to %1.10f (latency = %f)\n",
+				"BSchaffl.lv2 @ %f: Schedule MIDI signal %i (%i,%i) to %f (latency = %f, outputSeqPos = %f, inputSeqPos = %f)\n",
 				inputSeq,
 				midi.msg[0],
 				midi.msg[1],
 				midi.msg[2],
 				midi.position,
-				latencySeq
+				latencySeq,
+				outputSeqPos,
+				inputSeqPos
 			);
 		}
 
@@ -394,7 +398,7 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 		lv2_atom_forge_raw (&forge, &midiData.front().msg, midiatom.size);
 		lv2_atom_forge_pad (&forge, sizeof (LV2_Atom) + midiatom.size);
 
-		fprintf
+/*		fprintf
 		(
 			stderr, "BSchaffl.lv2 @ %1.10f - %1.10f: Send MIDI %i (%i, %i) at %1.10f (frame %li (%i - %i))\n",
 			startSeq,
@@ -407,6 +411,7 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 			start,
 			end
 		);
+*/
 
 		// Remove sent data
 		midiData.pop_front();
