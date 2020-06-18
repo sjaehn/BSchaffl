@@ -157,8 +157,8 @@ private:
 
 	double getSequenceFromBeats (const double beats);
 	double getBeatsFromSequence (const double sequence);
-	double getSequenceFromFrame (const int64_t frames);
-	int64_t getFrameFromSequence (const double sequence);
+	double getSequenceFromFrame (const int64_t frames, float speed = 1.0f);
+	int64_t getFrameFromSequence (const double sequence, float speed = 1.0f);
 	bool filterMsg (const uint8_t msg);
 	void recalculateLatency();
 	void recalculateAutoPositions ();

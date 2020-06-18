@@ -244,7 +244,7 @@ void BSchaffl::run (uint32_t n_samples)
 			midi.process = filterMsg (midi.msg[0]) && (controllers[MIDI_CH_FILTER + (midi.msg[0] & 0x0F)] != 0.0f);
 
 			// Calculate position within sequence
-			const double inputSeq = positionSeq + getSequenceFromFrame (ev->time.frames - refFrame);
+			const double inputSeq = positionSeq + getSequenceFromFrame (ev->time.frames - refFrame, speed);
 			const float inputSeqPos = MODFL (inputSeq);
 
 			// Calulate step
@@ -358,7 +358,7 @@ void BSchaffl::run (uint32_t n_samples)
 	if (last_t < n_samples) play (last_t, n_samples);
 
 	// Update position in case of no new barBeat submitted on next call
-	double relSeq = getSequenceFromFrame (n_samples - refFrame);
+	double relSeq = getSequenceFromFrame (n_samples - refFrame, speed);
 	positionSeq += relSeq;
 	refFrame = 0;
 
@@ -375,8 +375,8 @@ void BSchaffl::run (uint32_t n_samples)
 
 void BSchaffl::play (uint32_t start, uint32_t end)
 {
-	const double startSeq = positionSeq + getSequenceFromFrame (start - refFrame);
-	const double endSeq = positionSeq + getSequenceFromFrame (end - refFrame);
+	const double startSeq = positionSeq + getSequenceFromFrame (start - refFrame, speed);
+	const double endSeq = positionSeq + getSequenceFromFrame (end - refFrame, speed);
 
 	while ((!midiData.empty()) && midiData.front().position <= endSeq)
 	{
@@ -385,7 +385,7 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 		double seq = midiData.front().position;
 		if (seq >= startSeq)
 		{
-			frame = start + getFrameFromSequence (seq - startSeq);
+			frame = start + getFrameFromSequence (seq - startSeq, speed);
 			//frame = LIM (frame, 0, end);
 		}
 
@@ -444,7 +444,7 @@ double BSchaffl::getBeatsFromSequence (const double sequence)
 	}
 }
 
-double BSchaffl::getSequenceFromFrame (const int64_t frames)
+double BSchaffl::getSequenceFromFrame (const int64_t frames, float speed)
 {
 	if (controllers[SEQ_LEN_VALUE] == 0.0) return 0.0;
 
@@ -457,7 +457,7 @@ double BSchaffl::getSequenceFromFrame (const int64_t frames)
 	}
 }
 
-int64_t BSchaffl::getFrameFromSequence (const double sequence)
+int64_t BSchaffl::getFrameFromSequence (const double sequence, float speed)
 {
 	if (controllers[SEQ_LEN_VALUE] == 0.0) return 0.0;
 
