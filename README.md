@@ -144,6 +144,11 @@ Latency is required if a marker is automatically or manually dragged to the left
 calculates the latency by default. This value (in ms) is shown in the top right of the plugin.
 Alternatively, the user may manually set a fixed latency of up to 192000 frames.
 
+Latency-correction of time/position data (time, bar, beat) is required for the proper work of B.Schaffl.
+However, hosts may differently handle latency and time/position data. Some correct it by themselves (as
+in Ardour 6) others not (Ardour 5). Switch on latency-correction of time/position if the host doesn't
+correct it by itself. 
+
 
 ## Acknowledgments
 
