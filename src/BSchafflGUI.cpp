@@ -57,15 +57,18 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
         smartQuantizationPositionLabel (50, 173, 120, 20, "lflabel", "Fit into a step"),
 
 	userLatencyIcon (0, 0, 300, 20, "widget", pluginPath + "inc/latency.png"),
-	userLatencyContainer (0, 0, 300, 140, "screen"),
-	userLatencyText (10, 10, 280, 50, "text", "The plugin itself calculates the latency by default. Alternatively, you may define a fixed latency."),
-	userLatencySwitch (10, 73, 28, 14, "slider", 0.0),
-	userLatencyLabel (50, 70, 180, 20, "lflabel", "User-defined latency"),
+	userLatencyContainer (0, 0, 300, 200, "screen"),
+	timeCompensText (10, 10, 280, 30, "text", "Some hosts already compensate time/position by the plugin's latency. Otherwise the plugin can do it."),
+	timeCompensLabel (50, 45, 230, 20, "lflabel", "Latency-compensate time/position"),
+	timeCompensSwitch (10, 48, 28, 14, "slider", 0.0),
+	userLatencyText (10, 80, 280, 50, "text", "The plugin itself calculates the latency by default. Alternatively, you may define a fixed latency."),
+	userLatencySwitch (10, 138, 28, 14, "slider", 0.0),
+	userLatencyLabel (50, 135, 180, 20, "lflabel", "User-defined latency"),
 	userLatencyValue (0, 0, 0, 0, "widget", 0.0, 0.0, 192000, 1.0),
-	userLatencySlider (10, 100, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
+	userLatencySlider (10, 160, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
 	userLatencyUnitListbox
 	(
-		180, 90, 90, 20, 0, 20, 90, 40, "menu",
+		180, 170, 90, 20, 0, 20, 90, 40, "menu",
 		BItems::ItemList ({BItems::Item({1, "Frames"})}),
 		1
 	),
@@ -147,6 +150,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	controllers[QUANT_RANGE] = &smartQuantizationRangeSlider;
         controllers[QUANT_MAP] = &smartQuantizationMappingSwitch;
         controllers[QUANT_POS] = &smartQuantizationPositioningSwitch;
+	controllers[TIME_COMPENS] = &timeCompensSwitch;
 	controllers[USR_LATENCY] = &userLatencySwitch;
 	controllers[USR_LATENCY_FR] = &userLatencyValue;
 
@@ -246,6 +250,9 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
         smartQuantizationContainer.add (smartQuantizationMappingLabel);
         smartQuantizationContainer.add (smartQuantizationPositionLabel);
 
+	userLatencyContainer.add (timeCompensText);
+	userLatencyContainer.add (timeCompensLabel);
+	userLatencyContainer.add (timeCompensSwitch);
 	userLatencyContainer.add (userLatencyText);
 	userLatencyContainer.add (userLatencySwitch);
 	userLatencyContainer.add (userLatencyLabel);
@@ -439,12 +446,15 @@ void BSchafflGUI::resizeGUI()
 	RESIZE (smartQuantizationPositionLabel, 50, 173, 120, 20, sz);
 
 	RESIZE (userLatencyIcon, 0, 0, 300, 20, sz);
-	RESIZE (userLatencyContainer, 0, 0, 300, 140, sz);
-	RESIZE (userLatencyText, 10, 10, 280, 50, sz);
-	RESIZE (userLatencySwitch, 10, 73, 28, 14, sz);
-	RESIZE (userLatencyLabel, 50, 70, 180, 20, sz);
-	RESIZE (userLatencySlider, 10, 100, 160, 28, sz);
-	RESIZE (userLatencyUnitListbox, 180, 90, 90, 20, sz);
+	RESIZE (userLatencyContainer, 0, 0, 300, 200, sz);
+	RESIZE (timeCompensText, 10, 10, 280, 30, sz);
+	RESIZE (timeCompensLabel, 50, 45, 230, 20, sz);
+	RESIZE (timeCompensSwitch, 10, 48, 28, 14, sz);
+	RESIZE (userLatencyText, 10, 80, 280, 50, sz);
+	RESIZE (userLatencySwitch, 10, 138, 28, 14, sz);
+	RESIZE (userLatencyLabel, 50, 135, 180, 20, sz);
+	RESIZE (userLatencySlider, 10, 160, 160, 28, sz);
+	RESIZE (userLatencyUnitListbox, 180, 170, 90, 20, sz);
 	userLatencyUnitListbox.resizeListBox (BUtilities::Point (90 * sz, 40 * sz));
 	userLatencyUnitListbox.moveListBox (BUtilities::Point (0, 20 * sz));
 	userLatencyUnitListbox.resizeListBoxItems (BUtilities::Point (40 * sz, 20 * sz));
@@ -530,6 +540,9 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 
 	userLatencyIcon.applyTheme (theme);
         userLatencyContainer.applyTheme (theme);
+	timeCompensText.applyTheme (theme);
+	timeCompensLabel.applyTheme (theme);
+	timeCompensSwitch.applyTheme (theme);
 	userLatencyText.applyTheme (theme);
 	userLatencySwitch.applyTheme (theme);
 	userLatencyLabel.applyTheme (theme);

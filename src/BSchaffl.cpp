@@ -244,7 +244,9 @@ void BSchaffl::run (uint32_t n_samples)
 			midi.process = filterMsg (midi.msg[0]) && (controllers[MIDI_CH_FILTER + (midi.msg[0] & 0x0F)] != 0.0f);
 
 			// Calculate position within sequence
-			const double inputSeq = positionSeq + getSequenceFromFrame (ev->time.frames - refFrame, speed);
+			const double inputSeq =	positionSeq +
+						getSequenceFromFrame (ev->time.frames - refFrame, speed) +
+						(controllers[TIME_COMPENS] != 1.0f ? latencySeq : 0);
 			const float inputSeqPos = MODFL (inputSeq);
 
 			// Calulate step
@@ -375,8 +377,8 @@ void BSchaffl::run (uint32_t n_samples)
 
 void BSchaffl::play (uint32_t start, uint32_t end)
 {
-	const double startSeq = positionSeq + getSequenceFromFrame (start - refFrame, speed);
-	const double endSeq = positionSeq + getSequenceFromFrame (end - refFrame, speed);
+	const double startSeq = positionSeq + getSequenceFromFrame (start - refFrame, speed) + (controllers[TIME_COMPENS] != 1.0f ? latencySeq : 0);
+	const double endSeq = positionSeq + getSequenceFromFrame (end - refFrame, speed) + (controllers[TIME_COMPENS] != 1.0f ? latencySeq : 0);
 
 	while ((!midiData.empty()) && midiData.front().position <= endSeq)
 	{
@@ -544,7 +546,7 @@ void BSchaffl::notifyStatusToGui ()
 {
 	// Calculate step
 	int outStep = 0;
-	const double seqPos = fmod (positionSeq, 1.0);
+	const double seqPos = fmod (positionSeq + (controllers[TIME_COMPENS] != 1.0f ? latencySeq : 0), 1.0);
 	while ((outStep < controllers[NR_OF_STEPS] - 1) && (seqPos > stepPositions[outStep])) ++outStep;
 
 	// Calculate latency in ms

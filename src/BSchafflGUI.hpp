@@ -141,6 +141,9 @@ private:
 
         BWidgets::ImageIcon userLatencyIcon;
         BWidgets::Widget userLatencyContainer;
+        BWidgets::Text timeCompensText;
+        BWidgets::Label timeCompensLabel;
+        BWidgets::HSwitch timeCompensSwitch;
         BWidgets::Text userLatencyText;
         BWidgets::HSwitch userLatencySwitch;
         BWidgets::Label userLatencyLabel;
