@@ -148,6 +148,7 @@ Alternatively, the user may manually set a fixed latency of up to 192000 frames.
 ## Acknowledgments
 
 * Bart Brouns for the original idea plus subsequent ideas about principle and features
+* Robin Gareus for ideas to technically solve *rubato*-related problems
 
 
 ## TODO's
