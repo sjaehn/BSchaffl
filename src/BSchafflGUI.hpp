@@ -286,6 +286,8 @@ private:
  		{"menu/listbox/button",{{"border", STYLEPTR (&BStyles::noBorder)},
  				 {"background", STYLEPTR (&BStyles::blackFill)},
  				 {"bgcolors", STYLEPTR (&bgColors)}}},
+		{"selectmenu",	{{"uses", STYLEPTR (&defaultStyles)},
+				 {"bgcolors", STYLEPTR (&fgColors)}}},
 		{"dial", 	{{"uses", STYLEPTR (&defaultStyles)},
 				 {"fgcolors", STYLEPTR (&fgColors)},
 				 {"bgcolors", STYLEPTR (&bgColors)},

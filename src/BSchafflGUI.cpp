@@ -75,7 +75,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	selectMenu
 	(
-		20, 90, 340, 310, "widget",
+		20, 90, 340, 310, "selectmenu",
 		std::list<std::pair<Widget*, Widget*>>
 		({
 			{&midiChFilterIcon, &midiChFilterContainer},

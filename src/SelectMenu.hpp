@@ -24,6 +24,7 @@
 #include "BWidgets/Widget.hpp"
 #include <list>
 #include <utility>
+#include "UpDownButton.hpp"
 
 class SelectMenu : public BWidgets::Widget
 {
@@ -34,16 +35,25 @@ public:
                     const std::list<std::pair<Widget*, Widget*>>& menuList) :
                 Widget (x, y, width, height, name),
                 menuList_ (),
-                activePair_ (nullptr)
+                activeItem_ (nullptr)
         {
                 for (std::pair<Widget*, Widget*> const& p : menuList)
                 {
                         if (p.first && p.second)
                         {
+                                menuList_.push_back
+                                (       MenuItem
+                                        {
+                                                UpDownButton (0, 0, p.first->getHeight(), p.first->getHeight(), name),
+                                                p.first,
+                                                p.second
+                                        }
+                                );
+                                add (menuList_.back().button);
                                 add (*p.first);
                                 add (*p.second);
-                                menuList_.push_back (p);
-                                p.first->setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, SelectMenu::buttonPressedCallback);
+                                menuList_.back().button.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, SelectMenu::buttonPressedCallback);
+                                menuList_.back().title->setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, SelectMenu::buttonPressedCallback);
                         }
                 }
 
@@ -53,31 +63,52 @@ public:
         virtual void update () override
         {
                 Widget::update();
-                activate (activePair_);
+                activate (activeItem_);
+        }
+
+        virtual void applyTheme (BStyles::Theme& theme) override {applyTheme (theme, name_);}
+
+        virtual void applyTheme (BStyles::Theme& theme, const std::string& name) override
+        {
+        	Widget::applyTheme (theme, name);
+                for (MenuItem& mi : menuList_) mi.button.applyTheme (theme, name);
         }
 
 protected:
 
-        void activate (std::pair<Widget*, Widget*>* newActivePair)
+        struct MenuItem
+        {
+                UpDownButton button;
+                Widget* title;
+                Widget* content;
+        };
+
+        void activate (MenuItem* newActiveItem)
         {
                 double y = 0.0;
-                activePair_ = newActivePair;
+                activeItem_ = newActiveItem;
 
-                for (std::pair<Widget*, Widget*> const& p : menuList_)
+                for (MenuItem& mi : menuList_)
                 {
-                        if (p.first && p.second)
+                        if (mi.title && mi.content)
                         {
-                                p.first->moveTo (0, y);
-                                y += p.first->getHeight() + 10.0;
+                                mi.button.moveTo (0, y);
+                                mi.button.setValue (1.0);
+                                mi.title->moveTo (1.25 * mi.title->getHeight(), y);
+                                y += mi.title->getHeight() + 10.0;
 
-                                if (newActivePair == &p)
+                                if (newActiveItem == &mi)
                                 {
-                                        p.second->moveTo (0, y - 10.0);
-                                        y += p.second->getHeight();
-                                        p.second->show();
+                                        mi.content->moveTo (0, y - 10.0);
+                                        y += mi.content->getHeight();
+                                        mi.content->show();
                                 }
 
-                                else p.second->hide();
+                                else
+                                {
+                                        mi.button.setValue (0.0);
+                                        mi.content->hide();
+                                }
                         }
                 }
         }
@@ -92,19 +123,19 @@ protected:
         	SelectMenu* s = (SelectMenu*)w->getParent();
         	if (!s) return;
 
-                for (std::pair<Widget*, Widget*>& p : s->menuList_)
+                for (MenuItem& mi : s->menuList_)
                 {
-                        if (p.first && p.second && (p.first == w))
+                        if (mi.title && mi.content && ((mi.title == w) || (&mi.button == w)))
                         {
-                                if (s->activePair_ != &p) s->activate (&p);
+                                if (s->activeItem_ != &mi) s->activate (&mi);
                                 else s->activate (nullptr);
                                 break;
                         }
                 }
         }
 
-        std::list<std::pair<Widget*, Widget*>> menuList_;
-        std::pair<Widget*, Widget*>* activePair_;
+        std::list<MenuItem> menuList_;
+        MenuItem* activeItem_;
 };
 
 #endif /* SELECTMENU_HPP_ */
