@@ -24,58 +24,58 @@
 
 
 BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow) :
-	Window (880, 420, "B.Schaffl", parentWindow, true),
+	Window (920, 420, "B.Schaffl", parentWindow, true),
 	controller (NULL), write_function (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),
 
-	mContainer (0, 0, 880, 420, "main"),
+	mContainer (0, 0, 920, 420, "main"),
 
-	helpButton (810, 60, 24, 24, "halobutton", "Help"),
+	helpButton (850, 60, 24, 24, "halobutton", "Help"),
 	//ytButton (50, 80, 24, 24, "halobutton", "Tutorial"),
 
 	midiChFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_ch_filter.png"),
-	midiChFilterContainer (0, 0, 300, 140, "screen"),
-	midiChFilterText (10, 10, 280, 50, "text", "MIDI channels to be processed by the plugin."),
+	midiChFilterContainer (0, 0, 340, 140, "screen"),
+	midiChFilterText (10, 10, 320, 50, "text", "MIDI channels to be processed by the plugin."),
 	midiChFilterAllSwitch (10, 36, 28, 14, "slider", 1),
 	midiChFilterAllLabel (44, 33, 120, 20, "lflabel", "All"),
 
 	midiMsgFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_msg_filter.png"),
-	midiMsgFilterContainer (0, 0, 300, 200, "screen"),
-	midiMsgFilterText (10, 10, 280, 20, "text", "MIDI messages to be processed by the plugin."),
+	midiMsgFilterContainer (0, 0, 340, 200, "screen"),
+	midiMsgFilterText (10, 10, 320, 20, "text", "MIDI messages to be processed by the plugin."),
 	midiMsgFilterAllSwitch (10, 36, 28, 14, "slider", 1),
 	midiMsgFilterAllLabel (50, 33, 120, 20, "lflabel", "All"),
 
 	smartQuantizationIcon (0, 0, 300, 20, "widget", pluginPath + "inc/smart_quantization.png"),
-	smartQuantizationContainer (0, 0, 300, 200, "screen"),
+	smartQuantizationContainer (0, 0, 340, 180, "screen"),
         smartQuantizationRangeSlider (10, 60, 110, 28, "slider", 0.25, 0.0, 0.5, 0.0, "%1.2f"),
-        smartQuantizationMappingSwitch (10, 156, 28, 14, "slider", 1.0),
-        smartQuantizationPositioningSwitch (10, 176, 28, 14, "slider", 0.0),
-        smartQuantizationText1 (10, 10, 280, 50, "text", "Synchronizes not exactly fitting MIDI signals (e.g., notes) with the step pattern if the signal is within a range from the step start or end."),
+        smartQuantizationMappingSwitch (10, 136, 28, 14, "slider", 1.0),
+        smartQuantizationPositioningSwitch (10, 156, 28, 14, "slider", 0.0),
+        smartQuantizationText1 (10, 10, 320, 50, "text", "Synchronizes not exactly fitting MIDI signals (e.g., notes) with the step pattern if the signal is within a range from the step start or end."),
         smartQuantizationRangeLabel (130, 70, 90, 20, "lflabel", "Range (steps)"),
-	smartQuantizationText2 (10, 100, 280, 50, "text", "MIDI signals can be synchronized just by assignment to a step or by fitting into a step or both."),
-        smartQuantizationMappingLabel (50, 153, 120, 20, "lflabel", "Assign to a step"),
-        smartQuantizationPositionLabel (50, 173, 120, 20, "lflabel", "Fit into a step"),
+	smartQuantizationText2 (10, 100, 320, 30, "text", "MIDI signals can be synchronized just by assignment to a step or by fitting into a step or both."),
+        smartQuantizationMappingLabel (50, 133, 120, 20, "lflabel", "Assign to a step"),
+        smartQuantizationPositionLabel (50, 153, 120, 20, "lflabel", "Fit into a step"),
 
 	userLatencyIcon (0, 0, 300, 20, "widget", pluginPath + "inc/latency.png"),
-	userLatencyContainer (0, 0, 300, 200, "screen"),
-	timeCompensText (10, 10, 280, 30, "text", "Some hosts already compensate time/position by the plugin's latency. Otherwise the plugin can do it."),
+	userLatencyContainer (0, 0, 340, 180, "screen"),
+	timeCompensText (10, 10, 320, 30, "text", "Some hosts already compensate time/position by the plugin's latency. Otherwise the plugin can do it."),
 	timeCompensLabel (50, 45, 230, 20, "lflabel", "Latency-compensate time/position"),
 	timeCompensSwitch (10, 48, 28, 14, "slider", 0.0),
-	userLatencyText (10, 80, 280, 50, "text", "The plugin itself calculates the latency by default. Alternatively, you may define a fixed latency."),
-	userLatencySwitch (10, 138, 28, 14, "slider", 0.0),
-	userLatencyLabel (50, 135, 180, 20, "lflabel", "User-defined latency"),
+	userLatencyText (10, 80, 320, 30, "text", "The plugin itself calculates the latency by default. Alternatively, you may define a fixed latency."),
+	userLatencySwitch (10, 118, 28, 14, "slider", 0.0),
+	userLatencyLabel (50, 115, 180, 20, "lflabel", "User-defined latency"),
 	userLatencyValue (0, 0, 0, 0, "widget", 0.0, 0.0, 192000, 1.0),
-	userLatencySlider (10, 160, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
+	userLatencySlider (10, 140, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
 	userLatencyUnitListbox
 	(
-		180, 170, 90, 20, 0, 20, 90, 40, "menu",
+		180, 150, 90, 20, 0, 20, 90, 40, "menu",
 		BItems::ItemList ({BItems::Item({1, "Frames"})}),
 		1
 	),
 
 	selectMenu
 	(
-		20, 90, 300, 310, "widget",
+		20, 90, 340, 310, "widget",
 		std::list<std::pair<Widget*, Widget*>>
 		({
 			{&midiChFilterIcon, &midiChFilterContainer},
@@ -85,11 +85,11 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		})
 	),
 
-	sContainer (340, 90, 520, 210, "scontainer"),
+	sContainer (380, 90, 520, 210, "scontainer"),
 
 	seqLenValueListbox
 	(
-		340, 320, 50, 20, 0, -220, 50, 220, "menu",
+		380, 320, 50, 20, 0, -220, 50, 220, "menu",
 		BItems::ItemList
 		({
 			{0.125, "1/8"}, {0.25, "1/4"}, {0.333333, "1/3"}, {0.5, "1/2"},
@@ -98,27 +98,27 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	),
 	seqLenBaseListbox
 	(
-		400, 320, 90, 20, 0, -80, 90, 80, "menu",
+		440, 320, 90, 20, 0, -80, 90, 80, "menu",
 		BItems::ItemList
 		({{0, "Second(s)"}, {1, "Beat(s)"}, {2, "Bar(s)"}}), 2.0
 	),
 	ampSwingControl
 	(
-		505, 312, 120, 28, "slider", 1.0, 0.0078125, 128.0, 0.0, "%3.1f",
+		545, 312, 120, 28, "slider", 1.0, 0.0078125, 128.0, 0.0, "%3.1f",
 		[] (const double val, const double min, const double max)
 		{return (val >= 1.0 ? 1.0 - 0.5 / LIMIT (val, min, max) : 0.5 * LIMIT (val, min, max));},
 		[] (const double frac, const double min, const double max)
 		{return (frac >= 0.5 ? 0.5 / (1.0 - LIMIT (frac, 0, 1)) : 2 * LIMIT (frac, 0, 1));}
 	),
-	swingControl (640, 312, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
-	markersAutoButton (775, 320, 80, 20, "button", "Auto"),
-	nrStepsControl (340, 362, 520, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
+	swingControl (680, 312, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
+	markersAutoButton (815, 320, 80, 20, "button", "Auto"),
+	nrStepsControl (380, 362, 520, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
 	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),
 
 	latencyValue (0, 0, 0, 0, "widget", 0),
-	latencyDisplay (760, 10, 120, 10, "smlabel", ""),
+	latencyDisplay (800, 10, 120, 10, "smlabel", ""),
 	controllers{nullptr},
-	messageLabel (420, 63, 400, 20, "hilabel", ""),
+	messageLabel (420, 63, 440, 20, "hilabel", ""),
 	inIcon (4, 14, 32, 12, "widget", pluginPath + "inc/in.png"),
 	ampIcon (4, 90, 32, 12, "widget", pluginPath + "inc/amp.png"),
 	delIcon (4, 160, 32, 12, "widget", pluginPath + "inc/del.png"),
@@ -398,7 +398,7 @@ void BSchafflGUI::resizeGUI()
 	smFont.setFontSize (8 * sz);
 
 	// Resize Background
-	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 880 * sz, 420 * sz);
+	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 920 * sz, 420 * sz);
 	cairo_t* cr = cairo_create (surface);
 	cairo_scale (cr, sz, sz);
 	cairo_set_source_surface(cr, bgImageSurface, 0, 0);
@@ -408,13 +408,13 @@ void BSchafflGUI::resizeGUI()
 	cairo_surface_destroy (surface);
 
 	// Resize widgets
-	RESIZE (mContainer, 0, 0, 880, 420, sz);
+	RESIZE (mContainer, 0, 0, 920, 420, sz);
 
-	RESIZE (helpButton, 810, 60, 24, 24, sz);
+	RESIZE (helpButton, 850, 60, 24, 24, sz);
 
 	RESIZE (midiChFilterIcon, 0, 0, 300, 20, sz);
-	RESIZE (midiChFilterContainer, 0, 0, 300, 140, sz);
-	RESIZE (midiChFilterText, 10, 10, 280, 50, sz);
+	RESIZE (midiChFilterContainer, 0, 0, 340, 140, sz);
+	RESIZE (midiChFilterText, 10, 10, 320, 50, sz);
 	RESIZE (midiChFilterAllSwitch, 10, 36, 28, 14, sz);
 	RESIZE (midiChFilterAllLabel, 44, 33, 120, 20, sz);
 	for (unsigned int i = 0; i < midiChFilterSwitches.size(); ++i)
@@ -424,8 +424,8 @@ void BSchafflGUI::resizeGUI()
 	}
 
 	RESIZE (midiMsgFilterIcon, 0, 0, 300, 20, sz);
-	RESIZE (midiMsgFilterContainer, 0, 0, 300, 200, sz);
-	RESIZE (midiMsgFilterText, 10, 10, 280, 20, sz);
+	RESIZE (midiMsgFilterContainer, 0, 0, 340, 200, sz);
+	RESIZE (midiMsgFilterText, 10, 10, 320, 20, sz);
 	RESIZE (midiMsgFilterAllSwitch, 10, 36, 28, 14, sz);
 	RESIZE (midiMsgFilterAllLabel, 50, 33, 120, 20, sz);
 	for (unsigned int i = 0; i < midiMsgFilterSwitches.size(); ++i)
@@ -435,51 +435,51 @@ void BSchafflGUI::resizeGUI()
 	}
 
 	RESIZE (smartQuantizationIcon, 0, 0, 300, 20, sz);
-	RESIZE (smartQuantizationContainer, 0, 0, 300, 200, sz);
+	RESIZE (smartQuantizationContainer, 0, 0, 340, 180, sz);
 	RESIZE (smartQuantizationRangeSlider, 10, 60, 110, 28, sz);
-	RESIZE (smartQuantizationMappingSwitch, 10, 156, 28, 14, sz);
-	RESIZE (smartQuantizationPositioningSwitch, 10, 176, 28, 14, sz);
-	RESIZE (smartQuantizationText1, 10, 10, 280, 50, sz);
+	RESIZE (smartQuantizationMappingSwitch, 10, 136, 28, 14, sz);
+	RESIZE (smartQuantizationPositioningSwitch, 10, 156, 28, 14, sz);
+	RESIZE (smartQuantizationText1, 10, 10, 320, 50, sz);
 	RESIZE (smartQuantizationRangeLabel, 130, 70, 90, 20, sz);
-	RESIZE (smartQuantizationText2, 10, 100, 280, 50, sz);
-	RESIZE (smartQuantizationMappingLabel, 50, 153, 120, 20, sz);
-	RESIZE (smartQuantizationPositionLabel, 50, 173, 120, 20, sz);
+	RESIZE (smartQuantizationText2, 10, 100, 320, 30, sz);
+	RESIZE (smartQuantizationMappingLabel, 50, 133, 120, 20, sz);
+	RESIZE (smartQuantizationPositionLabel, 50, 153, 120, 20, sz);
 
 	RESIZE (userLatencyIcon, 0, 0, 300, 20, sz);
-	RESIZE (userLatencyContainer, 0, 0, 300, 200, sz);
-	RESIZE (timeCompensText, 10, 10, 280, 30, sz);
+	RESIZE (userLatencyContainer, 0, 0, 340, 180, sz);
+	RESIZE (timeCompensText, 10, 10, 320, 30, sz);
 	RESIZE (timeCompensLabel, 50, 45, 230, 20, sz);
 	RESIZE (timeCompensSwitch, 10, 48, 28, 14, sz);
-	RESIZE (userLatencyText, 10, 80, 280, 50, sz);
-	RESIZE (userLatencySwitch, 10, 138, 28, 14, sz);
-	RESIZE (userLatencyLabel, 50, 135, 180, 20, sz);
-	RESIZE (userLatencySlider, 10, 160, 160, 28, sz);
-	RESIZE (userLatencyUnitListbox, 180, 170, 90, 20, sz);
+	RESIZE (userLatencyText, 10, 80, 320, 30, sz);
+	RESIZE (userLatencySwitch, 10, 118, 28, 14, sz);
+	RESIZE (userLatencyLabel, 50, 115, 180, 20, sz);
+	RESIZE (userLatencySlider, 10, 140, 160, 28, sz);
+	RESIZE (userLatencyUnitListbox, 180, 150, 90, 20, sz);
 	userLatencyUnitListbox.resizeListBox (BUtilities::Point (90 * sz, 40 * sz));
 	userLatencyUnitListbox.moveListBox (BUtilities::Point (0, 20 * sz));
 	userLatencyUnitListbox.resizeListBoxItems (BUtilities::Point (40 * sz, 20 * sz));
 
-	RESIZE (selectMenu, 20, 90, 300, 310, sz);
+	RESIZE (selectMenu, 20, 90, 340, 310, sz);
 
-	RESIZE (sContainer, 340, 90, 520, 210, sz);
+	RESIZE (sContainer, 380, 90, 520, 210, sz);
 
-	RESIZE (seqLenValueListbox, 340, 320, 50, 20, sz);
+	RESIZE (seqLenValueListbox, 380, 320, 50, 20, sz);
 	seqLenValueListbox.resizeListBox (BUtilities::Point (50 * sz, 220 * sz));
 	seqLenValueListbox.moveListBox (BUtilities::Point (0, -220 * sz));
 	seqLenValueListbox.resizeListBoxItems (BUtilities::Point (50 * sz, 20 * sz));
-	RESIZE (seqLenBaseListbox, 400, 320, 90, 20, sz);
+	RESIZE (seqLenBaseListbox, 440, 320, 90, 20, sz);
 	seqLenBaseListbox.resizeListBox (BUtilities::Point (90 * sz, 80 * sz));
 	seqLenBaseListbox.moveListBox (BUtilities::Point (0, -80 * sz));
 	seqLenBaseListbox.resizeListBoxItems (BUtilities::Point (90 * sz, 20 * sz));
-	RESIZE (ampSwingControl, 505, 312, 120, 28, sz);
-	RESIZE (swingControl, 640, 312, 120, 28, sz);
-	RESIZE (markersAutoButton, 775, 320, 80, 20, sz);
-	RESIZE (nrStepsControl, 340, 362, 520, 28, sz);
+	RESIZE (ampSwingControl, 545, 312, 120, 28, sz);
+	RESIZE (swingControl, 680, 312, 120, 28, sz);
+	RESIZE (markersAutoButton, 815, 320, 80, 20, sz);
+	RESIZE (nrStepsControl, 380, 362, 520, 28, sz);
 	RESIZE (markerListBox, 12, -68, 86, 66, sz);
 	markerListBox.resizeItems (BUtilities::Point (80 * sz, 20 * sz));
 
-	RESIZE (messageLabel, 420, 63, 400, 20, sz);
-	RESIZE (latencyDisplay, 760, 10, 120, 10, sz);
+	RESIZE (messageLabel, 420, 63, 440, 20, sz);
+	RESIZE (latencyDisplay, 800, 10, 120, 10, sz);
 
 	RESIZE (inIcon, 4, 14, 32, 12, sz);
 	RESIZE (ampIcon, 4, 90, 32, 12, sz);
@@ -584,7 +584,7 @@ void BSchafflGUI::onConfigureRequest (BEvents::ExposeEvent* event)
 {
 	Window::onConfigureRequest (event);
 
-	sz = (getWidth() / 880 > getHeight() / 420 ? getHeight() / 420 : getWidth() / 880);
+	sz = (getWidth() / 920 > getHeight() / 420 ? getHeight() / 420 : getWidth() / 920);
 	resizeGUI ();
 }
 
@@ -1093,9 +1093,9 @@ LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin
 	double sz = 1.0;
 	int screenWidth  = getScreenWidth ();
 	int screenHeight = getScreenHeight ();
-	if ((screenWidth < 940) || (screenHeight < 440)) sz = 0.66;
+	if ((screenWidth < 960) || (screenHeight < 440)) sz = 0.66;
 
-	if (resize) resize->ui_resize(resize->handle, 880 * sz, 420 * sz);
+	if (resize) resize->ui_resize(resize->handle, 920 * sz, 420 * sz);
 
 	*widget = (LV2UI_Widget) puglGetNativeWindow (ui->getPuglView ());
 
