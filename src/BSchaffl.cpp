@@ -546,7 +546,7 @@ void BSchaffl::notifyStatusToGui ()
 {
 	// Calculate step
 	int outStep = 0;
-	const double seqPos = fmod (positionSeq + (controllers[TIME_COMPENS] != 1.0f ? latencySeq : 0), 1.0);
+	const double seqPos = fmod (positionSeq - (controllers[TIME_COMPENS] == 1.0f ? latencySeq : 0), 1.0);
 	while ((outStep < controllers[NR_OF_STEPS] - 1) && (seqPos > stepPositions[outStep])) ++outStep;
 
 	// Calculate latency in ms
