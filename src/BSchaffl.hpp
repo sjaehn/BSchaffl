@@ -44,7 +44,7 @@ struct MidiData
 
 const Limit controllerLimits [NR_CONTROLLERS] =
 {
-	{0.125, 4.0, 0},	// SEQ_LEN_VALUE
+	{0.125, 16.0, 0},	// SEQ_LEN_VALUE
 	{0, 2, 1},		// SEQ_LEN_BASE
 	{0.0078125, 128.0, 0.0},// AMP_SWING
 	{0.333333, 3.0, 0.0},	// SWING

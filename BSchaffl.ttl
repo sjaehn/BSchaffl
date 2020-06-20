@@ -78,9 +78,13 @@
 		lv2:scalePoint [ rdfs:label "2"; rdf:value 2.0 ] ;
 		lv2:scalePoint [ rdfs:label "3"; rdf:value 3.0 ] ;
 		lv2:scalePoint [ rdfs:label "4"; rdf:value 4.0 ] ;
+		lv2:scalePoint [ rdfs:label "6"; rdf:value 6.0 ] ;
+		lv2:scalePoint [ rdfs:label "8"; rdf:value 8.0 ] ;
+		lv2:scalePoint [ rdfs:label "12"; rdf:value 12.0 ] ;
+		lv2:scalePoint [ rdfs:label "16"; rdf:value 16.0 ] ;
                 lv2:default 1 ;
                 lv2:minimum 0.125 ;
-                lv2:maximum 4 ;
+                lv2:maximum 16 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 3 ;
