@@ -272,7 +272,7 @@
      inkscape:cx="464.10928"
      inkscape:cy="200"
      inkscape:document-units="px"
-     inkscape:current-layer="layer4"
+     inkscape:current-layer="layer2"
      showgrid="true"
      units="px"
      inkscape:window-width="1920"
@@ -294,7 +294,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -319,7 +319,7 @@
      inkscape:label="Ebene 3">
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194)"
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194);fill-opacity:1"
        id="rect3144"
        width="0.52916622"
        height="71.4375"
@@ -332,7 +332,7 @@
        height="71.4375"
        width="0.52916622"
        id="rect3144-7"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-3)" />
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-3);fill-opacity:1" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
        y="21.166664"
@@ -340,7 +340,7 @@
        height="71.4375"
        width="0.52916622"
        id="rect3144-5"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-5)" />
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-5);fill-opacity:1" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
        y="21.166664"
@@ -348,7 +348,7 @@
        height="71.4375"
        width="0.52916622"
        id="rect3144-9"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-6)" />
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-6);fill-opacity:1" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
        y="21.166662"
@@ -356,7 +356,7 @@
        height="71.4375"
        width="0.52916622"
        id="rect3144-0"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-1)" />
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-1);fill-opacity:1" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
        y="21.166666"
@@ -364,7 +364,7 @@
        height="71.4375"
        width="0.52916622"
        id="rect3144-06"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9)" />
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9);fill-opacity:1" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
        y="21.166666"
@@ -372,10 +372,10 @@
        height="71.4375"
        width="0.52916622"
        id="rect3144-59"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-2)" />
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-2);fill-opacity:1" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-3-8)"
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-3-8);fill-opacity:1"
        id="rect3144-7-2"
        width="0.52916622"
        height="71.4375"
@@ -383,7 +383,7 @@
        y="21.16667" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-5-9)"
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-5-9);fill-opacity:1"
        id="rect3144-5-2"
        width="0.52916622"
        height="71.4375"
@@ -391,7 +391,7 @@
        y="21.166664" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-6-0)"
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-6-0);fill-opacity:1"
        id="rect3144-9-8"
        width="0.52916622"
        height="71.4375"
@@ -399,7 +399,7 @@
        y="21.166664" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-1-3)"
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-1-3);fill-opacity:1"
        id="rect3144-0-9"
        width="0.52916622"
        height="71.4375"
@@ -407,7 +407,7 @@
        y="21.166662" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,0.0828976,-3.7908443)"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9-7)"
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9-7);fill-opacity:1"
        id="rect3144-06-6"
        width="0.52916622"
        height="71.4375"
@@ -415,14 +415,14 @@
        y="21.166662" />
     <rect
        transform="matrix(0.99917331,0,0,1.1829184,-2.5629359,-3.7908443)"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9-1)"
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9-1);fill-opacity:1"
        id="rect3144-06-9"
        width="0.52916622"
        height="71.4375"
        x="187.85417"
        y="21.166666" />
     <rect
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9-3)"
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9-3);fill-opacity:1"
        id="rect3144-06-7"
        width="0.52916622"
        height="71.4375"
@@ -436,9 +436,9 @@
        height="71.4375"
        width="0.52916622"
        id="rect3144-06-7-5"
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9-3-5)" />
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9-3-5);fill-opacity:1" />
     <rect
-       style="display:inline;mix-blend-mode:normal;fill:#ffffff;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9-3-5-3)"
+       style="display:inline;mix-blend-mode:normal;fill:#7f7f7f;stroke:#cccccc;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4194-9-3-5-3);fill-opacity:1"
        id="rect3144-06-7-5-7"
        width="0.52916622"
        height="71.4375"
