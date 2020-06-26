@@ -61,8 +61,8 @@ full sequence from MIDI input (IN), over controls to change the step amplificati
 to stretch or compress the step size (STR) to MIDI output (OUT).
 
 In the bottom right are controllers to directly effect the MIDI editing (sequence size, nr of steps,
-amp swing, step swing, auto markers). The left part contains a menu for global settings (MIDI channel
-filter, MIDI message filter, smart quantization, latency).
+amp swing, amp randomness, step swing, step swing randomness, auto markers). The left part contains
+a menu for global settings (MIDI channel filter, MIDI message filter, smart quantization, latency).
 
 ### Sequence size
 
@@ -82,12 +82,22 @@ steps or for even steps. Values lower than 1 (down to 1/128) mean reduction of o
 Values higher than 1 (up to 128) mean reduction of even step MIDI velocity.
 
 
+### Amp randomness
+
+TODO
+
+
 ### Step swing
 
 Step stretch swing. This feature can be used to compress or to stretch even and odd steps. Values
 lower than 1 (down to 1/3) mean compression of odd steps for the benefit of the following even step.
 Values higher than 1 (up to 3) mean stretching of odd steps to the disadvantage of the following even
 step.
+
+
+### Step swing randomness
+
+TODO
 
 
 ### Step stretch Markers
@@ -159,11 +169,11 @@ correct it by itself.
 ## What's new
 
 * Randomize amp
+* Randomize stretch
 
 
 ## TODO's
 
-* Randomize stretch
 * Master value for amp and stretch
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
 * Select between: stretch note position only / stretch note length only / stretch note position & length

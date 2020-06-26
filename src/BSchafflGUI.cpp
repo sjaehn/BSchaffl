@@ -180,7 +180,6 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	widgetBg.loadFillFromCairoSurface (bgImageSurface);
 	userLatencySlider.hide();
 	userLatencyUnitListbox.hide();
-	swingRandomControl.hide();
 	nrStepsControl.setScrollable (true);
 	nrStepsControl.getDisplayLabel ()->setState (BColors::ACTIVE);
 	swingControl.getDisplayLabel ()->setState (BColors::ACTIVE);

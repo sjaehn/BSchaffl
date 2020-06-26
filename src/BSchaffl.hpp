@@ -138,6 +138,7 @@ private:
 	int64_t latencyFr;
 	uint32_t refFrame;
 	bool uiOn;
+	int actStep;
 
 	StaticArrayList<MidiData, MIDIBUFFERSIZE> midiData;
 
@@ -150,6 +151,7 @@ private:
 	float controllers[NR_CONTROLLERS];
 	float stepPositions[MAXSTEPS - 1];
 	bool stepAutoPositions[MAXSTEPS - 1];
+	float stepRndPositions[MAXSTEPS - 1];
 
 	BSchafflURIs uris;
 
@@ -158,6 +160,9 @@ private:
 
 	Message message;
 
+	void enterStep (const int step);
+	double getStepStart (const int step);
+	double getStepEnd (const int step);
 	double getSequenceFromBeats (const double beats);
 	double getBeatsFromSequence (const double sequence);
 	double getSequenceFromFrame (const int64_t frames, float speed = 1.0f);

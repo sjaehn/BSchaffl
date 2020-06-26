@@ -35,10 +35,11 @@ BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 	latencySeq (0.0), latencyFr (0),
 	refFrame(0),
 	uiOn (false),
+	actStep (0),
 	midiData (),
 	input(NULL), output(NULL),
 	controllerPtrs {nullptr}, controllers {0.0f},
-	stepPositions {0.0},
+	stepPositions {0.0}, stepRndPositions{0.0},
 	message ()
 
 {
@@ -256,6 +257,7 @@ void BSchaffl::run (uint32_t n_samples)
 			// Calulate step
 			const int nrOfSteps = controllers[NR_OF_STEPS];
 			const int step = double (nrOfSteps) * inputSeqPos;
+			enterStep (step);
 
 			// Calulate fractional position within step
 			const float iprev = float (step) / float (nrOfSteps);
@@ -264,8 +266,8 @@ void BSchaffl::run (uint32_t n_samples)
 
 			// Calculate output position
 			const float qrange = (controllers[QUANT_POS] != 0.0f ? controllers[QUANT_RANGE] : 0.0);
-			const float oprev = (step == 0.0 ? 0.0f : stepPositions[step - 1]);
-			const float onext = (step >= nrOfSteps - 1 ? 1.0f : stepPositions[step]);
+			const float oprev = getStepStart (step);
+			const float onext = getStepEnd (step);
 			const float ofrac = (ifrac <= qrange ? 0.0f : (1.0f - ifrac < qrange ? 1.0f : ifrac));
 			const float outputSeqPos = oprev + ofrac * (onext - oprev);
 			midi.position =
@@ -423,6 +425,50 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 		// Remove sent data
 		midiData.pop_front();
 	}
+}
+
+void BSchaffl::enterStep (const int step)
+{
+	const int nrOfSteps = controllers[NR_OF_STEPS];
+	if ((step != actStep) && (step < nrOfSteps) && (step >= 0))
+	{
+		actStep = step;
+		if (step < nrOfSteps - 1)
+		{
+			const float rnd = 1.0f + 0.5 * controllers[SWING_RANDOM] * (2.0f * float (rand()) / float (RAND_MAX) - 1.0f);
+			stepRndPositions[step] =
+			(
+				rnd < 1.0f ?
+				(
+					step > 0 ?
+					stepPositions[step] - (1.0f - rnd) * (stepPositions[step] - stepPositions[step - 1]) :
+					stepPositions[step] - (1.0f - rnd) * stepPositions[step]
+				) :
+				(
+					step < nrOfSteps - 2 ?
+					stepPositions[step] + (rnd - 1.0f) * (stepPositions[step + 1] - stepPositions[step]) :
+					stepPositions[step] + (rnd - 1.0f) * (1.0f - stepPositions[step])
+				)
+			);
+		}
+
+	}
+}
+
+double BSchaffl::getStepStart (const int step)
+{
+	const int nrOfSteps = controllers[NR_OF_STEPS];
+	const int s = step % nrOfSteps;
+	if (s == 0) return 0.0;
+	else return stepRndPositions[s - 1];
+}
+
+double BSchaffl::getStepEnd (const int step)
+{
+	const int nrOfSteps = controllers[NR_OF_STEPS];
+	const int s = step % nrOfSteps;
+	if (s == nrOfSteps - 1) return 1.0;
+	else return stepRndPositions[s];
 }
 
 double BSchaffl::getSequenceFromBeats (const double beats)
