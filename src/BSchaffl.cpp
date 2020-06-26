@@ -568,7 +568,8 @@ void BSchaffl::recalculateLatency ()
 		{
 			const double inStartSeq = double (i) / double (nrSteps);
 			const double outStartSeq = (i == 0 ? 0.0 : stepPositions[i - 1]);
-			const double diffSeq = inStartSeq - outStartSeq;
+			const double rndSeq = (i == 0 ? 0.0 : controllers[SWING_RANDOM] * (stepPositions[i - 1] - (i == 1 ? 0.0 : stepPositions[i - 2])));
+			const double diffSeq = inStartSeq - (outStartSeq - rndSeq);
 			if (diffSeq > latencySeq) latencySeq = diffSeq;
 		}
 

@@ -179,7 +179,6 @@ correct it by itself.
 
 ## TODO's
 
-* Include step swing randomness in latency calculation
 * Handle step swing randomness values > 0.5
 * Handle changes which effect step stretch during playback
 * Master value for amp and stretch
