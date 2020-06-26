@@ -24,13 +24,13 @@
 
 
 BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow) :
-	Window (920, 420, "B.Schaffl", parentWindow, true),
+	Window (955, 470, "B.Schaffl", parentWindow, true),
 	controller (NULL), write_function (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),
 
-	mContainer (0, 0, 920, 420, "main"),
+	mContainer (0, 0, 955, 470, "main"),
 
-	helpButton (850, 60, 24, 24, "halobutton", "Help"),
+	helpButton (885, 60, 24, 24, "halobutton", "Help"),
 	//ytButton (50, 80, 24, 24, "halobutton", "Tutorial"),
 
 	midiChFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_ch_filter.png"),
@@ -75,7 +75,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	selectMenu
 	(
-		20, 90, 340, 310, "selectmenu",
+		20, 90, 340, 360, "selectmenu",
 		std::list<std::pair<Widget*, Widget*>>
 		({
 			{&midiChFilterIcon, &midiChFilterContainer},
@@ -85,11 +85,11 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		})
 	),
 
-	sContainer (380, 90, 520, 210, "scontainer"),
+	sContainer (380, 90, 555, 210, "scontainer"),
 
 	seqLenValueListbox
 	(
-		380, 320, 50, 20, 0, -220, 50, 220, "menu",
+		380, 370, 50, 20, 0, -220, 50, 220, "menu",
 		BItems::ItemList
 		({
 			{0.125, "1/8"}, {0.25, "1/4"}, {0.333333, "1/3"}, {0.5, "1/2"},
@@ -99,7 +99,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	),
 	seqLenBaseListbox
 	(
-		440, 320, 90, 20, 0, -80, 90, 80, "menu",
+		440, 370, 90, 20, 0, -80, 90, 80, "menu",
 		BItems::ItemList
 		({{0, "Second(s)"}, {1, "Beat(s)"}, {2, "Bar(s)"}}), 2.0
 	),
@@ -111,13 +111,15 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		[] (const double frac, const double min, const double max)
 		{return (frac >= 0.5 ? 0.5 / (1.0 - LIMIT (frac, 0, 1)) : 2 * LIMIT (frac, 0, 1));}
 	),
-	swingControl (680, 312, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
-	markersAutoButton (815, 320, 80, 20, "button", "Auto"),
-	nrStepsControl (380, 362, 520, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
+	ampRandomControl (680, 312, 120, 28, "slider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
+	swingControl (545, 362, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
+	swingRandomControl (680, 362, 120, 28, "slider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
+	markersAutoButton (415, 320, 80, 20, "button", "Auto"),
+	nrStepsControl (380, 412, 555, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
 	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),
 
 	latencyValue (0, 0, 0, 0, "widget", 0),
-	latencyDisplay (800, 10, 120, 10, "smlabel", ""),
+	latencyDisplay (835, 10, 120, 10, "smlabel", ""),
 	controllers{nullptr},
 	messageLabel (420, 63, 440, 20, "hilabel", ""),
 	inIcon (4, 14, 32, 12, "widget", pluginPath + "inc/in.png"),
@@ -146,7 +148,9 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	controllers[SEQ_LEN_VALUE] = &seqLenValueListbox;
 	controllers[SEQ_LEN_BASE] = &seqLenBaseListbox;
 	controllers[AMP_SWING] = &ampSwingControl;
+	controllers[AMP_RANDOM] = &ampRandomControl;
 	controllers[SWING] = &swingControl;
+	controllers[SWING_RANDOM] = &swingRandomControl;
 	controllers[NR_OF_STEPS] = &nrStepsControl;
 	controllers[QUANT_RANGE] = &smartQuantizationRangeSlider;
         controllers[QUANT_MAP] = &smartQuantizationMappingSwitch;
@@ -176,6 +180,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	widgetBg.loadFillFromCairoSurface (bgImageSurface);
 	userLatencySlider.hide();
 	userLatencyUnitListbox.hide();
+	swingRandomControl.hide();
 	nrStepsControl.setScrollable (true);
 	nrStepsControl.getDisplayLabel ()->setState (BColors::ACTIVE);
 	swingControl.getDisplayLabel ()->setState (BColors::ACTIVE);
@@ -273,7 +278,9 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer.add (seqLenValueListbox);
 	mContainer.add (seqLenBaseListbox);
 	mContainer.add (ampSwingControl);
+	mContainer.add (ampRandomControl);
 	mContainer.add (swingControl);
+	mContainer.add (swingRandomControl);
 	mContainer.add (markersAutoButton);
 	mContainer.add (nrStepsControl);
 	mContainer.add (latencyValue);
@@ -399,7 +406,7 @@ void BSchafflGUI::resizeGUI()
 	smFont.setFontSize (8 * sz);
 
 	// Resize Background
-	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 920 * sz, 420 * sz);
+	cairo_surface_t* surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 955 * sz, 470 * sz);
 	cairo_t* cr = cairo_create (surface);
 	cairo_scale (cr, sz, sz);
 	cairo_set_source_surface(cr, bgImageSurface, 0, 0);
@@ -409,9 +416,9 @@ void BSchafflGUI::resizeGUI()
 	cairo_surface_destroy (surface);
 
 	// Resize widgets
-	RESIZE (mContainer, 0, 0, 920, 420, sz);
+	RESIZE (mContainer, 0, 0, 955, 470, sz);
 
-	RESIZE (helpButton, 850, 60, 24, 24, sz);
+	RESIZE (helpButton, 885, 60, 24, 24, sz);
 
 	RESIZE (midiChFilterIcon, 0, 0, 300, 20, sz);
 	RESIZE (midiChFilterContainer, 0, 0, 340, 140, sz);
@@ -460,38 +467,34 @@ void BSchafflGUI::resizeGUI()
 	userLatencyUnitListbox.moveListBox (BUtilities::Point (0, 20 * sz));
 	userLatencyUnitListbox.resizeListBoxItems (BUtilities::Point (40 * sz, 20 * sz));
 
-	RESIZE (selectMenu, 20, 90, 340, 310, sz);
+	RESIZE (selectMenu, 20, 90, 340, 360, sz);
 
-	RESIZE (sContainer, 380, 90, 520, 210, sz);
+	RESIZE (sContainer, 380, 90, 555, 210, sz);
 
-	RESIZE (seqLenValueListbox, 380, 320, 50, 20, sz);
+	RESIZE (seqLenValueListbox, 380, 370, 50, 20, sz);
 	seqLenValueListbox.resizeListBox (BUtilities::Point (50 * sz, 220 * sz));
 	seqLenValueListbox.moveListBox (BUtilities::Point (0, -220 * sz));
 	seqLenValueListbox.resizeListBoxItems (BUtilities::Point (50 * sz, 20 * sz));
-	RESIZE (seqLenBaseListbox, 440, 320, 90, 20, sz);
+	RESIZE (seqLenBaseListbox, 440, 370, 90, 20, sz);
 	seqLenBaseListbox.resizeListBox (BUtilities::Point (90 * sz, 80 * sz));
 	seqLenBaseListbox.moveListBox (BUtilities::Point (0, -80 * sz));
 	seqLenBaseListbox.resizeListBoxItems (BUtilities::Point (90 * sz, 20 * sz));
 	RESIZE (ampSwingControl, 545, 312, 120, 28, sz);
-	RESIZE (swingControl, 680, 312, 120, 28, sz);
-	RESIZE (markersAutoButton, 815, 320, 80, 20, sz);
-	RESIZE (nrStepsControl, 380, 362, 520, 28, sz);
+	RESIZE (ampRandomControl, 680, 312, 120, 28, sz);
+	RESIZE (swingControl, 545, 362, 120, 28, sz);
+	RESIZE (swingRandomControl, 680, 362, 120, 28, sz);
+	RESIZE (markersAutoButton, 415, 320, 80, 20, sz);
+	RESIZE (nrStepsControl, 380, 412, 555, 28, sz);
 	RESIZE (markerListBox, 12, -68, 86, 66, sz);
 	markerListBox.resizeItems (BUtilities::Point (80 * sz, 20 * sz));
 
 	RESIZE (messageLabel, 420, 63, 440, 20, sz);
-	RESIZE (latencyDisplay, 800, 10, 120, 10, sz);
+	RESIZE (latencyDisplay, 835, 10, 120, 10, sz);
 
 	RESIZE (inIcon, 4, 14, 32, 12, sz);
 	RESIZE (ampIcon, 4, 90, 32, 12, sz);
 	RESIZE (delIcon, 4, 160, 32, 12, sz);
 	RESIZE (outIcon, 4, 184, 32, 12, sz);
-
-
-	//double sw = sContainer.getEffectiveWidth();
-	//double sx = sContainer.getXOffset();
-	//for (int i = 0; i < MAXSTEPS; ++i) {RESIZE (stepControl[i], (i + 0.5) * sw / sz / nrSteps + sx / sz - 14, 40, 28, 100, sz);}
-	//for (int i = 0; i < MAXSTEPS - 1; ++i) {RESIZE (markerWidgets[i], markerWidgets[i].getValue() * sw / sz + sx / sz - 5, 10, 10, 16, sz);}
 
 	// Update monitors
 	rearrange_controllers ();
@@ -560,7 +563,9 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 	seqLenValueListbox.applyTheme (theme);
 	seqLenBaseListbox.applyTheme (theme);
 	ampSwingControl.applyTheme (theme);
+	ampRandomControl.applyTheme (theme);
 	swingControl.applyTheme (theme);
+	swingRandomControl.applyTheme (theme);
 	markersAutoButton.applyTheme (theme);
 	nrStepsControl.applyTheme (theme);
 	latencyValue.applyTheme (theme);
@@ -585,7 +590,7 @@ void BSchafflGUI::onConfigureRequest (BEvents::ExposeEvent* event)
 {
 	Window::onConfigureRequest (event);
 
-	sz = (getWidth() / 920 > getHeight() / 420 ? getHeight() / 420 : getWidth() / 920);
+	sz = (getWidth() / 955 > getHeight() / 470 ? getHeight() / 470 : getWidth() / 955);
 	resizeGUI ();
 }
 
@@ -1094,9 +1099,9 @@ LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin
 	double sz = 1.0;
 	int screenWidth  = getScreenWidth ();
 	int screenHeight = getScreenHeight ();
-	if ((screenWidth < 960) || (screenHeight < 440)) sz = 0.66;
+	if ((screenWidth < 995) || (screenHeight < 490)) sz = 0.66;
 
-	if (resize) resize->ui_resize(resize->handle, 920 * sz, 420 * sz);
+	if (resize) resize->ui_resize(resize->handle, 955 * sz, 470 * sz);
 
 	*widget = (LV2UI_Widget) puglGetNativeWindow (ui->getPuglView ());
 

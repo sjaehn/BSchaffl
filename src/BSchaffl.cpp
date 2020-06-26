@@ -22,6 +22,7 @@
 
 #include <cstdio>
 #include <string>
+#include <ctime>
 #include <stdexcept>
 #include <algorithm>
 
@@ -43,6 +44,9 @@ BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 {
 	// Init array members
 	std::fill (stepAutoPositions, stepAutoPositions + MAXSTEPS - 1, true);
+
+	// Init random engine
+	srand (time (0));
 
 	//Scan host features for URID map
 	LV2_URID_Map* m = NULL;
@@ -289,8 +293,9 @@ void BSchaffl::run (uint32_t n_samples)
 				// Calculate and set amp
 				float aswing = ((map % 2) == 0 ? controllers[AMP_SWING] : 1.0 / controllers[AMP_SWING]);
 				aswing = LIM (aswing, 0, 1);
-				const float amp = controllers[STEP_LEV + map];
-				midi.msg[2] = float (midi.msg[2]) * amp * aswing;
+				const float rnd = 1.0f + controllers[AMP_RANDOM] * (2.0f * float (rand()) / float (RAND_MAX) - 1.0f);
+				const float amp = controllers[STEP_LEV + map] * rnd * aswing;
+				midi.msg[2] = LIM (float (midi.msg[2]) * amp, 0, 127);
 			}
 
 			// Garbage collection

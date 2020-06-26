@@ -156,8 +156,15 @@ correct it by itself.
 * Robin Gareus for ideas to technically solve *rubato*-related problems
 
 
+## What's new
+
+* Randomize amp
+
+
 ## TODO's
 
+* Randomize stretch
+* Master value for amp and stretch
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
 * Select between: stretch note position only / stretch note length only / stretch note position & length
 * Option to change output step

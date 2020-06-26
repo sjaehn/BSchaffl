@@ -157,7 +157,9 @@ private:
 	BWidgets::PopupListBox seqLenValueListbox;
         BWidgets::PopupListBox seqLenBaseListbox;
         SwingHSlider ampSwingControl;
+        BWidgets::HSliderValue ampRandomControl;
         SwingHSlider swingControl;
+        BWidgets::HSliderValue swingRandomControl;
         BWidgets::TextButton markersAutoButton;
 	BWidgets::HSliderValue nrStepsControl;
 	std::array<BWidgets::VSlider, MAXSTEPS> stepControl;
