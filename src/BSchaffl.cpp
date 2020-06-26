@@ -444,8 +444,12 @@ void BSchaffl::randomizeStep (const int step)
 	const int nrOfSteps = controllers[NR_OF_STEPS];
 	if ((step < nrOfSteps - 1) && (step >= 0))
 	{
-		const float rnd = 1.0f + controllers[SWING_RANDOM] * (2.0f * float (rand()) / float (RAND_MAX) - 1.0f);
-		// TODO Handle conflicting rnd values > 0.5 which may result in overlapping steps
+		// Randomize 0.0 .. 2.0
+		float rnd = 1.0f + controllers[SWING_RANDOM] * (2.0f * float (rand()) / float (RAND_MAX) - 1.0f);
+
+		// Prevent overlap with antecessor
+		if ((step >= 1) && (rnd < stepRnds[step - 1] - 1.0f)) rnd = stepRnds[step - 1] - 1.0f;
+
 		stepRnds[step] = rnd;
 	}
 }

@@ -113,7 +113,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	),
 	ampRandomControl (680, 312, 120, 28, "slider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
 	swingControl (545, 362, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
-	swingRandomControl (680, 362, 120, 28, "slider", 0.0, 0.0, 0.5, 0.0, "%1.2f"),
+	swingRandomControl (680, 362, 120, 28, "slider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
 	markersAutoButton (415, 320, 80, 20, "button", "Auto"),
 	nrStepsControl (380, 412, 555, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
 	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),

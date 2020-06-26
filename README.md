@@ -179,7 +179,6 @@ correct it by itself.
 
 ## TODO's
 
-* Handle step swing randomness values > 0.5
 * Handle changes which effect step stretch during playback
 * Master value for amp and stretch
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
