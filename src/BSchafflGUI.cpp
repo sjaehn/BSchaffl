@@ -687,15 +687,18 @@ void BSchafflGUI::rearrange_controllers ()
 	{
 		if (i < nrStepsi)
 		{
-			stepControl[i].setHeight ((14 + LIMIT (66 * ((i % 2) == 0 ? oddf : evenf), 0, 66 )) * sz);
+			stepControl[i].resize (14 * sz, (14 + LIMIT (66 * ((i % 2) == 0 ? oddf : evenf), 0, 66 )) * sz);
 			stepControl[i].moveTo ((i + 0.5) * sw / nrStepsi + sx - 7 * sz, 140 * sz - stepControl[i].getHeight());
 			stepControl[i].show();
 
+			if (i < nrStepsi - 1) markerWidgets[i].resize (10 * sz, 16 * sz);
+
 			stepControlLabel[i].moveTo ((i + 0.5) * sw / nrStepsi + sx - 14 * sz, 40 * sz);
+			stepControlLabel[i].resize (28 * sz, 20 * sz);
 			stepControlLabel[i].show();
 
 			inputStepLabel[i].moveTo (sx + (i + 0.1) * sw / nrStepsi, 10 * sz);
-			inputStepLabel[i].setWidth (0.8 * inw);
+			inputStepLabel[i].resize (0.8 * inw, 20 * sz);
 			inputStepLabel[i].show();
 
 			const double outx = (i == 0 ? 0.0 : markerWidgets[i - 1].getValue() * sw);
@@ -710,7 +713,7 @@ void BSchafflGUI::rearrange_controllers ()
 				)
 			);
 			outputStepLabel[i].moveTo (sx + outx + 0.1 * outw, 180 * sz);
-			outputStepLabel[i].setWidth (0.8 * outw);
+			outputStepLabel[i].resize (0.8 * outw, 20 * sz);
 			outputStepLabel[i].show();
 
 		}
