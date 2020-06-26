@@ -84,7 +84,9 @@ Values higher than 1 (up to 128) mean reduction of even step MIDI velocity.
 
 ### Amp randomness
 
-TODO
+Symmetrically randomizes the amplification for each MIDI note velocity. An amp randomization value of
+0.0 means no randomization. An amp randomization value of 1.0 means full randomization and the
+resulting MIDI note velocity will be in the range between 0 and two times the unrandomized velocity.
 
 
 ### Step swing
@@ -97,7 +99,10 @@ step.
 
 ### Step swing randomness
 
-TODO
+Randomizes the start and end positions for each step to both directions. A step swing randomization
+value of 0.0 means no randomization. A step swing randomization value of 0.5 means half randomization
+and the step start and end positions are left or rightward-shifted in the range between 0 and the
+half distance to the respective neighbor step.
 
 
 ### Step stretch Markers
@@ -174,6 +179,9 @@ correct it by itself.
 
 ## TODO's
 
+* Include step swing randomness in latency calculation
+* Handle step swing randomness values > 0.5
+* Handle changes which effect step stretch during playback
 * Master value for amp and stretch
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
 * Select between: stretch note position only / stretch note length only / stretch note position & length

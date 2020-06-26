@@ -35,16 +35,17 @@ BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 	latencySeq (0.0), latencyFr (0),
 	refFrame(0),
 	uiOn (false),
-	actStep (0),
+	actStep (-1),
 	midiData (),
 	input(NULL), output(NULL),
 	controllerPtrs {nullptr}, controllers {0.0f},
-	stepPositions {0.0}, stepRndPositions{0.0},
+	stepPositions {0.0},
 	message ()
 
 {
 	// Init array members
 	std::fill (stepAutoPositions, stepAutoPositions + MAXSTEPS - 1, true);
+	std::fill (stepRnds, stepRnds + MAXSTEPS - 1, 1.0);
 
 	// Init random engine
 	srand (time (0));
@@ -256,8 +257,19 @@ void BSchaffl::run (uint32_t n_samples)
 
 			// Calulate step
 			const int nrOfSteps = controllers[NR_OF_STEPS];
-			const int step = double (nrOfSteps) * inputSeqPos;
-			enterStep (step);
+			const int step = LIM (double (nrOfSteps) * inputSeqPos, 0, nrOfSteps - 1);
+
+			// Update step
+			if ((actStep < 0) || (step != actStep))
+			{
+				// Suquence just started: Re-randomize sequence
+				if (step < actStep)
+				{
+					for (int i = 0; i < nrOfSteps; ++i) randomizeStep (i);
+				}
+
+				actStep = step;
+			}
 
 			// Calulate fractional position within step
 			const float iprev = float (step) / float (nrOfSteps);
@@ -427,31 +439,14 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 	}
 }
 
-void BSchaffl::enterStep (const int step)
+void BSchaffl::randomizeStep (const int step)
 {
 	const int nrOfSteps = controllers[NR_OF_STEPS];
-	if ((step != actStep) && (step < nrOfSteps) && (step >= 0))
+	if ((step < nrOfSteps - 1) && (step >= 0))
 	{
-		actStep = step;
-		if (step < nrOfSteps - 1)
-		{
-			const float rnd = 1.0f + 0.5 * controllers[SWING_RANDOM] * (2.0f * float (rand()) / float (RAND_MAX) - 1.0f);
-			stepRndPositions[step] =
-			(
-				rnd < 1.0f ?
-				(
-					step > 0 ?
-					stepPositions[step] - (1.0f - rnd) * (stepPositions[step] - stepPositions[step - 1]) :
-					stepPositions[step] - (1.0f - rnd) * stepPositions[step]
-				) :
-				(
-					step < nrOfSteps - 2 ?
-					stepPositions[step] + (rnd - 1.0f) * (stepPositions[step + 1] - stepPositions[step]) :
-					stepPositions[step] + (rnd - 1.0f) * (1.0f - stepPositions[step])
-				)
-			);
-		}
-
+		const float rnd = 1.0f + controllers[SWING_RANDOM] * (2.0f * float (rand()) / float (RAND_MAX) - 1.0f);
+		// TODO Handle conflicting rnd values > 0.5 which may result in overlapping steps
+		stepRnds[step] = rnd;
 	}
 }
 
@@ -460,7 +455,24 @@ double BSchaffl::getStepStart (const int step)
 	const int nrOfSteps = controllers[NR_OF_STEPS];
 	const int s = step % nrOfSteps;
 	if (s == 0) return 0.0;
-	else return stepRndPositions[s - 1];
+	else
+	{
+		const float rnd = stepRnds[s - 1];
+		return
+		(
+			rnd < 1.0f ?
+			(
+				s - 1 > 0 ?
+				stepPositions[s - 1] - (1.0f - rnd) * (stepPositions[s - 1] - stepPositions[s - 2]) :
+				stepPositions[s - 1] - (1.0f - rnd) * stepPositions[s - 1]
+			) :
+			(
+				s - 1 < nrOfSteps - 2 ?
+				stepPositions[s - 1] + (rnd - 1.0f) * (stepPositions[s] - stepPositions[s - 1]) :
+				stepPositions[s - 1] + (rnd - 1.0f) * (1.0f - stepPositions[s - 1])
+			)
+		);
+	}
 }
 
 double BSchaffl::getStepEnd (const int step)
@@ -468,7 +480,7 @@ double BSchaffl::getStepEnd (const int step)
 	const int nrOfSteps = controllers[NR_OF_STEPS];
 	const int s = step % nrOfSteps;
 	if (s == nrOfSteps - 1) return 1.0;
-	else return stepRndPositions[s];
+	else return getStepStart (s + 1);
 }
 
 double BSchaffl::getSequenceFromBeats (const double beats)
@@ -598,7 +610,7 @@ void BSchaffl::notifyStatusToGui ()
 	// Calculate step
 	int outStep = 0;
 	const double seqPos = fmod (positionSeq - (controllers[TIME_COMPENS] == 1.0f ? latencySeq : 0), 1.0);
-	while ((outStep < controllers[NR_OF_STEPS] - 1) && (seqPos > stepPositions[outStep])) ++outStep;
+	while ((outStep < controllers[NR_OF_STEPS] - 1) && (seqPos > getStepEnd (outStep))) ++outStep;
 
 	// Calculate latency in ms
 	const float latencyMs = float (latencyFr) * 1000.0f / rate;

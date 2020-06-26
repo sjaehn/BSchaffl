@@ -151,7 +151,7 @@ private:
 	float controllers[NR_CONTROLLERS];
 	float stepPositions[MAXSTEPS - 1];
 	bool stepAutoPositions[MAXSTEPS - 1];
-	float stepRndPositions[MAXSTEPS - 1];
+	float stepRnds[MAXSTEPS - 1];
 
 	BSchafflURIs uris;
 
@@ -160,7 +160,7 @@ private:
 
 	Message message;
 
-	void enterStep (const int step);
+	void randomizeStep (const int step);
 	double getStepStart (const int step);
 	double getStepEnd (const int step);
 	double getSequenceFromBeats (const double beats);
