@@ -158,8 +158,10 @@ private:
         BWidgets::PopupListBox seqLenBaseListbox;
         SwingHSlider ampSwingControl;
         BWidgets::HSliderValue ampRandomControl;
+        BWidgets::HSliderValue ampProcessControl;
         SwingHSlider swingControl;
         BWidgets::HSliderValue swingRandomControl;
+        BWidgets::HSliderValue swingProcessControl;
         BWidgets::TextButton markersAutoButton;
 	BWidgets::HSliderValue nrStepsControl;
 	std::array<BWidgets::VSlider, MAXSTEPS> stepControl;
@@ -186,9 +188,11 @@ private:
 
 	// Definition of styles
 	BColors::ColorSet fgColors = {{{0.75, 0.75, 0.75, 1.0}, {1.0, 1.0, 1.0, 1.0}, {0.2, 0.2, 0.2, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
+        BColors::ColorSet procColors = {{{0.75, 0.75, 0.75, 1.0}, {0.75, 0.0, 0.0, 1.0}, {0.2, 0.2, 0.2, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
         BColors::ColorSet rdColors = {{{0.75, 0.0, 0.0, 1.0}, {1.0, 0.25, 0.25, 1.0}, {0.2, 0.0, 0.0, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::ColorSet txColors = {{BColors::lightgrey, BColors::white, BColors::darkgrey, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::ColorSet bgColors = {{{0.15, 0.15, 0.15, 1.0}, {0.3, 0.3, 0.3, 1.0}, {0.05, 0.05, 0.05, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
+        BColors::ColorSet procBgColors = {{{0.15, 0.15, 0.15, 1.0}, {0.15, 0.15, 0.15, 1.0}, {0.05, 0.05, 0.05, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 
 	BStyles::Border border = {{BColors::darkgrey, 1.0}, 0.0, 2.0, 0.0};
         BStyles::Border menuborder = {{BColors::darkgrey, 1.0}, 0.0, 0.0, 0.0};
@@ -311,6 +315,15 @@ private:
 				 {"textcolors", STYLEPTR (&fgColors)},
 				 {"font", STYLEPTR (&defaultFont)}}},
 		{"slider/focus",{{"background", STYLEPTR (&screenBg)},
+				 {"border", STYLEPTR (&screenBorder)},
+				 {"textcolors", STYLEPTR (&txColors)},
+				 {"font", STYLEPTR (&defaultFont)}}},
+		{"procslider",{{"uses", STYLEPTR (&defaultStyles)},
+				 {"fgcolors", STYLEPTR (&procColors)},
+				 {"bgcolors", STYLEPTR (&procBgColors)},
+				 {"textcolors", STYLEPTR (&fgColors)},
+				 {"font", STYLEPTR (&defaultFont)}}},
+		{"procslider/focus",{{"background", STYLEPTR (&screenBg)},
 				 {"border", STYLEPTR (&screenBorder)},
 				 {"textcolors", STYLEPTR (&txColors)},
 				 {"font", STYLEPTR (&defaultFont)}}},

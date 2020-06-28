@@ -48,8 +48,10 @@ const Limit controllerLimits [NR_CONTROLLERS] =
 	{0, 2, 1},		// SEQ_LEN_BASE
 	{0.0078125, 128.0, 0.0},// AMP_SWING
 	{0.0, 1.0, 0.0},	// AMP_RANDOM
+	{-1.0, 2.0, 0.0},	// AMP_PROCESS
 	{0.333333, 3.0, 0.0},	// SWING
 	{0.0, 1.0, 0.0},	// SWING_RANDOM
+	{0.0, 1.0, 0.0},	// SWING_PROCESS
 	{1, 16, 1},		// NR_OF_STEPS
 	{0, 1, 1},		// MIDI_CH_FILTER
 	{0, 1, 1},

@@ -282,11 +282,14 @@ void BSchaffl::run (uint32_t n_samples)
 			const float onext = getStepEnd (step);
 			const float ofrac = (ifrac <= qrange ? 0.0f : (1.0f - ifrac < qrange ? 1.0f : ifrac));
 			const float outputSeqPos = oprev + ofrac * (onext - oprev);
+			const float unprocSeq = inputSeq + latencySeq;
+			const float fullprocSeq = inputSeq + latencySeq + outputSeqPos - inputSeqPos;
+			const float procSeq = unprocSeq + (fullprocSeq - unprocSeq) * controllers[SWING_PROCESS];
 			midi.position =
 			(
 				midi.process?
-				inputSeq + latencySeq + outputSeqPos - inputSeqPos :
-				inputSeq + latencySeq
+				procSeq :
+				unprocSeq
 			);
 
 			// Level MIDI NOTE_ON and NOTE_OFF
@@ -309,7 +312,10 @@ void BSchaffl::run (uint32_t n_samples)
 				aswing = LIM (aswing, 0, 1);
 				const float rnd = 1.0f + controllers[AMP_RANDOM] * (2.0f * float (rand()) / float (RAND_MAX) - 1.0f);
 				const float amp = controllers[STEP_LEV + map] * rnd * aswing;
-				midi.msg[2] = LIM (float (midi.msg[2]) * amp, 0, 127);
+				const float proc = controllers[AMP_PROCESS];
+				const float invel = float (midi.msg[2]);
+				const float outvel = invel + (invel * amp - invel) * proc;
+				midi.msg[2] = LIM (outvel, 0, 127);
 			}
 
 			// Garbage collection

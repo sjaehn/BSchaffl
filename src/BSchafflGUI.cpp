@@ -112,8 +112,10 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		{return (frac >= 0.5 ? 0.5 / (1.0 - LIMIT (frac, 0, 1)) : 2 * LIMIT (frac, 0, 1));}
 	),
 	ampRandomControl (680, 312, 120, 28, "slider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
+	ampProcessControl (815, 312, 120, 28, "procslider", 1.0, -1.0, 2.0, 0.0, "%1.2f"),
 	swingControl (545, 362, 120, 28, "slider", 1.0, 1.0 / 3.0, 3.0, 0.0),
 	swingRandomControl (680, 362, 120, 28, "slider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
+	swingProcessControl (815, 362, 120, 28, "procslider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
 	markersAutoButton (415, 320, 80, 20, "button", "Auto"),
 	nrStepsControl (380, 412, 555, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
 	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),
@@ -149,8 +151,10 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	controllers[SEQ_LEN_BASE] = &seqLenBaseListbox;
 	controllers[AMP_SWING] = &ampSwingControl;
 	controllers[AMP_RANDOM] = &ampRandomControl;
+	controllers[AMP_PROCESS] = &ampProcessControl;
 	controllers[SWING] = &swingControl;
 	controllers[SWING_RANDOM] = &swingRandomControl;
+	controllers[SWING_PROCESS] = &swingProcessControl;
 	controllers[NR_OF_STEPS] = &nrStepsControl;
 	controllers[QUANT_RANGE] = &smartQuantizationRangeSlider;
         controllers[QUANT_MAP] = &smartQuantizationMappingSwitch;
@@ -278,8 +282,10 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer.add (seqLenBaseListbox);
 	mContainer.add (ampSwingControl);
 	mContainer.add (ampRandomControl);
+	mContainer.add (ampProcessControl);
 	mContainer.add (swingControl);
 	mContainer.add (swingRandomControl);
+	mContainer.add (swingProcessControl);
 	mContainer.add (markersAutoButton);
 	mContainer.add (nrStepsControl);
 	mContainer.add (latencyValue);
@@ -480,8 +486,10 @@ void BSchafflGUI::resizeGUI()
 	seqLenBaseListbox.resizeListBoxItems (BUtilities::Point (90 * sz, 20 * sz));
 	RESIZE (ampSwingControl, 545, 312, 120, 28, sz);
 	RESIZE (ampRandomControl, 680, 312, 120, 28, sz);
+	RESIZE (ampProcessControl, 815, 312, 120, 28, sz);
 	RESIZE (swingControl, 545, 362, 120, 28, sz);
 	RESIZE (swingRandomControl, 680, 362, 120, 28, sz);
+	RESIZE (swingProcessControl, 815, 362, 120, 28, sz);
 	RESIZE (markersAutoButton, 415, 320, 80, 20, sz);
 	RESIZE (nrStepsControl, 380, 412, 555, 28, sz);
 	RESIZE (markerListBox, 12, -68, 86, 66, sz);
@@ -563,8 +571,10 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 	seqLenBaseListbox.applyTheme (theme);
 	ampSwingControl.applyTheme (theme);
 	ampRandomControl.applyTheme (theme);
+	ampProcessControl.applyTheme (theme);
 	swingControl.applyTheme (theme);
 	swingRandomControl.applyTheme (theme);
+	swingProcessControl.applyTheme (theme);
 	markersAutoButton.applyTheme (theme);
 	nrStepsControl.applyTheme (theme);
 	latencyValue.applyTheme (theme);
@@ -860,6 +870,13 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 				{
 					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
 					ui->rearrange_controllers();
+				}
+
+				else if (controllerNr == AMP_PROCESS)
+				{
+					if ((value >= 0.0) && (value <= 1.0)) ui->ampProcessControl.setState (BColors::NORMAL);
+					else ui->ampProcessControl.setState (BColors::ACTIVE);
+					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
 				}
 
 				else if ((controllerNr == SWING) || (controllerNr == NR_OF_STEPS))

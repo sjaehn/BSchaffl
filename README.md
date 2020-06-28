@@ -61,8 +61,9 @@ full sequence from MIDI input (IN), over controls to change the step amplificati
 to stretch or compress the step size (STR) to MIDI output (OUT).
 
 In the bottom right are controllers to directly effect the MIDI editing (sequence size, nr of steps,
-amp swing, amp randomness, step swing, step swing randomness, auto markers). The left part contains
-a menu for global settings (MIDI channel filter, MIDI message filter, smart quantization, latency).
+amp swing, amp randomness, amp process, step swing, step swing randomness, step swing process auto
+markers). The left part contains a menu for global settings (MIDI channel filter, MIDI message filter,
+smart quantization, latency).
 
 ### Sequence size
 
@@ -89,6 +90,15 @@ Symmetrically randomizes the amplification for each MIDI note velocity. An amp r
 resulting MIDI note velocity will be in the range between 0 and two times the unrandomized velocity.
 
 
+### Amp process
+
+Applies plugin amp effects (amp sliders, amp swing, amp randomness) to the MIDI note velocity.
+A value of 0.0 results in unchanged MIDI note velocity. A value of
+1.0 fully applies the plugin amp effects to the MIDI note velocity. Also values outside the 0.0 .. 1.0
+range are allowed. A value of -1.0 inversely applies the plugin amp effects to the MIDI note velocity.
+And a value of 2.0 applies the double plugin amp effects to the MIDI note velocity.
+
+
 ### Step swing
 
 Step stretch swing. This feature can be used to compress or to stretch even and odd steps. Values
@@ -103,6 +113,13 @@ Randomizes the start and end positions for each step to both directions. A step 
 value of 0.0 means no randomization. A step swing randomization value of 0.5 means half randomization
 and the step start and end positions are left or rightward-shifted in the range between 0 and the
 half distance to the respective neighbor step.
+
+
+### Step swing process
+
+Applies plugin amp effects (amp sliders, amp swing, amp randomness) to the step stretch.
+A value of 0.0 results in unchanged temporal MIDI signal positions. A value of
+1.0 fully applies the plugin step stretch effects to the respective MIDI signal positions.
 
 
 ### Step stretch Markers
@@ -175,12 +192,12 @@ correct it by itself.
 
 * Randomize amp
 * Randomize stretch
+* Process amount for amp and stretch
 
 
 ## TODO's
 
 * Handle changes which effect step stretch during playback
-* Master value for amp and stretch
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
 * Select between: stretch note position only / stretch note length only / stretch note position & length
 * Option to change output step
