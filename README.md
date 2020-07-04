@@ -56,14 +56,58 @@ mode!**
 
 B.Schaffl is a MIDI converting plugin. It needs a MIDI input and a MIDI output.
 
-The graphical user interface is divided into thee parts. In the top right is a visualization of the
-full sequence from MIDI input (IN), over controls to change the step amplification (AMP) and markers
-to stretch or compress the step size (STR) to MIDI output (OUT).
+The graphical user interface is divided into thee parts. In the top right you can find the core of
+the plugin, the sequence editor. The sequence editor contains a visualization of the
+full sequence from MIDI input (IN), over controls (or a shape) to change the step amplification (AMP)
+and markers to stretch or shrink the step size (STR) to MIDI output (OUT).
 
 In the bottom right are controllers to directly effect the MIDI editing (sequence size, nr of steps,
 amp swing, amp randomness, amp process, step swing, step swing randomness, step swing process). The
 left part contains a menu for global settings (MIDI channel filter, MIDI message filter,
 smart quantization, latency).
+
+
+### Sequence editor
+
+#### Amp control mode
+
+The sequence editor supports two different modes. Select between step controlled (sliders) and shape
+controlled mode. The step controlled mode uses constant amp values for the whole respective step. If
+you want more flexibility and change the amp value during a step (e. g., for accents), you can use
+the shape mode.
+
+
+#### Slider-controlled amp mode: Step amp controls
+
+Drag (or scroll) the sliders to reduce the velocity of MIDI notes for the respective step.
+
+
+#### Shape-controlled amp mode: Amp shape
+
+Alternatively, draw a shape for the reduction of velocity of MIDI notes. Use tools (see toolbox) to
+set different types of nodes, to cut, copy or paste nodes, to undo, redo or reset changes, and to hide,
+show or snap to the grid.
+
+
+#### Step stretch markers
+
+Drag the stretch markers to manually shrink or stretch the step size.
+
+All stretch markers are set to "auto" by default. This means that all markers are homogeneously
+distributed and are automatically re-positioned after changes. The markers status is changed to
+"manual" once a marker is dragged. You can also change the markers status by right-clicking on it or by
+setting all markers by pressing the "All markers" buttons in the toolbox.
+
+
+#### Toolbox
+
+| ![convert_to_sliders](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/convert_to_steps.png "Convert to sliders") ![convert_to_shape](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/convert_to_linear.png "Convert to shape") | Convert sliders to shape or vice versa |
+| ![marker_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/markers_tb.png "All marker tools") | Set all markers to auto or manual |
+| ![node_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/shape_tools_tb.png "Node tools") | Node tools |
+| ![edit_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/edit_tb.png "Edit tools") | Edit tools: cut, copy and paste |   
+| ![history_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/history_tb.png "History") | History: reset, undo and redo |
+| ![grid_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/grid_tb.png "Grid") | Grid: show grid or snap to grid |   
+
 
 ### Sequence size
 
@@ -120,37 +164,6 @@ half distance to the respective neighbor step.
 Applies plugin amp effects (amp sliders, amp swing, amp randomness) to the step stretch.
 A value of 0.0 results in unchanged temporal MIDI signal positions. A value of
 1.0 fully applies the plugin step stretch effects to the respective MIDI signal positions.
-
-
-### Amp control mode
-
-Select between step controlled (sliders) and shape controlled mode. The step controlled mode uses
-constant amp values for the whole respective step. If you want more flexibility and change the amp
-value during a step (e. g., for accents), you can use the shape mode.
-
-
-### Slider-controlled amp mode: Step amp controls
-
-Drag (or scroll) the sliders to reduce the velocity of MIDI notes for the respective step.
-
-### Shape-controlled amp mode: Amp shape
-
-Alternatively, draw a shape for the reduction of velocity of MIDI notes.
-
-
-### Step stretch Markers
-
-Drag the stretch markers to manually compress or stretch the step size.
-
-All stretch markers are set to "auto" by default. This means that all markers are homogeneously
-distributed and are automatically re-positioned after changes. The markers status is changed to
-"manual" once a marker is dragged. You can also change the markers status by right-clicking on it or by
-setting all markers by pressing the "All markers" buttons in the toolbox.
-
-
-### Toolbox
-
-TODO
 
 
 ### MIDI channel filter
