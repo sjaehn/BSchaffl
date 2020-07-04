@@ -101,12 +101,14 @@ setting all markers by pressing the "All markers" buttons in the toolbox.
 
 #### Toolbox
 
-| ![convert_to_sliders](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/convert_to_steps.png "Convert to sliders") ![convert_to_shape](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/convert_to_linear.png "Convert to shape") | Convert sliders to shape or vice versa |
+| Symbols | Description |
+| --- | --- |
+| ![convert_to_sliders](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/convert_to_steps.png "Convert to sliders") ![convert_to_shape](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/convert_to_linear_shape.png "Convert to shape") | Convert sliders to shape or vice versa |
 | ![marker_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/markers_tb.png "All marker tools") | Set all markers to auto or manual |
 | ![node_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/shape_tools_tb.png "Node tools") | Node tools |
 | ![edit_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/edit_tb.png "Edit tools") | Edit tools: cut, copy and paste |   
 | ![history_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/history_tb.png "History") | History: reset, undo and redo |
-| ![grid_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/grid_tb.png "Grid") | Grid: show grid or snap to grid |   
+| ![grid_tools](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/inc/grid_tb.png "Grid") | Grid: show grid or snap to grid |
 
 
 ### Sequence size
