@@ -27,12 +27,14 @@
 #include <array>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
+#include <lv2/lv2plug.in/ns/ext/state/state.h>
 #include "definitions.hpp"
 #include "Urids.hpp"
 #include "Ports.hpp"
 #include "Message.hpp"
 #include "Limit.hpp"
 #include "StaticArrayList.hpp"
+#include "Shape.hpp"
 
 struct MidiData
 {
@@ -53,6 +55,7 @@ const Limit controllerLimits [NR_CONTROLLERS] =
 	{0.0, 1.0, 0.0},	// SWING_RANDOM
 	{0.0, 1.0, 0.0},	// SWING_PROCESS
 	{1, 16, 1},		// NR_OF_STEPS
+	{0, 1, 1},		// AMP_MODE
 	{0, 1, 1},		// MIDI_CH_FILTER
 	{0, 1, 1},
 	{0, 1, 1},
@@ -124,6 +127,8 @@ public:
 
 	void connect_port (uint32_t port, void *data);
 	void run (uint32_t n_samples);
+	LV2_State_Status state_save(LV2_State_Store_Function store, LV2_State_Handle handle, uint32_t flags, const LV2_Feature* const* features);
+	LV2_State_Status state_restore(LV2_State_Retrieve_Function retrieve, LV2_State_Handle handle, uint32_t flags, const LV2_Feature* const* features);
 
 	LV2_URID_Map* map;
 
@@ -154,6 +159,7 @@ private:
 	float stepPositions[MAXSTEPS - 1];
 	bool stepAutoPositions[MAXSTEPS - 1];
 	float stepRnds[MAXSTEPS - 1];
+	Shape<MAXNODES> shape;
 
 	BSchafflURIs uris;
 
@@ -161,6 +167,7 @@ private:
 	LV2_Atom_Forge_Frame frame;
 
 	Message message;
+	bool notify_shape;
 
 	void randomizeStep (const int step);
 	double getStepStart (const int step);
@@ -174,6 +181,7 @@ private:
 	void recalculateAutoPositions ();
 	void play (uint32_t start, uint32_t end);
 	void notifyStatusToGui ();
+	void notifyShapeToGui ();
 	void notifyMessageToGui ();
 
 };

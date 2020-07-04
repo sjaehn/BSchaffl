@@ -44,6 +44,8 @@ B_FILES = $(addprefix $(BUNDLE)/, $(ROOTFILES) $(INCFILES))
 DSP_INCL = src/Message.cpp
 
 GUI_INCL = \
+	src/ShapeWidget.cpp \
+	src/BWidgets/MessageBox.cpp \
 	src/BWidgets/Text.cpp \
 	src/BWidgets/ImageIcon.cpp \
 	src/BWidgets/Icon.cpp \

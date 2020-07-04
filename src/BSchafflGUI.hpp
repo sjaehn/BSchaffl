@@ -39,11 +39,14 @@
 #include "BWidgets/PopupListBox.hpp"
 #include "BWidgets/ImageIcon.hpp"
 #include "BWidgets/Text.hpp"
+#include "BWidgets/MessageBox.hpp"
 #include "Marker.hpp"
 #include "LightButton.hpp"
 #include "SwingHSlider.hpp"
 #include "HaloButton.hpp"
+#include "HaloToggleButton.hpp"
 #include "SelectMenu.hpp"
+#include "ShapeWidget.hpp"
 
 #include "definitions.hpp"
 #include "Ports.hpp"
@@ -84,24 +87,34 @@ public:
 	~BSchafflGUI ();
 	void portEvent (uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer);
 	virtual void onConfigureRequest (BEvents::ExposeEvent* event) override;
+        virtual void onCloseRequest (BEvents::WidgetEvent* event) override;
 	void applyTheme (BStyles::Theme& theme) override;
         void sendUiStatus (const bool on);
+        void sendShape ();
 
 	LV2UI_Controller controller;
 	LV2UI_Write_Function write_function;
 
 
 private:
+        double getStepValue (const int stepNr) const;
 	void resizeGUI ();
         void setMarker (const int markerNr, double value);
         void setAutoMarkers ();
 	void rearrange_controllers ();
         void redrawSContainer ();
 	static void valueChangedCallback (BEvents::Event* event);
+        static void shapeChangedCallback (BEvents::Event* event);
         static void markerClickedCallback (BEvents::Event* event);
 	static void markerDraggedCallback (BEvents::Event* event);
         static void listBoxChangedCallback (BEvents::Event* event);
         static void markersAutoClickedCallback (BEvents::Event* event);
+        static void shapeToolClickedCallback (BEvents::Event* event);
+        static void editToolClickedCallback (BEvents::Event* event);
+        static void historyToolClickedCallback (BEvents::Event* event);
+        static void gridToolClickedCallback (BEvents::Event* event);
+        static void convertButtonClickedCallback (BEvents::Event* event);
+        static void lightButtonClickedCallback (BEvents::Event* event);
         static void helpButtonClickedCallback (BEvents::Event* event);
 	//static void ytButtonClickedCallback (BEvents::Event* event);
 
@@ -111,6 +124,39 @@ private:
 
         HaloButton helpButton;
         //HaloButton ytButton;
+
+        BWidgets::Widget toolbox;
+        BWidgets::ImageIcon toolIcon;
+        BWidgets::ImageIcon convertToShapeIcon;
+        BWidgets::ImageIcon convertToStepsIcon;
+        HaloButton convertToShapeButton;
+        HaloButton convertToStepsButton;
+        BWidgets::ImageIcon markersToolbox;
+        BWidgets::ImageIcon shapeToolbox;
+        BWidgets::ImageIcon editToolbox;
+        BWidgets::ImageIcon historyToolbox;
+        BWidgets::ImageIcon gridToolbox;
+        HaloButton markersAutoButton;
+        HaloButton markersManualButton;
+        std::array<HaloToggleButton, 5> shapeToolButtons;
+        std::array<HaloButton, 3> editToolButtons;
+        std::array<HaloButton, 3> historyToolButtons;
+        HaloToggleButton gridShowButton;
+        HaloToggleButton gridSnapButton;
+
+        BWidgets::MessageBox convertToShapeMessage;
+        LightButton convertToShapeToLinearButton;
+        BWidgets::Text convertToShapeToLinearText;
+        LightButton convertToShapeToConstButton;
+        BWidgets::Text convertToShapeToConstText;
+        LightButton convertToShapeDoNothingButton;
+        BWidgets::Text convertToShapeDoNothingText;
+
+        BWidgets::MessageBox convertToStepsMessage;
+        LightButton convertToStepsToSlidersButton;
+        BWidgets::Text convertToStepsToSlidersText;
+        LightButton convertToStepsDoNothingButton;
+        BWidgets::Text convertToStepsDoNothingText;
 
         BWidgets::ImageIcon midiChFilterIcon;
         BWidgets::Widget midiChFilterContainer;
@@ -154,6 +200,7 @@ private:
         SelectMenu selectMenu;
 
         BWidgets::DrawingSurface sContainer;
+        BWidgets::HSwitch modeSwitch;
 	BWidgets::PopupListBox seqLenValueListbox;
         BWidgets::PopupListBox seqLenBaseListbox;
         SwingHSlider ampSwingControl;
@@ -162,8 +209,9 @@ private:
         SwingHSlider swingControl;
         BWidgets::HSliderValue swingRandomControl;
         BWidgets::HSliderValue swingProcessControl;
-        BWidgets::TextButton markersAutoButton;
 	BWidgets::HSliderValue nrStepsControl;
+        BWidgets::Widget stepControlContainer;
+        ShapeWidget shapeWidget;
 	std::array<BWidgets::VSlider, MAXSTEPS> stepControl;
         std::array<BWidgets::Label, MAXSTEPS> stepControlLabel;
 	std::array<Marker, MAXSTEPS - 1> markerWidgets;
@@ -179,7 +227,9 @@ private:
         std::array<BWidgets::Label, MAXSTEPS> inputStepLabel;
         std::array<BWidgets::Label, MAXSTEPS> outputStepLabel;
 
-	double sz;
+        std::vector<Node> clipboard;
+
+        double sz;
 	cairo_surface_t* bgImageSurface;
 
 	LV2_Atom_Forge forge;
@@ -280,7 +330,7 @@ private:
  			 	 {"border", STYLEPTR (&BStyles::noBorder)},
  				 {"textcolors", STYLEPTR (&BColors::whites)},
  				 {"font", STYLEPTR (&defaultFont)}}},
- 		{"menu/button",	{{"border", STYLEPTR (&BStyles::noBorder)},
+ 		{"menu/button",	{{"border", STYLEPTR (&menuborder)},
  				 {"background", STYLEPTR (&BStyles::blackFill)},
  				 {"bgcolors", STYLEPTR (&bgColors)}}},
  		{"menu/listbox",{{"border", STYLEPTR (&menuborder)},
@@ -292,6 +342,16 @@ private:
  		{"menu/listbox/button",{{"border", STYLEPTR (&BStyles::noBorder)},
  				 {"background", STYLEPTR (&BStyles::blackFill)},
  				 {"bgcolors", STYLEPTR (&bgColors)}}},
+                {"shape",	{{"background", STYLEPTR (&BStyles::noFill)},
+                                 {"border", STYLEPTR (&BStyles::noBorder)},
+                                 {"fgcolors", STYLEPTR (&fgColors)},
+                                 {"symbolcolors", STYLEPTR (&fgColors)},
+                                 {"font", STYLEPTR (&smFont)},
+                                 {"bgcolors", STYLEPTR (&bgColors)}}},
+                {"shape/focus", {{"background", STYLEPTR (&screenBg)},
+                                 {"border", STYLEPTR (&screenBorder)},
+                                 {"font", STYLEPTR (&smFont)},
+                                 {"textcolors", STYLEPTR (&txColors)}}},
 		{"selectmenu",	{{"uses", STYLEPTR (&defaultStyles)},
 				 {"bgcolors", STYLEPTR (&fgColors)}}},
 		{"dial", 	{{"uses", STYLEPTR (&defaultStyles)},

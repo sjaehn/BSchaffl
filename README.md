@@ -61,8 +61,8 @@ full sequence from MIDI input (IN), over controls to change the step amplificati
 to stretch or compress the step size (STR) to MIDI output (OUT).
 
 In the bottom right are controllers to directly effect the MIDI editing (sequence size, nr of steps,
-amp swing, amp randomness, amp process, step swing, step swing randomness, step swing process auto
-markers). The left part contains a menu for global settings (MIDI channel filter, MIDI message filter,
+amp swing, amp randomness, amp process, step swing, step swing randomness, step swing process). The
+left part contains a menu for global settings (MIDI channel filter, MIDI message filter,
 smart quantization, latency).
 
 ### Sequence size
@@ -122,6 +122,22 @@ A value of 0.0 results in unchanged temporal MIDI signal positions. A value of
 1.0 fully applies the plugin step stretch effects to the respective MIDI signal positions.
 
 
+### Amp control mode
+
+Select between step controlled (sliders) and shape controlled mode. The step controlled mode uses
+constant amp values for the whole respective step. If you want more flexibility and change the amp
+value during a step (e. g., for accents), you can use the shape mode.
+
+
+### Slider-controlled amp mode: Step amp controls
+
+Drag (or scroll) the sliders to reduce the velocity of MIDI notes for the respective step.
+
+### Shape-controlled amp mode: Amp shape
+
+Alternatively, draw a shape for the reduction of velocity of MIDI notes.
+
+
 ### Step stretch Markers
 
 Drag the stretch markers to manually compress or stretch the step size.
@@ -129,17 +145,12 @@ Drag the stretch markers to manually compress or stretch the step size.
 All stretch markers are set to "auto" by default. This means that all markers are homogeneously
 distributed and are automatically re-positioned after changes. The markers status is changed to
 "manual" once a marker is dragged. You can also change the markers status by right-clicking on it or by
-resetting all markers by pressing the "auto markers" button.
+setting all markers by pressing the "All markers" buttons in the toolbox.
 
 
-### Auto markers
+### Toolbox
 
-Sets all markers to auto positioning.
-
-
-### Step amp controls
-
-Drag (or scroll) the sliders to reduce the velocity of MIDI notes for the respective step.
+TODO
 
 
 ### MIDI channel filter
@@ -193,6 +204,7 @@ correct it by itself.
 * Randomize amp
 * Randomize stretch
 * Process amount for amp and stretch
+* Shape editor
 
 
 ## TODO's
@@ -201,7 +213,6 @@ correct it by itself.
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
 * Select between: stretch note position only / stretch note length only / stretch note position & length
 * Option to change output step
-* Step shape editor
 * Make tutorial video
 * Link tutorial in plugin
 

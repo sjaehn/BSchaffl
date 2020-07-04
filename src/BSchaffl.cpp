@@ -40,12 +40,16 @@ BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 	input(NULL), output(NULL),
 	controllerPtrs {nullptr}, controllers {0.0f},
 	stepPositions {0.0},
-	message ()
+	shape {Shape<MAXNODES>()},
+	message (),
+	notify_shape (true)
 
 {
 	// Init array members
 	std::fill (stepAutoPositions, stepAutoPositions + MAXSTEPS - 1, true);
 	std::fill (stepRnds, stepRnds + MAXSTEPS - 1, 1.0);
+
+	shape.setDefaultShape ();
 
 	// Init random engine
 	srand (time (0));
@@ -157,10 +161,10 @@ void BSchaffl::run (uint32_t n_samples)
 			const LV2_Atom_Object* obj = (const LV2_Atom_Object*)&ev->body;
 
 			// GUI on
-			if (obj->body.otype == uris.bschafflr_uiOn) uiOn = true;
+			if (obj->body.otype == uris.bschaffl_uiOn) uiOn = true;
 
 			// GUI off
-			else if (obj->body.otype == uris.bschafflr_uiOff) uiOn = false;
+			else if (obj->body.otype == uris.bschaffl_uiOff) uiOn = false;
 
 			// Update time/position data
 			else if (obj->body.otype == uris.time_Position)
@@ -235,6 +239,39 @@ void BSchaffl::run (uint32_t n_samples)
 				}
 
 				recalculateLatency();
+			}
+
+			// Shape changed notifications
+			else if (obj->body.otype == uris.bschaffl_shapeEvent)
+			{
+				LV2_Atom *oData = NULL;
+				lv2_atom_object_get (obj,
+						     uris.bschaffl_shapeData, &oData,
+						     NULL);
+
+				if (oData && (oData->type == uris.atom_Vector))
+				{
+					const LV2_Atom_Vector* vec = (const LV2_Atom_Vector*) oData;
+					if (vec->body.child_type == uris.atom_Float)
+					{
+						shape.clearShape ();
+						const uint32_t vecSize = (uint32_t) ((oData->size - sizeof(LV2_Atom_Vector_Body)) / (7 * sizeof (float)));
+						float* data = (float*) (&vec->body + 1);
+						for (unsigned int i = 0; (i < vecSize) && (i < MAXNODES); ++i)
+						{
+							Node node;
+							node.nodeType = NodeType (int (data[i * 7]));
+							node.point.x = data[i * 7 + 1];
+							node.point.y = data[i * 7 + 2];
+							node.handle1.x = data[i * 7 + 3];
+							node.handle1.y = data[i * 7 + 4];
+							node.handle2.x = data[i * 7 + 5];
+							node.handle2.y = data[i * 7 + 6];
+							shape.appendRawNode (node);
+						}
+						shape.validateShape();
+					}
+				}
 			}
 		}
 
@@ -311,7 +348,12 @@ void BSchaffl::run (uint32_t n_samples)
 				float aswing = ((map % 2) == 0 ? controllers[AMP_SWING] : 1.0 / controllers[AMP_SWING]);
 				aswing = LIM (aswing, 0, 1);
 				const float rnd = 1.0f + controllers[AMP_RANDOM] * (2.0f * float (rand()) / float (RAND_MAX) - 1.0f);
-				const float amp = controllers[STEP_LEV + map] * rnd * aswing;
+				const float amp =
+				(
+					controllers[AMP_MODE] == 0.0f ?
+					controllers[STEP_LEV + map] * rnd * aswing :
+					LIM (shape.getMapValue (inputSeqPos), 0.0, 1.0) * rnd
+				);
 				const float proc = controllers[AMP_PROCESS];
 				const float invel = float (midi.msg[2]);
 				const float outvel = invel + (invel * amp - invel) * proc;
@@ -394,6 +436,7 @@ void BSchaffl::run (uint32_t n_samples)
 	{
 		if (message.isScheduled ()) notifyMessageToGui();
 		notifyStatusToGui();
+		if (notify_shape) notifyShapeToGui();
 	}
 
 	// Close off sequence
@@ -629,12 +672,41 @@ void BSchaffl::notifyStatusToGui ()
 	// Send notifications
 	LV2_Atom_Forge_Frame frame;
 	lv2_atom_forge_frame_time (&forge, 0);
-	lv2_atom_forge_object (&forge, &frame, 0, uris.bschafflr_statusEvent);
-	lv2_atom_forge_key (&forge, uris.bschafflr_step);
+	lv2_atom_forge_object (&forge, &frame, 0, uris.bschaffl_statusEvent);
+	lv2_atom_forge_key (&forge, uris.bschaffl_step);
 	lv2_atom_forge_int (&forge, outStep);
-	lv2_atom_forge_key (&forge, uris.bschafflr_latency);
+	lv2_atom_forge_key (&forge, uris.bschaffl_latency);
 	lv2_atom_forge_float (&forge, latencyMs);
 	lv2_atom_forge_pop (&forge, &frame);
+}
+
+void BSchaffl::notifyShapeToGui ()
+{
+	size_t size = shape.size ();
+
+	// Load shapeBuffer
+	float shapeBuffer[MAXNODES * 7];
+	for (unsigned int i = 0; i < size; ++i)
+	{
+		Node node = shape.getRawNode (i);
+		shapeBuffer[i * 7] = (float)node.nodeType;
+		shapeBuffer[i * 7 + 1] = (float)node.point.x;
+		shapeBuffer[i * 7 + 2] = (float)node.point.y;
+		shapeBuffer[i * 7 + 3] = (float)node.handle1.x;
+		shapeBuffer[i * 7 + 4] = (float)node.handle1.y;
+		shapeBuffer[i * 7 + 5] = (float)node.handle2.x;
+		shapeBuffer[i * 7 + 6] = (float)node.handle2.y;
+	}
+
+	// Notify shapeBuffer
+	LV2_Atom_Forge_Frame frame;
+	lv2_atom_forge_frame_time(&forge, 0);
+	lv2_atom_forge_object(&forge, &frame, 0, uris.bschaffl_shapeEvent);
+	lv2_atom_forge_key(&forge, uris.bschaffl_shapeData);
+	lv2_atom_forge_vector(&forge, sizeof(float), uris.atom_Float, (uint32_t) (7 * size), &shapeBuffer);
+	lv2_atom_forge_pop(&forge, &frame);
+
+	notify_shape = false;
 }
 
 void BSchaffl::notifyMessageToGui ()
@@ -648,6 +720,126 @@ void BSchaffl::notifyMessageToGui ()
 	lv2_atom_forge_key(&forge, uris.notify_message);
 	lv2_atom_forge_int(&forge, messageNr);
 	lv2_atom_forge_pop(&forge, &frame);
+}
+
+LV2_State_Status BSchaffl::state_save (LV2_State_Store_Function store, LV2_State_Handle handle, uint32_t flags, const LV2_Feature* const* features)
+{
+
+	char shapesDataString[0x8010] = "Shape data:\n";
+
+	for (unsigned int nd = 0; nd < shape.size (); ++nd)
+	{
+		char valueString[160];
+		Node node = shape.getNode (nd);
+		snprintf
+		(
+			valueString,
+			126,
+			"typ:%d; ptx:%f; pty:%f; h1x:%f; h1y:%f; h2x:%f; h2y:%f",
+			int (node.nodeType),
+			node.point.x,
+			node.point.y,
+			node.handle1.x,
+			node.handle1.y,
+			node.handle2.x,
+			node.handle2.y
+		);
+		if (nd < shape.size ()) strcat (valueString, ";\n");
+		else strcat (valueString, "\n");
+		strcat (shapesDataString, valueString);
+	}
+
+	store (handle, uris.bschaffl_shapeData, shapesDataString, strlen (shapesDataString) + 1, uris.atom_String, LV2_STATE_IS_POD);
+
+	return LV2_STATE_SUCCESS;
+}
+
+LV2_State_Status BSchaffl::state_restore (LV2_State_Retrieve_Function retrieve, LV2_State_Handle handle, uint32_t flags, const LV2_Feature* const* features)
+{
+	size_t   size;
+	uint32_t type;
+	uint32_t valflags;
+
+	const void* shapesData = retrieve (handle, uris.bschaffl_shapeData, &size, &type, &valflags);
+	if (shapesData && (type == uris.atom_String))
+	{
+		// Clear old shape first
+		shape.clearShape();
+
+		// Parse retrieved data
+		std::string shapesDataString = (char*) shapesData;
+		const std::string keywords[7] = {"typ:", "ptx:", "pty:", "h1x:", "h1y:", "h2x:", "h2y:"};
+		while (!shapesDataString.empty())
+		{
+			// Look for next "typ:"
+			size_t strPos = shapesDataString.find ("typ:");
+			size_t nextPos = 0;
+			if (strPos == std::string::npos) break;			// No "typ:" found => end
+			if (strPos + 4 > shapesDataString.length()) break;	// Nothing more after id => end
+			shapesDataString.erase (0, strPos + 4);
+
+			int typ;
+			try {typ = std::stof (shapesDataString, &nextPos);}
+			catch  (const std::exception& e)
+			{
+				fprintf (stderr, "BSchaffl.lv2: Restore shape incomplete. Can't parse shape node type from \"%s...\"", shapesDataString.substr (0, 63).c_str());
+				break;
+			}
+
+			if (nextPos > 0) shapesDataString.erase (0, nextPos);
+
+			// Look for shape data
+			Node node = {(NodeType) typ, {0, 0}, {0, 0}, {0, 0}};
+			for (int i = 1; i < 7; ++i)
+			{
+				strPos = shapesDataString.find (keywords[i]);
+				if (strPos == std::string::npos) continue;	// Keyword not found => next keyword
+				if (strPos + 4 >= shapesDataString.length())	// Nothing more after keyword => end
+				{
+					shapesDataString ="";
+					break;
+				}
+				if (strPos > 0) shapesDataString.erase (0, strPos + 4);
+				float val;
+				try {val = std::stof (shapesDataString, &nextPos);}
+				catch  (const std::exception& e)
+				{
+					fprintf (stderr, "BSchaffl.lv2: Restore shape incomplete. Can't parse %s from \"%s...\"",
+							 keywords[i].substr(0,3).c_str(), shapesDataString.substr (0, 63).c_str());
+					break;
+				}
+
+				if (nextPos > 0) shapesDataString.erase (0, nextPos);
+				switch (i)
+				{
+					case 1: node.point.x = val;
+						break;
+					case 2:	node.point.y = val;
+						break;
+					case 3:	node.handle1.x = val;
+						break;
+					case 4:	node.handle1.y = val;
+						break;
+					case 5:	node.handle2.x = val;
+						break;
+					case 6:	node.handle2.y = val;
+						break;
+					default:break;
+				}
+			}
+
+			// Set data
+			shape.appendNode (node);
+		}
+
+		// Validate all shapes
+		if ((shape.size () < 2) || (!shape.validateShape ())) shape.setDefaultShape ();
+
+		// Force GUI notification
+		notify_shape = true;
+	}
+
+	return LV2_STATE_SUCCESS;
 }
 
 LV2_Handle instantiate (const LV2_Descriptor* descriptor, double samplerate, const char* bundle_path, const LV2_Feature* const* features)
@@ -689,10 +881,35 @@ void run (LV2_Handle instance, uint32_t n_samples)
 	inst->run (n_samples);
 }
 
+static LV2_State_Status state_save(LV2_Handle instance, LV2_State_Store_Function store, LV2_State_Handle handle, uint32_t flags,
+           const LV2_Feature* const* features)
+{
+	BSchaffl* inst = (BSchaffl*)instance;
+	if (!inst) return LV2_STATE_SUCCESS;
+
+	return inst->state_save (store, handle, flags, features);
+}
+
+static LV2_State_Status state_restore(LV2_Handle instance, LV2_State_Retrieve_Function retrieve, LV2_State_Handle handle, uint32_t flags,
+           const LV2_Feature* const* features)
+{
+	BSchaffl* inst = (BSchaffl*)instance;
+	if (!inst) return LV2_STATE_SUCCESS;
+
+	return inst->state_restore (retrieve, handle, flags, features);
+}
+
 void cleanup (LV2_Handle instance)
 {
 	BSchaffl* inst = (BSchaffl*) instance;
 	delete inst;
+}
+
+static const void* extension_data(const char* uri)
+{
+  static const LV2_State_Interface state  = {state_save, state_restore};
+  if (!strcmp(uri, LV2_STATE__interface)) return &state;
+  return NULL;
 }
 
 const LV2_Descriptor descriptor =
@@ -704,7 +921,7 @@ const LV2_Descriptor descriptor =
 	run,
 	NULL, //deactivate,
 	cleanup,
-	NULL //extension_data
+	extension_data
 };
 
 // LV2 Symbol Export

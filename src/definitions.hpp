@@ -27,6 +27,9 @@
 #define NR_MIDI_MSG_FILTERS 7
 #define NR_MIDI_CHS 16
 #define MAXSTEPS 16
+#define MAXNODES 64
+#define MAXUNDO 20
+#define GRIDSIZE 2.0
 #define MINMARKERVALUE 0.000001
 #define BSCHAFFL_URI "https://www.jahnichen.de/plugins/lv2/BSchaffl"
 #define BSCHAFFLGUI_URI "https://www.jahnichen.de/plugins/lv2/BSchaffl#gui"
