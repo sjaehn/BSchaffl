@@ -29,37 +29,44 @@ template <class T, size_t sz>
 class Snapshots
 {
 protected:
-        std::array<T, sz> store;
-        size_t pos = 0;
-        size_t horizon = 0;
-        size_t size = 0;
+        std::array<T, sz> store_;
+        size_t pos_ = 0;
+        size_t horizon_ = 0;
+        size_t size_ = 0;
+        T default_ = T ();
 
 public:
         void clear ()
         {
-                store.fill (T());
-                pos = 0;
-                horizon = 0;
-                size = 0;
+                store_.fill (default_);
+                pos_ = 0;
+                horizon_ = 0;
+                size_ = 0;
         }
-        void push (T& value)
+
+        void setDefault (const T& value)
         {
-                horizon = ((pos + 1) % sz);
-                store[horizon] = value;
-                pos = horizon;
-                size = (size < sz ? size + 1 : sz);
+                default_ = value;
+        }
+
+        void push (const T& value)
+        {
+                horizon_ = ((pos_ + 1) % sz);
+                store_[horizon_] = value;
+                pos_ = horizon_;
+                size_ = (size_ < sz ? size_ + 1 : sz);
         }
 
         T undo ()
         {
-                pos = (size == 0 ? 0 : (((size < sz) && (pos == 0)) ? 0 : ((horizon == ((pos + sz - 1) % sz)) ? pos : ((pos + sz - 1) % sz))));
-                return store[pos];
+                pos_ = (size_ == 0 ? 0 : (((size_ < sz) && (pos_ == 0)) ? 0 : ((horizon_ == ((pos_ + sz - 1) % sz)) ? pos_ : ((pos_ + sz - 1) % sz))));
+                return store_[pos_];
         }
 
         T redo ()
         {
-                pos = (size == 0 ? 0 : ((horizon == pos) ? pos : ((pos + 1) % sz)));
-                return store[pos];
+                pos_ = (size_ == 0 ? 0 : ((horizon_ == pos_) ? pos_ : ((pos_ + 1) % sz)));
+                return store_[pos_];
         }
 };
 

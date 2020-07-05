@@ -149,14 +149,8 @@ private:
         BWidgets::Text convertToShapeToLinearText;
         LightButton convertToShapeToConstButton;
         BWidgets::Text convertToShapeToConstText;
-        LightButton convertToShapeDoNothingButton;
-        BWidgets::Text convertToShapeDoNothingText;
 
         BWidgets::MessageBox convertToStepsMessage;
-        LightButton convertToStepsToSlidersButton;
-        BWidgets::Text convertToStepsToSlidersText;
-        LightButton convertToStepsDoNothingButton;
-        BWidgets::Text convertToStepsDoNothingText;
 
         BWidgets::ImageIcon midiChFilterIcon;
         BWidgets::Widget midiChFilterContainer;
@@ -210,7 +204,7 @@ private:
         BWidgets::HSliderValue swingRandomControl;
         BWidgets::HSliderValue swingProcessControl;
 	BWidgets::HSliderValue nrStepsControl;
-        BWidgets::Widget stepControlContainer;
+        BWidgets::ValueWidget stepControlContainer;
         ShapeWidget shapeWidget;
 	std::array<BWidgets::VSlider, MAXSTEPS> stepControl;
         std::array<BWidgets::Label, MAXSTEPS> stepControlLabel;
@@ -228,6 +222,7 @@ private:
         std::array<BWidgets::Label, MAXSTEPS> outputStepLabel;
 
         std::vector<Node> clipboard;
+        Snapshots<std::array<double, MAXSTEPS>, MAXUNDO> sliderHistory;
 
         double sz;
 	cairo_surface_t* bgImageSurface;

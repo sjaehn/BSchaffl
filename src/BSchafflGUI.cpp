@@ -69,19 +69,25 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	gridShowButton (558, 3, 24, 24, "halobutton", "Show grid"),
 	gridSnapButton (588, 3, 24, 24, "halobutton", "Snap to grid"),
 
-	convertToShapeMessage (560, 100, 300, 170, "menu", "Shape-controlled amp mode", "Do you want to convert the amp data from the sliders-controlled mode to this shape ?"),
+	convertToShapeMessage
+	(
+		560, 100, 300, 150, "menu",
+		"Shape-controlled amp mode",
+		"Do you want to convert the amp data from the sliders-controlled mode to this shape ?",
+		std::vector<std::string>{"OK", "Cancel"}
+	),
         convertToShapeToLinearButton (20, 70, 12, 12, "slider", 0.0),
         convertToShapeToLinearText (60, 70, 200, 20, "menu/text", "Convert sliders to linear fading"),
         convertToShapeToConstButton (20, 90, 12, 12, "slider", 0.0),
         convertToShapeToConstText (60, 90, 200, 20, "menu/text", "Convert sliders to steps"),
-        convertToShapeDoNothingButton (20, 110, 12, 12, "slider", 1.0),
-        convertToShapeDoNothingText (60, 110, 200, 20, "menu/text", "Do nothing"),
 
-	convertToStepsMessage (560, 100, 300, 150, "menu", "Sliders-controlled amp mode", "Do you want to convert the amp data from the shape-controlled mode to sliders ?"),
-        convertToStepsToSlidersButton (20, 70, 12, 12, "slider", 0.0),
-        convertToStepsToSlidersText (60, 70, 200, 20, "menu/text", "Convert shape to sliders"),
-        convertToStepsDoNothingButton (20, 90, 12, 12, "slider", 1.0),
-        convertToStepsDoNothingText (60, 90, 200, 20, "menu/text", "Do nothing"),
+	convertToStepsMessage
+	(
+		560, 100, 300, 110, "menu",
+		"Sliders-controlled amp mode",
+		"Do you want to convert the amp data from the shape-controlled mode to sliders ?",
+		std::vector<std::string>{"OK", "Cancel"}
+	),
 
 	midiChFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_ch_filter.png"),
 	midiChFilterContainer (0, 0, 340, 140, "screen"),
@@ -168,7 +174,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	swingRandomControl (720, 422, 120, 28, "slider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
 	swingProcessControl (875, 422, 120, 28, "procslider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
 	nrStepsControl (380, 422, 155, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
-	stepControlContainer (40, 40, 580, 130, "widget"),
+	stepControlContainer (40, 40, 580, 130, "widget", 0.0),
 	shapeWidget (40, 40, 580, 130, "shape"),
 	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),
 
@@ -234,9 +240,6 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	convertToStepsButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::convertButtonClickedCallback);
 	convertToShapeToLinearButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::lightButtonClickedCallback);
 	convertToShapeToConstButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::lightButtonClickedCallback);
-	convertToShapeDoNothingButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::lightButtonClickedCallback);
-	convertToStepsToSlidersButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::lightButtonClickedCallback);
-	convertToStepsDoNothingButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::lightButtonClickedCallback);
 	markersAutoButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::markersAutoClickedCallback);
 	markersManualButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::markersAutoClickedCallback);
 	for (HaloToggleButton& s: shapeToolButtons) s.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::shapeToolClickedCallback);
@@ -247,6 +250,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	helpButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, helpButtonClickedCallback);
 	//ytButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, ytButtonClickedCallback);
 	shapeWidget.setCallbackFunction (BEvents::VALUE_CHANGED_EVENT, shapeChangedCallback);
+	stepControlContainer.setCallbackFunction (BEvents::VALUE_CHANGED_EVENT, valueChangedCallback);
 
 	// Configure widgets
 	bgImageSurface = cairo_image_surface_create_from_png ((pluginPath + BG_FILE).c_str());
@@ -272,11 +276,11 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	gridSnapButton.setValue (1.0);
 	shapeToolbox.hide();
 	editToolbox.hide();
-	historyToolbox.hide();
+	//historyToolbox.hide();
 	gridToolbox.hide();
 	for (HaloToggleButton& s : shapeToolButtons) s.hide();
 	for (HaloButton& e : editToolButtons) e.hide();
-	for (HaloButton& h : historyToolButtons) h.hide();
+	//for (HaloButton& h : historyToolButtons) h.hide();
 	gridShowButton.hide();
 	gridSnapButton.hide();
 	convertToShapeIcon.hide();
@@ -412,15 +416,13 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
         convertToShapeMessage.add (convertToShapeToLinearText);
         convertToShapeMessage.add (convertToShapeToConstButton);
         convertToShapeMessage.add (convertToShapeToConstText);
-        convertToShapeMessage.add (convertToShapeDoNothingButton);
-        convertToShapeMessage.add (convertToShapeDoNothingText);
-
-	convertToStepsMessage.add (convertToStepsToSlidersButton);
-        convertToStepsMessage.add (convertToStepsToSlidersText);
-        convertToStepsMessage.add (convertToStepsDoNothingButton);
-        convertToStepsMessage.add (convertToStepsDoNothingText);
 
 	add (mContainer);
+
+	std::array<double, MAXSTEPS> s;
+	s.fill (1.0);
+	sliderHistory.setDefault (s);
+	sliderHistory.clear();
 
 	//Scan host features for URID map
 	LV2_URID_Map* m = NULL;
@@ -555,8 +557,6 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 	{
 		float* pval = (float*) buffer;
 		const int controllerNr = port_index - CONTROLLERS;
-
-		if (controllerNr == USR_LATENCY_FR) userLatencySlider.setValue (*pval);
 
 		if ((controllerNr >= STEP_POS) && (controllerNr < STEP_POS + MAXSTEPS - 1))
 		{
@@ -783,14 +783,8 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
         convertToShapeToLinearText.applyTheme (theme);
         convertToShapeToConstButton.applyTheme (theme);
         convertToShapeToConstText.applyTheme (theme);
-        convertToShapeDoNothingButton.applyTheme (theme);
-        convertToShapeDoNothingText.applyTheme (theme);
 
 	convertToStepsMessage.applyTheme (theme);
-        convertToStepsToSlidersButton.applyTheme (theme);
-        convertToStepsToSlidersText.applyTheme (theme);
-        convertToStepsDoNothingButton.applyTheme (theme);
-        convertToStepsDoNothingText.applyTheme (theme);
 
 	modeSwitch.applyTheme (theme);
 	seqLenValueListbox.applyTheme (theme);
@@ -839,73 +833,33 @@ void BSchafflGUI::onCloseRequest (BEvents::WidgetEvent* event)
 		{
 			if (requestWidget == (Widget*) &convertToShapeMessage)
 			{
-				if (convertToShapeToLinearButton.getValue() != 0.0)
+				if (convertToShapeMessage.getValue() == 1.0)
 				{
-					int nrSteps = nrStepsControl.getValue();
-					shapeWidget.setValueEnabled (false);
-					shapeWidget.clearShape ();
-
-					shapeWidget.appendRawNode
-					(
-						Node
-						(
-							END_NODE,
-							{0.0, (getStepValue (0) + getStepValue (nrSteps - 1)) /2},
-							{0.0, 0.0},
-							{0.0, 0.0}
-						)
-					);
-
-					for (int i = 0; i < nrSteps; ++i)
+					if (convertToShapeToLinearButton.getValue() != 0.0)
 					{
+						int nrSteps = nrStepsControl.getValue();
+						shapeWidget.setValueEnabled (false);
+						shapeWidget.clearShape ();
+
 						shapeWidget.appendRawNode
 						(
 							Node
 							(
-								POINT_NODE,
-								{(double (i) + 0.5) / double (nrSteps), getStepValue (i)},
+								END_NODE,
+								{0.0, (getStepValue (0) + getStepValue (nrSteps - 1)) /2},
 								{0.0, 0.0},
 								{0.0, 0.0}
 							)
 						);
-					}
 
-					shapeWidget.appendRawNode
-					(
-						Node
-						(
-							END_NODE,
-							{1.0, (getStepValue (0) + getStepValue (nrSteps - 1)) /2},
-							{0.0, 0.0},
-							{0.0, 0.0}
-						)
-					);
-
-					shapeWidget.validateShape();
-					shapeWidget.pushToSnapshots ();
-					shapeWidget.update ();
-					shapeWidget.setValueEnabled (true);
-					shapeWidget.setValue (1.0);
-				}
-
-				else if (convertToShapeToConstButton.getValue() != 0.0)
-				{
-					int nrSteps = nrStepsControl.getValue();
-					shapeWidget.setValueEnabled (false);
-					shapeWidget.clearShape ();
-
-					shapeWidget.appendRawNode (Node (END_NODE, {0.0, (getStepValue (0))}, {0.0, 0.0}, {0.0, 0.0}));
-
-					for (int i = 0; i < nrSteps; ++i)
-					{
-						if (i != 0)
+						for (int i = 0; i < nrSteps; ++i)
 						{
 							shapeWidget.appendRawNode
 							(
 								Node
 								(
 									POINT_NODE,
-									{double (i) / double (nrSteps), getStepValue (i)},
+									{(double (i) + 0.5) / double (nrSteps), getStepValue (i)},
 									{0.0, 0.0},
 									{0.0, 0.0}
 								)
@@ -916,21 +870,64 @@ void BSchafflGUI::onCloseRequest (BEvents::WidgetEvent* event)
 						(
 							Node
 							(
-								POINT_NODE,
-								{double (i + 1) / double (nrSteps) - 1.0 / double (MAPRES), getStepValue (i)},
+								END_NODE,
+								{1.0, (getStepValue (0) + getStepValue (nrSteps - 1)) /2},
 								{0.0, 0.0},
 								{0.0, 0.0}
 							)
 						);
+
+						shapeWidget.validateShape();
+						shapeWidget.pushToSnapshots ();
+						shapeWidget.update ();
+						shapeWidget.setValueEnabled (true);
+						shapeWidget.setValue (1.0);
 					}
 
-					shapeWidget.appendRawNode (Node (END_NODE, {1.0, (getStepValue (0))}, {0.0, 0.0}, {0.0, 0.0}));
+					else if (convertToShapeToConstButton.getValue() != 0.0)
+					{
+						int nrSteps = nrStepsControl.getValue();
+						shapeWidget.setValueEnabled (false);
+						shapeWidget.clearShape ();
 
-					shapeWidget.validateShape();
-					shapeWidget.pushToSnapshots ();
-					shapeWidget.update ();
-					shapeWidget.setValueEnabled (true);
-					shapeWidget.setValue (1.0);
+						shapeWidget.appendRawNode (Node (END_NODE, {0.0, (getStepValue (0))}, {0.0, 0.0}, {0.0, 0.0}));
+
+						for (int i = 0; i < nrSteps; ++i)
+						{
+							if (i != 0)
+							{
+								shapeWidget.appendRawNode
+								(
+									Node
+									(
+										POINT_NODE,
+										{double (i) / double (nrSteps), getStepValue (i)},
+										{0.0, 0.0},
+										{0.0, 0.0}
+									)
+								);
+							}
+
+							shapeWidget.appendRawNode
+							(
+								Node
+								(
+									POINT_NODE,
+									{double (i + 1) / double (nrSteps) - 1.0 / double (MAPRES), getStepValue (i)},
+									{0.0, 0.0},
+									{0.0, 0.0}
+								)
+							);
+						}
+
+						shapeWidget.appendRawNode (Node (END_NODE, {1.0, (getStepValue (0))}, {0.0, 0.0}, {0.0, 0.0}));
+
+						shapeWidget.validateShape();
+						shapeWidget.pushToSnapshots ();
+						shapeWidget.update ();
+						shapeWidget.setValueEnabled (true);
+						shapeWidget.setValue (1.0);
+					}
 				}
 
 
@@ -939,9 +936,9 @@ void BSchafflGUI::onCloseRequest (BEvents::WidgetEvent* event)
 
 			else if (requestWidget == (Widget*) &convertToStepsMessage)
 			{
-				// Convert to sliders
-				if (convertToStepsToSlidersButton.getValue() != 0.0)
+				if (convertToStepsMessage.getValue() == 1.0)
 				{
+					// Convert to sliders
 					int nrSteps = nrStepsControl.getValue();
 					for (int i = 0; i < nrSteps; ++i)
 					{
@@ -1174,11 +1171,11 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 						ui->shapeWidget.hide();
 						ui->shapeToolbox.hide();
 						ui->editToolbox.hide();
-						ui->historyToolbox.hide();
+						//ui->historyToolbox.hide();
 						ui->gridToolbox.hide();
 						for (HaloToggleButton& s : ui->shapeToolButtons) s.hide();
 						for (HaloButton& e : ui->editToolButtons) e.hide();
-						for (HaloButton& h : ui->historyToolButtons) h.hide();
+						//for (HaloButton& h : ui->historyToolButtons) h.hide();
 						ui->gridShowButton.hide();
 						ui->gridSnapButton.hide();
 						ui->ampSwingControl.setState (BColors::NORMAL);
@@ -1194,11 +1191,11 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 						ui->shapeWidget.show();
 						ui->shapeToolbox.show();
 						ui->editToolbox.show();
-						ui->historyToolbox.show();
+						//ui->historyToolbox.show();
 						ui->gridToolbox.show();
 						for (HaloToggleButton& s : ui->shapeToolButtons) s.show();
 						for (HaloButton& e : ui->editToolButtons) e.show();
-						for (HaloButton& h : ui->historyToolButtons) h.show();
+						//for (HaloButton& h : ui->historyToolButtons) h.show();
 						ui->gridShowButton.show();
 						ui->gridSnapButton.show();
 						ui->ampSwingControl.setState (BColors::INACTIVE);
@@ -1298,8 +1295,20 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 
 				else if ((controllerNr >= STEP_LEV) && (controllerNr < STEP_LEV + MAXSTEPS))
 				{
-					ui->stepControlLabel[controllerNr - STEP_LEV].setText (BUtilities::to_string (value, "%1.2f"));
+					int stepNr = controllerNr - STEP_LEV;
+					ui->stepControlLabel[stepNr].setText (BUtilities::to_string (value, "%1.2f"));
 					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
+
+					std::array<double, MAXSTEPS> u = ui->sliderHistory.undo();
+					for (int i = 0; i < MAXSTEPS; ++i)
+					{
+						if ((i != stepNr) && (float (u[i]) != float (ui->stepControl[i].getValue())))
+						{
+							ui->sliderHistory.redo();
+							break;
+						}
+					}
+					ui->stepControlContainer.setValue (1.0);
 				}
 
 				else if (controllerNr == AMP_SWING)
@@ -1333,6 +1342,17 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 				}
 
 				else ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
+			}
+
+			else if (widget == &ui->stepControlContainer)
+			{
+				if (value != 0.0)
+				{
+					std::array<double, MAXSTEPS> steps;
+					for (int i = 0; i < MAXSTEPS; ++i) steps[i] = ui->stepControl[i].getValue();
+					ui->sliderHistory.push (steps);
+					ui->stepControlContainer.setValue (0.0);
+				}
 			}
 
 			else if (widget == &ui->midiChFilterAllSwitch)
@@ -1598,18 +1618,67 @@ void BSchafflGUI::historyToolClickedCallback(BEvents::Event* event)
 	}
 
 	// Action
-	switch (widgetNr)
+	if (ui->modeSwitch.getValue() == 0.0)
 	{
-		case 0:		ui->shapeWidget.reset();
-				break;
+		std::array<double, MAXSTEPS> values;
 
-		case 1:		ui->shapeWidget.undo();
-				break;
+		switch (widgetNr)
+		{
+			case 0:		for (int i = 0; i < MAXSTEPS; ++i)
+					{
+						values[i] = 1.0;
+						ui->stepControl[i].setValueable (false);
+						ui->stepControl[i].setValue(1.0);
+						ui->stepControl[i].setValueable (true);
+						ui->stepControlLabel[i].setText (BUtilities::to_string (value, "%1.2f"));
+						ui->write_function (ui->controller, CONTROLLERS + STEP_LEV + i, sizeof (float), 0, &value);
+					}
+					ui->sliderHistory.push (values);
+					break;
 
-		case 2:		ui->shapeWidget.redo();
-				break;
+			case 1:		values = ui->sliderHistory.undo();
+					for (int i = 0; i < MAXSTEPS; ++i)
+					{
+						float value = values[i];
+						ui->stepControl[i].setValueable (false);
+						ui->stepControl[i].setValue(value);
+						ui->stepControl[i].setValueable (true);
+						ui->stepControlLabel[i].setText (BUtilities::to_string (value, "%1.2f"));
+						ui->write_function (ui->controller, CONTROLLERS + STEP_LEV + i, sizeof (float), 0, &value);
+					}
+					break;
 
-		default:	break;
+			case 2:		values = ui->sliderHistory.redo();
+					for (int i = 0; i < MAXSTEPS; ++i)
+					{
+						float value = values[i];
+						ui->stepControl[i].setValueable (false);
+						ui->stepControl[i].setValue(value);
+						ui->stepControl[i].setValueable (true);
+						ui->stepControlLabel[i].setText (BUtilities::to_string (value, "%1.2f"));
+						ui->write_function (ui->controller, CONTROLLERS + STEP_LEV + i, sizeof (float), 0, &value);
+					}
+					break;
+
+			default:	break;
+		}
+	}
+
+	else
+	{
+		switch (widgetNr)
+		{
+			case 0:		ui->shapeWidget.reset();
+					break;
+
+			case 1:		ui->shapeWidget.undo();
+					break;
+
+			case 2:		ui->shapeWidget.redo();
+					break;
+
+			default:	break;
+		}
 	}
 }
 
@@ -1656,14 +1725,16 @@ void BSchafflGUI::convertButtonClickedCallback (BEvents::Event* event)
 
 	if (widget == &ui->convertToShapeButton)
 	{
-		if (!ui->convertToShapeMessage.getParent()) ui->add (ui->convertToShapeMessage);
-		ui->convertToShapeDoNothingButton.setValue (1.0);
+		if (!ui->convertToShapeMessage.getParent())
+		{
+			ui->add (ui->convertToShapeMessage);
+			ui->convertToShapeToLinearButton.setValue (1.0);
+		}
 	}
 
 	else if (widget == &ui->convertToStepsButton)
 	{
 		if (!ui->convertToStepsMessage.getParent()) ui->add (ui->convertToStepsMessage);
-		ui->convertToStepsDoNothingButton.setValue (1.0);
 	}
 }
 
