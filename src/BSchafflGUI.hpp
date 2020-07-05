@@ -234,16 +234,13 @@ private:
 	// Definition of styles
 	BColors::ColorSet fgColors = {{{0.75, 0.75, 0.75, 1.0}, {1.0, 1.0, 1.0, 1.0}, {0.2, 0.2, 0.2, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
         BColors::ColorSet procColors = {{{0.75, 0.75, 0.75, 1.0}, {0.75, 0.0, 0.0, 1.0}, {0.2, 0.2, 0.2, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
-        BColors::ColorSet rdColors = {{{0.75, 0.0, 0.0, 1.0}, {1.0, 0.25, 0.25, 1.0}, {0.2, 0.0, 0.0, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::ColorSet txColors = {{BColors::lightgrey, BColors::white, BColors::darkgrey, {0.0, 0.0, 0.0, 0.0}}};
 	BColors::ColorSet bgColors = {{{0.15, 0.15, 0.15, 1.0}, {0.3, 0.3, 0.3, 1.0}, {0.05, 0.05, 0.05, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
         BColors::ColorSet procBgColors = {{{0.15, 0.15, 0.15, 1.0}, {0.15, 0.15, 0.15, 1.0}, {0.05, 0.05, 0.05, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
 
 	BStyles::Border border = {{BColors::darkgrey, 1.0}, 0.0, 2.0, 0.0};
         BStyles::Border menuborder = {{BColors::darkgrey, 1.0}, 0.0, 0.0, 0.0};
-        BStyles::Border actborder = {{BColors::white, 2.0}, 0.0, 1.0, 0.0};
         BStyles::Border stepborder = {{BColors::darkgrey, 1.0}, 0.0, 2.0, 3.0};
-	BStyles::Border blindborder = {{{0.0, 0.0, 0.0, 0.0}, 1.0}, 0.0, 2.0, 0.0};
         BStyles::Border labelBorder = BStyles::Border (BStyles::noLine, 0.0, 4.0);
         BStyles::Border focusborder = BStyles::Border (BStyles::Line (BColors::Color (0.0, 0.0, 0.0, 0.5), 2.0));
 	BStyles::Fill widgetBg = BStyles::noFill;
@@ -298,16 +295,6 @@ private:
 		{"widget", 	{{"uses", STYLEPTR (&defaultStyles)}}},
                 {"screen", 	{{"background", STYLEPTR (&screenBg)},
 				 {"border", STYLEPTR (&BStyles::noBorder)}}},
-		{"mmonitor", 	{{"background", STYLEPTR (&BStyles::blackFill)},
-				 {"border", STYLEPTR (&BStyles::noBorder)}}},
- 		{"smonitor", 	{{"background", STYLEPTR (&BStyles::blackFill)},
- 				 {"border", STYLEPTR (&border)}}},
- 		{"nbutton", 	{{"background", STYLEPTR (&BStyles::blackFill)},
- 				 {"border", STYLEPTR (&border)}}},
- 		{"abutton", 	{{"background", STYLEPTR (&BStyles::blackFill)},
- 				 {"border", STYLEPTR (&actborder)}}},
-		{"rcontainer", 	{{"background", STYLEPTR (&BStyles::noFill)},
-				 {"border", STYLEPTR (&border)}}},
 		{"scontainer", 	{{"background", STYLEPTR (&BStyles::noFill)},
 				 {"border", STYLEPTR (&border)}}},
                 {"listbox",	{{"border", STYLEPTR (&menuborder)},
@@ -349,21 +336,9 @@ private:
                                  {"textcolors", STYLEPTR (&txColors)}}},
 		{"selectmenu",	{{"uses", STYLEPTR (&defaultStyles)},
 				 {"bgcolors", STYLEPTR (&fgColors)}}},
-		{"dial", 	{{"uses", STYLEPTR (&defaultStyles)},
-				 {"fgcolors", STYLEPTR (&fgColors)},
-				 {"bgcolors", STYLEPTR (&bgColors)},
-				 {"textcolors", STYLEPTR (&fgColors)},
-				 {"font", STYLEPTR (&defaultFont)}}},
-		{"redbutton", 	{{"uses", STYLEPTR (&defaultStyles)},
-				 {"fgcolors", STYLEPTR (&rdColors)},
-				 {"bgcolors", STYLEPTR (&bgColors)}}},
                 {"halobutton", 	{{"uses", STYLEPTR (&defaultStyles)},
  				 {"fgcolors", STYLEPTR (&bgColors)}}},
  		{"halobutton/focus", {{"uses", STYLEPTR (&focusStyles)}}},
-		{"dial/focus", 	{{"background", STYLEPTR (&screenBg)},
-				 {"border", STYLEPTR (&screenBorder)},
-				 {"textcolors", STYLEPTR (&txColors)},
-				 {"font", STYLEPTR (&defaultFont)}}},
 		{"slider",	{{"uses", STYLEPTR (&defaultStyles)},
 				 {"fgcolors", STYLEPTR (&fgColors)},
 				 {"bgcolors", STYLEPTR (&bgColors)},
@@ -379,13 +354,6 @@ private:
 				 {"textcolors", STYLEPTR (&fgColors)},
 				 {"font", STYLEPTR (&defaultFont)}}},
 		{"procslider/focus",{{"background", STYLEPTR (&screenBg)},
-				 {"border", STYLEPTR (&screenBorder)},
-				 {"textcolors", STYLEPTR (&txColors)},
-				 {"font", STYLEPTR (&defaultFont)}}},
-		{"switch",	{{"uses", STYLEPTR (&defaultStyles)},
-				 {"fgcolors", STYLEPTR (&fgColors)},
-				 {"bgcolors", STYLEPTR (&bgColors)}}},
-		{"switch/focus",{{"background", STYLEPTR (&screenBg)},
 				 {"border", STYLEPTR (&screenBorder)},
 				 {"textcolors", STYLEPTR (&txColors)},
 				 {"font", STYLEPTR (&defaultFont)}}},
