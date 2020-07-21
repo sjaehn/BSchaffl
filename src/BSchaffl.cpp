@@ -520,11 +520,12 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 				{
 					if
 					(
-						(((**it).msg[0] & 0xF0) == 0x90) &&
-						(((**it).msg[0] & 0x0F) == ch) &&
-						((**it).msg[1]  == note)
+						(((**nit).msg[0] & 0xF0) == 0x90) &&
+						(((**nit).msg[0] & 0x0F) == ch) &&
+						((**nit).msg[1]  == note)
 					)
 					{
+						//fprintf(stderr, "Erase NOTE_ON %i %i %i\n", (**nit).msg[0], (**nit).msg[1], (**nit).msg[2]);
 						nit = midiData.erase (nit);
 						--it;
 					}
