@@ -38,7 +38,7 @@
         rdfs:comment "Pattern-controlled MIDI amp & time stretch plugin to produce shuffle / swing effects." ;
 	doap:maintainer <http://www.jahnichen.de/sjaehn#me> ;
 	doap:license <http://usefulinc.com/doap/licenses/gpl> ;
-	lv2:microVersion 2 ;
+	lv2:microVersion 3 ;
 	lv2:minorVersion 0 ;
         lv2:optionalFeature lv2:hardRTCapable ;
         lv2:binary <BSchaffl.so> ;
@@ -379,6 +379,16 @@
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
                 lv2:index 35 ;
+                lv2:symbol "midi_note_off_amp" ;
+                lv2:name "MIDI note off amp" ;
+		lv2:portProperty lv2:integer , lv2:toggled ;
+                lv2:default 1 ;
+                lv2:minimum 0 ;
+                lv2:maximum 1 ;
+		rdfs:comment "0 = Use note on amp. 1 = Calculate note off amp from step/position." ;
+        ] , [
+                a lv2:InputPort , lv2:ControlPort ;
+                lv2:index 36 ;
                 lv2:symbol "quantization_range" ;
                 lv2:name "Smart quantization range" ;
                 lv2:default 0.0625 ;
@@ -388,7 +398,7 @@
 		rdfs:comment "Range for smart quantization. MIDI messages are snapped to the respective steps if the MIDI signal is within this range from a step start/end. It is recommended to set the value to the half of the steps required by shortest expected note." ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 36 ;
+                lv2:index 37 ;
                 lv2:symbol "quantization_mapping" ;
                 lv2:name "Smart quantization mapping" ;
 		lv2:portProperty lv2:integer , lv2:toggled ;
@@ -398,7 +408,7 @@
 		rdfs:comment "Enables mapping of a MIDI signal to the right step. All signals except NOTE_OFF are mapped to step starting within the smart quantization range. NOTE_OFF signals are mapped to step ending within the smart quantization range." ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 37 ;
+                lv2:index 38 ;
                 lv2:symbol "quantization_positioning" ;
                 lv2:name "Smart quantization positioning" ;
 		lv2:portProperty lv2:integer , lv2:toggled ;
@@ -408,7 +418,7 @@
 		rdfs:comment "Enables placement of a MIDI signal to the right step position. All signals except NOTE_OFF are moved to start of the step starting within the smart quantization range. NOTE_ON signals are moved to end of the step ending within the smart quantization range. This feature produces latency!" ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 38 ;
+                lv2:index 39 ;
                 lv2:symbol "time_compensation" ;
                 lv2:name "Latency-compensation of time/position" ;
 		lv2:portProperty lv2:integer , lv2:toggled ;
@@ -417,7 +427,7 @@
                 lv2:maximum 1 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 39 ;
+                lv2:index 40 ;
                 lv2:symbol "user_latency" ;
                 lv2:name "User defined latency" ;
 		lv2:portProperty lv2:integer , lv2:toggled ;
@@ -427,7 +437,7 @@
 		rdfs:comment "Choose between user-defined fixed latency or plugin-calculated latency." ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 40 ;
+                lv2:index 41 ;
                 lv2:symbol "user_latency_frames" ;
                 lv2:name "User defined latency value" ;
 		lv2:portProperty lv2:integer ;
@@ -437,7 +447,7 @@
 		units:unit units:frame ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 41 ;
+                lv2:index 42 ;
                 lv2:symbol "position_01" ;
                 lv2:name "Position 01" ;
                 lv2:default 0.0 ;
@@ -445,7 +455,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 42 ;
+                lv2:index 43 ;
                 lv2:symbol "position_02" ;
                 lv2:name "Position 02" ;
                 lv2:default 0.0 ;
@@ -453,7 +463,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 43 ;
+                lv2:index 44 ;
                 lv2:symbol "position_03" ;
                 lv2:name "Position 03" ;
                 lv2:default 0.0 ;
@@ -461,7 +471,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 44 ;
+                lv2:index 45 ;
                 lv2:symbol "position_04" ;
                 lv2:name "Position 04" ;
                 lv2:default 0.0 ;
@@ -469,7 +479,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 45 ;
+                lv2:index 46 ;
                 lv2:symbol "position_05" ;
                 lv2:name "Position 05" ;
                 lv2:default 0.0 ;
@@ -477,7 +487,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 46 ;
+                lv2:index 47 ;
                 lv2:symbol "position_06" ;
                 lv2:name "Position 06" ;
                 lv2:default 0.0 ;
@@ -485,7 +495,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 47 ;
+                lv2:index 48 ;
                 lv2:symbol "position_07" ;
                 lv2:name "Position 07" ;
                 lv2:default 0.0 ;
@@ -493,7 +503,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 48 ;
+                lv2:index 49 ;
                 lv2:symbol "position_08" ;
                 lv2:name "Position 08" ;
                 lv2:default 0.0 ;
@@ -501,7 +511,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 49 ;
+                lv2:index 50 ;
                 lv2:symbol "position_09" ;
                 lv2:name "Position 09" ;
                 lv2:default 0.0 ;
@@ -509,7 +519,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 50 ;
+                lv2:index 51 ;
                 lv2:symbol "position_10" ;
                 lv2:name "Position 10" ;
                 lv2:default 0.0 ;
@@ -517,7 +527,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 51 ;
+                lv2:index 52 ;
                 lv2:symbol "position_11" ;
                 lv2:name "Position 11" ;
                 lv2:default 0.0 ;
@@ -525,7 +535,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 52 ;
+                lv2:index 53 ;
                 lv2:symbol "position_12" ;
                 lv2:name "Position 12" ;
                 lv2:default 0.0 ;
@@ -533,7 +543,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 53 ;
+                lv2:index 54 ;
                 lv2:symbol "position_13" ;
                 lv2:name "Position 13" ;
                 lv2:default 0.0 ;
@@ -541,7 +551,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 54 ;
+                lv2:index 55 ;
                 lv2:symbol "position_14" ;
                 lv2:name "Position 14" ;
                 lv2:default 0.0 ;
@@ -549,7 +559,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 55 ;
+                lv2:index 56 ;
                 lv2:symbol "position_15" ;
                 lv2:name "Position 15" ;
                 lv2:default 0.0 ;
@@ -557,7 +567,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 56 ;
+                lv2:index 57 ;
                 lv2:symbol "level_01" ;
                 lv2:name "Level 01" ;
                 lv2:default 1.0 ;
@@ -565,7 +575,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 57 ;
+                lv2:index 58 ;
                 lv2:symbol "level_02" ;
                 lv2:name "Level 02" ;
                 lv2:default 1.0 ;
@@ -573,7 +583,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 58 ;
+                lv2:index 59 ;
                 lv2:symbol "level_03" ;
                 lv2:name "Level 03" ;
                 lv2:default 1.0 ;
@@ -581,7 +591,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 59 ;
+                lv2:index 60 ;
                 lv2:symbol "level_04" ;
                 lv2:name "Level 04" ;
                 lv2:default 1.0 ;
@@ -589,7 +599,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 60 ;
+                lv2:index 61 ;
                 lv2:symbol "level_05" ;
                 lv2:name "Level 05" ;
                 lv2:default 1.0 ;
@@ -597,7 +607,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 61 ;
+                lv2:index 62 ;
                 lv2:symbol "level_06" ;
                 lv2:name "Level 06" ;
                 lv2:default 1.0 ;
@@ -605,7 +615,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 62 ;
+                lv2:index 63 ;
                 lv2:symbol "level_07" ;
                 lv2:name "Level 07" ;
                 lv2:default 1.0 ;
@@ -613,7 +623,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 63 ;
+                lv2:index 64 ;
                 lv2:symbol "level_08" ;
                 lv2:name "Level 08" ;
                 lv2:default 1.0 ;
@@ -621,7 +631,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 64 ;
+                lv2:index 65 ;
                 lv2:symbol "level_09" ;
                 lv2:name "Level 09" ;
                 lv2:default 1.0 ;
@@ -629,7 +639,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 65 ;
+                lv2:index 66 ;
                 lv2:symbol "level_10" ;
                 lv2:name "Level 10" ;
                 lv2:default 1.0 ;
@@ -637,7 +647,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 66 ;
+                lv2:index 67 ;
                 lv2:symbol "level_11" ;
                 lv2:name "Level 11" ;
                 lv2:default 1.0 ;
@@ -645,7 +655,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 67 ;
+                lv2:index 68 ;
                 lv2:symbol "level_12" ;
                 lv2:name "Level 12" ;
                 lv2:default 1.0 ;
@@ -653,7 +663,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 68 ;
+                lv2:index 69 ;
                 lv2:symbol "level_13" ;
                 lv2:name "Level 13" ;
                 lv2:default 1.0 ;
@@ -661,7 +671,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 69 ;
+                lv2:index 70 ;
                 lv2:symbol "level_14" ;
                 lv2:name "Level 14" ;
                 lv2:default 1.0 ;
@@ -669,7 +679,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 70 ;
+                lv2:index 71 ;
                 lv2:symbol "level_15" ;
                 lv2:name "Level 15" ;
                 lv2:default 1.0 ;
@@ -677,7 +687,7 @@
                 lv2:maximum 1.0 ;
         ] , [
                 a lv2:InputPort , lv2:ControlPort ;
-                lv2:index 71 ;
+                lv2:index 72 ;
                 lv2:symbol "level_16" ;
                 lv2:name "Level 16" ;
                 lv2:default 1.0 ;
@@ -685,7 +695,7 @@
                 lv2:maximum 1.0 ;
         ] , [
 		a lv2:OutputPort , lv2:ControlPort ;
-		lv2:index 72 ;
+		lv2:index 73 ;
 		lv2:symbol "latency" ;
 		lv2:name "latency";
 		lv2:minimum 0 ;

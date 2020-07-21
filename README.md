@@ -179,6 +179,14 @@ Select the MIDI messages (MIDI status byte) to be processed by the plugin. All n
 are bypassed.
 
 
+### MIDI note options
+
+#### Note off amp
+
+There are two options to amplify the NOTE_OFF velocity signal. Either amplification with the same value
+as the NOTE_ON signal or amplification with the amp value for the step/position of the NOTE_OFF signal.
+
+
 ### Smart quantization
 
 During live playing and even if in computer-generated sequences, MIDI signals often do not exactly fit
@@ -216,17 +224,11 @@ correct it by itself.
 
 ## What's new
 
-* Randomize amp
-* Randomize stretch
-* Process amount for amp and stretch
-* Shape editor
-* Reset, undo and redo
+* Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
 
 
 ## TODO's
 
-* Handle changes which effect step stretch during playback
-* Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
 * Select between: stretch note position only / stretch note length only / stretch note position & length
 * Option to change output step
 * Make tutorial video

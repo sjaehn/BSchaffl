@@ -279,7 +279,7 @@ void BSchaffl::run (uint32_t n_samples)
 		else if (ev->body.type == uris.midi_Event)
 		{
 			const uint8_t* const msg = (const uint8_t*)(ev + 1);
-			MidiData midi = {{0, 0, 0}, 0, 0, false};
+			MidiData midi = {{0, 0, 0}, 0, 0, 0, false, false};
 			midi.size = LIM (ev->body.size, 0, 3);
 			memcpy (midi.msg, msg, midi.size);
 
@@ -348,12 +348,38 @@ void BSchaffl::run (uint32_t n_samples)
 				float aswing = ((map % 2) == 0 ? controllers[AMP_SWING] : 1.0 / controllers[AMP_SWING]);
 				aswing = LIM (aswing, 0, 1);
 				const float rnd = 1.0f + controllers[AMP_RANDOM] * (2.0f * float (rand()) / float (RAND_MAX) - 1.0f);
-				const float amp =
+				float amp =
 				(
 					controllers[AMP_MODE] == 0.0f ?
 					controllers[STEP_LEV + map] * rnd * aswing :
 					LIM (shape.getMapValue (inputSeqPos), 0.0, 1.0) * rnd
 				);
+
+				// NOTE_OFF
+				if ((midi.msg[0] & 0xF0) == 0x80)
+				{
+					// Use note on amp ? Look for corresponding NOTE_ON
+					if (controllers[NOTE_OFF_AMP] == 0)
+					{
+						for (int i = midiData.size - 1; i >= 0; --i)
+						{
+							if
+							(
+								((midiData[i].msg[0] & 0xF0) == 0x90) &&
+								((midiData[i].msg[0] & 0x0F) == (midi.msg[0] & 0x0F)) &&
+								(midiData[i].msg[1] == midi.msg[1])
+							)
+							{
+								amp = midiData[i].amp;
+								fprintf (stderr, "Amp %f\n", amp);
+								break;
+							}
+						}
+					}
+				}
+				// NOTE_ON ? Store amp
+				else midi.amp = amp;
+
 				const float proc = controllers[AMP_PROCESS];
 				const float invel = float (midi.msg[2]);
 				const float outvel = invel + (invel * amp - invel) * proc;
@@ -448,43 +474,74 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 	const double startSeq = positionSeq + getSequenceFromFrame (start - refFrame, speed) + (controllers[TIME_COMPENS] != 1.0f ? latencySeq : 0);
 	const double endSeq = positionSeq + getSequenceFromFrame (end - refFrame, speed) + (controllers[TIME_COMPENS] != 1.0f ? latencySeq : 0);
 
-	while ((!midiData.empty()) && midiData.front().position <= endSeq)
+	// Send midi data to output
+	for (unsigned int i = 0; i < midiData.size; ++i)
 	{
-		// Calculate frame
-		int64_t frame = start;
-		double seq = midiData.front().position;
-		if (seq >= startSeq)
+		if (!midiData[i].inactive)
 		{
-			frame = start + getFrameFromSequence (seq - startSeq, speed);
-			//frame = LIM (frame, 0, end);
+			// Calculate frame
+			int64_t frame = start;
+			double seq = midiData[i].position;
+			if (seq >= startSeq)
+			{
+				frame = start + getFrameFromSequence (seq - startSeq, speed);
+				//frame = LIM (frame, 0, end);
+			}
+
+			// Send MIDI
+			LV2_Atom midiatom;
+			midiatom.type = uris.midi_Event;
+			midiatom.size = midiData[i].size;
+			lv2_atom_forge_frame_time (&forge, frame);
+			lv2_atom_forge_raw (&forge, &midiatom, sizeof (LV2_Atom));
+			lv2_atom_forge_raw (&forge, &midiData[i].msg, midiatom.size);
+			lv2_atom_forge_pad (&forge, sizeof (LV2_Atom) + midiatom.size);
+
+			midiData[i].inactive = true;
+		}
+	}
+
+	// Remove sent data
+	for (MidiData** it = midiData.begin(); (it < midiData.end()) && ((**it).position <= endSeq); )
+	{
+		if ((**it).inactive)
+		{
+			// NOTE_OFF ?
+			if (((**it).msg[0] & 0xF0) == 0x80)
+			{
+				// Erase corresponding NOTE_ON
+				uint8_t ch = (**it).msg[0] & 0x0F;
+				uint8_t note = (**it).msg[1];
+				for (MidiData** nit = midiData.begin(); nit < it; )
+				{
+					if
+					(
+						(((**it).msg[0] & 0xF0) == 0x90) &&
+						(((**it).msg[0] & 0x0F) == ch) &&
+						((**it).msg[1]  == note)
+					)
+					{
+						nit = midiData.erase (nit);
+						--it;
+					}
+
+					else ++nit;
+				}
+
+				// Erase NOTE_OFF and go to next it
+				it = midiData.erase (it);
+			}
+
+			// NOTE_ON ? Next it
+			else if (((**it).msg[0] & 0xF0) == 0x90) ++it;
+
+			// Otherwise erase and go to next it
+			else it = midiData.erase (it);
+
 		}
 
-		// Send MIDI
-		LV2_Atom midiatom;
-		midiatom.type = uris.midi_Event;
-		midiatom.size = midiData.front().size;
-		lv2_atom_forge_frame_time (&forge, frame);
-		lv2_atom_forge_raw (&forge, &midiatom, sizeof (LV2_Atom));
-		lv2_atom_forge_raw (&forge, &midiData.front().msg, midiatom.size);
-		lv2_atom_forge_pad (&forge, sizeof (LV2_Atom) + midiatom.size);
-
-/*		fprintf
-		(
-			stderr, "BSchaffl.lv2 @ %1.10f - %1.10f: Send MIDI %i (%i, %i) at %1.10f (frame %li (%i - %i))\n",
-			startSeq,
-			endSeq,
-			midiData.front().msg[0],
-			midiData.front().msg[1],
-			midiData.front().msg[2],
-			midiData.front().position,
-			frame,
-			start,
-			end
-		);
-*/
-
-		// Remove sent data
-		midiData.pop_front();
+		// Otherwise next it
+		else ++it;
 	}
 }
 

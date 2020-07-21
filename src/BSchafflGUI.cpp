@@ -101,6 +101,16 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	midiMsgFilterAllSwitch (10, 36, 28, 14, "slider", 1),
 	midiMsgFilterAllLabel (50, 33, 120, 20, "lflabel", "All"),
 
+	midiNoteOptionsIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_note_options.png"),
+        midiNoteOptionsContainer (0, 0, 340, 100, "screen"),
+        noteOffAmpText (10, 10, 100, 20, "lflabel", "NOTE_OFF amp:"),
+        noteOffAmpListbox
+	(
+		110, 10, 220, 20, 0, 20, 220, 60, "menu",
+		BItems::ItemList ({{0, "Use NOTE_ON amp"}, {1, "Calculate from step/position"}}),
+		0
+	),
+
 	smartQuantizationIcon (0, 0, 300, 20, "widget", pluginPath + "inc/smart_quantization.png"),
 	smartQuantizationContainer (0, 0, 340, 180, "screen"),
         smartQuantizationRangeSlider (10, 60, 110, 28, "slider", 0.25, 0.0, 0.5, 0.0, "%1.2f"),
@@ -136,6 +146,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		({
 			{&midiChFilterIcon, &midiChFilterContainer},
 			{&midiMsgFilterIcon, &midiMsgFilterContainer},
+			{&midiNoteOptionsIcon, &midiNoteOptionsContainer},
 			{&smartQuantizationIcon, &smartQuantizationContainer},
 			{&userLatencyIcon, &userLatencyContainer}
 		})
@@ -217,6 +228,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	controllers[SWING_PROCESS] = &swingProcessControl;
 	controllers[NR_OF_STEPS] = &nrStepsControl;
 	controllers[AMP_MODE] = &modeSwitch;
+	controllers[NOTE_OFF_AMP] = &noteOffAmpListbox;
 	controllers[QUANT_RANGE] = &smartQuantizationRangeSlider;
         controllers[QUANT_MAP] = &smartQuantizationMappingSwitch;
         controllers[QUANT_POS] = &smartQuantizationPositioningSwitch;
@@ -347,6 +359,9 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		midiMsgFilterContainer.add (midiMsgFilterSwitches[i]);
 		midiMsgFilterContainer.add (midiMsgFilterLabels[i]);
 	}
+
+	midiNoteOptionsContainer.add (noteOffAmpText);
+	midiNoteOptionsContainer.add (noteOffAmpListbox);
 
 	smartQuantizationContainer.add (smartQuantizationRangeSlider);
         smartQuantizationContainer.add (smartQuantizationMappingSwitch);
@@ -637,6 +652,14 @@ void BSchafflGUI::resizeGUI()
 		RESIZE (midiMsgFilterLabels[i], 50, 53 + i * 20, 180, 20, sz);
 	}
 
+	RESIZE (midiNoteOptionsIcon, 0, 0, 300, 20, sz);
+        RESIZE (midiNoteOptionsContainer, 0, 0, 340, 100, sz);
+        RESIZE (noteOffAmpText, 10, 10, 100, 20, sz);
+        RESIZE (noteOffAmpListbox, 110, 10, 220, 20, sz);
+	noteOffAmpListbox.resizeListBox (BUtilities::Point (220 * sz, 60 * sz));
+	noteOffAmpListbox.moveListBox (BUtilities::Point (0, 20 * sz));
+	noteOffAmpListbox.resizeListBoxItems (BUtilities::Point (220 * sz, 20 * sz));
+
 	RESIZE (smartQuantizationIcon, 0, 0, 300, 20, sz);
 	RESIZE (smartQuantizationContainer, 0, 0, 340, 180, sz);
 	RESIZE (smartQuantizationRangeSlider, 10, 60, 110, 28, sz);
@@ -729,6 +752,11 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 		midiMsgFilterSwitches[i].applyTheme (theme);
 		midiMsgFilterLabels[i].applyTheme (theme);
 	}
+
+	midiNoteOptionsIcon.applyTheme (theme);
+        midiNoteOptionsContainer.applyTheme (theme);
+        noteOffAmpText.applyTheme (theme);
+        noteOffAmpListbox.applyTheme (theme);
 
 	smartQuantizationIcon.applyTheme (theme);
 	smartQuantizationContainer.applyTheme (theme);

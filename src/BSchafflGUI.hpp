@@ -168,6 +168,11 @@ private:
         std::array<BWidgets::HSwitch, NR_MIDI_MSG_FILTERS> midiMsgFilterSwitches;
         std::array<BWidgets::Label, NR_MIDI_MSG_FILTERS> midiMsgFilterLabels;
 
+        BWidgets::ImageIcon midiNoteOptionsIcon;
+        BWidgets::Widget midiNoteOptionsContainer;
+        BWidgets::Label noteOffAmpText;
+        BWidgets::PopupListBox noteOffAmpListbox;
+
         BWidgets::ImageIcon smartQuantizationIcon;
         BWidgets::Widget smartQuantizationContainer;
         BWidgets::HSliderValue smartQuantizationRangeSlider;
@@ -308,19 +313,19 @@ private:
  			 	 {"bgcolors", STYLEPTR (&BColors::darks)}}},
  		{"menu",	{{"border", STYLEPTR (&menuborder)},
  				 {"background", STYLEPTR (&BStyles::blackFill)}}},
- 		{"menu/item",	{{"uses", STYLEPTR (&defaultStyles)},
+ 		{"menu/item",	{{"background", STYLEPTR (&BStyles::blackFill)},
  			 	 {"border", STYLEPTR (&BStyles::noBorder)},
  				 {"textcolors", STYLEPTR (&BColors::whites)},
- 				 {"font", STYLEPTR (&defaultFont)}}},
+ 				 {"font", STYLEPTR (&lfFont)}}},
  		{"menu/button",	{{"border", STYLEPTR (&menuborder)},
  				 {"background", STYLEPTR (&BStyles::blackFill)},
  				 {"bgcolors", STYLEPTR (&bgColors)}}},
  		{"menu/listbox",{{"border", STYLEPTR (&menuborder)},
  				 {"background", STYLEPTR (&BStyles::blackFill)}}},
- 		{"menu/listbox/item",{{"uses", STYLEPTR (&defaultStyles)},
+ 		{"menu/listbox/item",{{"background", STYLEPTR (&BStyles::blackFill)},
  				 {"border", STYLEPTR (&BStyles::noBorder)},
  				 {"textcolors", STYLEPTR (&BColors::whites)},
- 				 {"font", STYLEPTR (&defaultFont)}}},
+ 				 {"font", STYLEPTR (&lfFont)}}},
  		{"menu/listbox/button",{{"border", STYLEPTR (&BStyles::noBorder)},
  				 {"background", STYLEPTR (&BStyles::blackFill)},
  				 {"bgcolors", STYLEPTR (&bgColors)}}},

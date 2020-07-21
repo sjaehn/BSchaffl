@@ -41,7 +41,9 @@ struct MidiData
 	uint8_t msg[3];
 	size_t size;
 	double position;
+	double amp;
 	bool process;
+	bool inactive;
 };
 
 const Limit controllerLimits [NR_CONTROLLERS] =
@@ -79,6 +81,7 @@ const Limit controllerLimits [NR_CONTROLLERS] =
 	{0, 1, 1},		// MSG_FILTER_CHPR
 	{0, 1, 1},		// MSG_FILTER_PITCH
 	{0, 1, 1},		// MSG_FILTER_SYS
+	{0, 1, 1},		// NOTE_OFF_AMP
 	{0.0, 0.5, 0},		// QUANT_RANGE
 	{0, 1, 1},		// QUANT_MAP
 	{0, 1, 1},		// QUANT_POS
