@@ -31,18 +31,6 @@ public:
 	UpDownButton (const double x, const double y, const double width, const double height, const std::string& name, double defaultValue = 0) :
 			ToggleButton (x, y, width, height, name, defaultValue) {}
 
-	virtual void onButtonPressed (BEvents::PointerEvent* event) override
-	{
-		ToggleButton::onButtonPressed (event);
-		Widget::cbfunction_[BEvents::EventType::BUTTON_PRESS_EVENT] (event);
-	}
-
-	virtual void onButtonReleased (BEvents::PointerEvent* event) override
-	{
-		ToggleButton::onButtonReleased (event);
-		Widget::cbfunction_[BEvents::EventType::BUTTON_RELEASE_EVENT] (event);
-	}
-
 protected:
 	virtual void draw (const BUtilities::RectArea& area) override
 	{
