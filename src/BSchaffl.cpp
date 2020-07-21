@@ -341,8 +341,12 @@ void BSchaffl::run (uint32_t n_samples)
 			{
 				// Map step (smart quantization)
 				const float mrange = (controllers[QUANT_MAP] != 0.0f ? controllers[QUANT_RANGE] : 0.0);
-				int map = (1.0 - ifrac < mrange ? ((step + 1) % nrOfSteps) : step);
-				if ((midi.msg[0] & 0xF0) == 0x80) map = (map + nrOfSteps - 1) % nrOfSteps;
+				const int map =
+				(
+					(midi.msg[0] & 0xF0) == 0x80 ?
+					(ifrac < mrange ? ((step + nrOfSteps - 1) % nrOfSteps) : step) :
+					(1.0 - ifrac < mrange ? ((step + 1) % nrOfSteps) : step)
+				);
 
 				// Calculate and set amp
 				float aswing = ((map % 2) == 0 ? controllers[AMP_SWING] : 1.0 / controllers[AMP_SWING]);
@@ -371,7 +375,6 @@ void BSchaffl::run (uint32_t n_samples)
 							)
 							{
 								amp = midiData[i].amp;
-								fprintf (stderr, "Amp %f\n", amp);
 								break;
 							}
 						}
@@ -433,8 +436,9 @@ void BSchaffl::run (uint32_t n_samples)
 			fprintf
 			(
 				stderr,
-				"BSchaffl.lv2 @ %f: Schedule MIDI signal %i (%i,%i) to %f (latency = %f, outputSeqPos = %f, inputSeqPos = %f)\n",
+				"BSchaffl.lv2 @ %f: Schedule MIDI signal #%li %i (%i,%i) to %f (latency = %f, outputSeqPos = %f, inputSeqPos = %f)\n",
 				inputSeq,
+				midiData.size,
 				midi.msg[0],
 				midi.msg[1],
 				midi.msg[2],
