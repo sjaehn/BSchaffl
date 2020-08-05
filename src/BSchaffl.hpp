@@ -40,9 +40,9 @@ struct MidiData
 {
 	uint8_t msg[3];
 	size_t size;
-	double position;
+	double positionSeq;
+	double shiftSeq;
 	double amp;
-	bool process;
 	bool inactive;
 };
 
@@ -81,6 +81,9 @@ const Limit controllerLimits [NR_CONTROLLERS] =
 	{0, 1, 1},		// MSG_FILTER_CHPR
 	{0, 1, 1},		// MSG_FILTER_PITCH
 	{0, 1, 1},		// MSG_FILTER_SYS
+	{0, 1, 1},		// NOTE_POSITION_STR
+	{0, 1, 1},		// NOTE_VALUE_STR
+	{0, 2, 1},		// NOTE_OVERLAP
 	{0, 1, 1},		// NOTE_OFF_AMP
 	{0.0, 0.5, 0},		// QUANT_RANGE
 	{0, 1, 1},		// QUANT_MAP
@@ -175,6 +178,9 @@ private:
 	void randomizeStep (const int step);
 	double getStepStart (const int step);
 	double getStepEnd (const int step);
+	int getNoteOnMsg (const uint8_t ch, const uint8_t note) const;
+	void clearMidiData (const float maxSeq);
+	void queueMidiData (const MidiData& midi);
 	double getSequenceFromBeats (const double beats);
 	double getBeatsFromSequence (const double sequence);
 	double getSequenceFromFrame (const int64_t frames, float speed = 1.0f);

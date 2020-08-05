@@ -181,6 +181,21 @@ are bypassed.
 
 ### MIDI note options
 
+#### Keep note position
+
+Keeps the note position unaffected from step stretch. Take care, this may cause overlapping notes.
+
+
+#### Keep note duration
+
+Keeps the note duration unaffected from step stretch. Take care, this may cause overlapping notes.
+
+
+#### If notes overlap
+
+TODO.
+
+
 #### Note off amp
 
 There are two options to amplify the NOTE_OFF velocity signal. Either amplification with the same value
@@ -225,12 +240,13 @@ correct it by itself.
 ## What's new
 
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
+* Option to keep note position and/or duration unaffected from step stretch
 
 
 ## TODO's
 
-* Select between: stretch note position only / stretch note length only / stretch note position & length
-* Option to change output step
+* Handle overlapping notes
+* Hide debugging information
 * Make tutorial video
 * Link tutorial in plugin
 

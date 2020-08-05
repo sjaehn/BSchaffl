@@ -101,6 +101,7 @@ protected:
                                 {
                                         mi.content->moveTo (0, y - 10.0);
                                         y += mi.content->getHeight();
+                                        mi.content->raiseToTop();
                                         mi.content->show();
                                 }
 

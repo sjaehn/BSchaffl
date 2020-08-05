@@ -279,12 +279,12 @@ void BSchaffl::run (uint32_t n_samples)
 		else if (ev->body.type == uris.midi_Event)
 		{
 			const uint8_t* const msg = (const uint8_t*)(ev + 1);
-			MidiData midi = {{0, 0, 0}, 0, 0, 0, false, false};
+			MidiData midi = {{0, 0, 0}, 0, 0, 0, 0, false};
 			midi.size = LIM (ev->body.size, 0, 3);
 			memcpy (midi.msg, msg, midi.size);
 
 			// Filter channel and message
-			midi.process = filterMsg (midi.msg[0]) && (controllers[MIDI_CH_FILTER + (midi.msg[0] & 0x0F)] != 0.0f);
+			bool process = filterMsg (midi.msg[0]) && (controllers[MIDI_CH_FILTER + (midi.msg[0] & 0x0F)] != 0.0f);
 
 			// Calculate position within sequence
 			const double inputSeq =	positionSeq +
@@ -299,7 +299,7 @@ void BSchaffl::run (uint32_t n_samples)
 			// Update step
 			if ((actStep < 0) || (step != actStep))
 			{
-				// Suquence just started: Re-randomize sequence
+				// Sequence just started: Re-randomize sequence
 				if (step < actStep)
 				{
 					for (int i = 0; i < nrOfSteps; ++i) randomizeStep (i);
@@ -319,24 +319,24 @@ void BSchaffl::run (uint32_t n_samples)
 			const float onext = getStepEnd (step);
 			const float ofrac = (ifrac <= qrange ? 0.0f : (1.0f - ifrac < qrange ? 1.0f : ifrac));
 			const float outputSeqPos = oprev + ofrac * (onext - oprev);
-			const float unprocSeq = inputSeq + latencySeq;
-			const float fullprocSeq = inputSeq + latencySeq + outputSeqPos - inputSeqPos;
-			const float procSeq = unprocSeq + (fullprocSeq - unprocSeq) * controllers[SWING_PROCESS];
-			midi.position =
-			(
-				midi.process?
-				procSeq :
-				unprocSeq
-			);
+			const float origin = inputSeq + latencySeq;
+			const float shift = (outputSeqPos - inputSeqPos) * controllers[SWING_PROCESS];
+			midi.shiftSeq = (process? shift : 0);
 
-			// Level MIDI NOTE_ON and NOTE_OFF
+			// Garbage collection
+			// Removes data from queue which are scheduled to a time point later than the latest possible time point
+			const float maxProcSeq = origin + onext - inputSeqPos;
+			const float maxSeq = (origin > maxProcSeq ? origin : maxProcSeq);
+			clearMidiData (maxSeq);
+
+			// MIDI NOTE_ON and NOTE_OFF
 			if
 			(
 				(
 					((midi.msg[0] & 0xF0) == 0x80) ||
 					((midi.msg[0] & 0xF0) == 0x90)
 				) &&
-				midi.process
+				process
 			)
 			{
 				// Map step (smart quantization)
@@ -362,91 +362,53 @@ void BSchaffl::run (uint32_t n_samples)
 				// NOTE_OFF
 				if ((midi.msg[0] & 0xF0) == 0x80)
 				{
+					const int nr =
+					(
+						(controllers[NOTE_OFF_AMP] == 0) || controllers[NOTE_POSITION_STR] || controllers[NOTE_VALUE_STR] ?
+						getNoteOnMsg (midi.msg[0] & 0x0F, midi.msg[1]) :
+						-1
+					);
+					const float s1 = (nr >= 0 ? midiData[nr].shiftSeq : shift);
+
 					// Use note on amp ? Look for corresponding NOTE_ON
 					if (controllers[NOTE_OFF_AMP] == 0)
 					{
-						for (int i = midiData.size - 1; i >= 0; --i)
-						{
-							if
-							(
-								((midiData[i].msg[0] & 0xF0) == 0x90) &&
-								((midiData[i].msg[0] & 0x0F) == (midi.msg[0] & 0x0F)) &&
-								(midiData[i].msg[1] == midi.msg[1])
-							)
-							{
-								amp = midiData[i].amp;
-								break;
-							}
-						}
+						if (nr >= 0) amp = midiData[nr].amp;
 					}
-				}
-				// NOTE_ON ? Store amp
-				else midi.amp = amp;
 
+					// Calculate shift
+					midi.positionSeq = origin +
+					(
+						controllers[NOTE_POSITION_STR] ?
+						(controllers[NOTE_VALUE_STR] ? 0 : shift - s1) :
+						(controllers[NOTE_VALUE_STR] ? s1 : shift)
+					);
+				}
+
+				// NOTE_ON ?
+				else
+				{
+					//Store amp
+					midi.amp = amp;
+
+					// Calculate shift
+					if (controllers[NOTE_POSITION_STR]) midi.positionSeq = origin;
+					else midi.positionSeq = origin + shift;
+
+					// TODO Overlaps
+				}
+
+				// Apply amp
 				const float proc = controllers[AMP_PROCESS];
 				const float invel = float (midi.msg[2]);
 				const float outvel = invel + (invel * amp - invel) * proc;
 				midi.msg[2] = LIM (outvel, 0, 127);
 			}
 
-			// Garbage collection
-			// Removes data from queue which are scheduled to a time point later than the latest possible time point
-			const double maxSeq = inputSeq + latencySeq + oprev + 1.0f * (onext - oprev) - inputSeqPos;
-			while
-			(
-				(!midiData.empty()) &&
-				(
-					(
-						(midiData.back().position > maxSeq) &&
-						(midiData.back().process)
-					) ||
-					(
-						(midiData.back().position > inputSeq + latencySeq) &&
-						(!midiData.back().process)
-					)
-				)
-			)
-			{
-				fprintf
-				(
-					stderr,
-					"BSchaffl.lv2 @ %f: Remove MIDI signal %i (%i,%i) from %f (maxSeq = %f)\n",
-					inputSeq,
-					midiData.back().msg[0],
-					midiData.back().msg[1],
-					midiData.back().msg[2],
-					midiData.back().position,
-					maxSeq
-				);
-
-				midiData.pop_back();
-			}
+			else midi.positionSeq = origin + midi.shiftSeq;
 
 			// Store MIDI data
-			// TODO Use insert
-			for (MidiData** m = midiData.end(); m >= midiData.begin(); --m)
-			{
-				if ((m == midiData.begin()) || ((**(m - 1)).position <= midi.position))
-				{
-					midiData.insert (m, midi);
-					break;
-				}
-			}
-			//midiData.push_back (midi);
-			fprintf
-			(
-				stderr,
-				"BSchaffl.lv2 @ %f: Schedule MIDI signal #%li %i (%i,%i) to %f (latency = %f, outputSeqPos = %f, inputSeqPos = %f)\n",
-				inputSeq,
-				midiData.size,
-				midi.msg[0],
-				midi.msg[1],
-				midi.msg[2],
-				midi.position,
-				latencySeq,
-				outputSeqPos,
-				inputSeqPos
-			);
+			queueMidiData (midi);
 		}
 
 		play (last_t, ev->time.frames);
@@ -481,11 +443,11 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 	// Send midi data to output
 	for (unsigned int i = 0; i < midiData.size; ++i)
 	{
-		if (!midiData[i].inactive)
+		if ((midiData[i].positionSeq <= endSeq) && (!midiData[i].inactive))
 		{
 			// Calculate frame
 			int64_t frame = start;
-			double seq = midiData[i].position;
+			double seq = midiData[i].positionSeq;
 			if (seq >= startSeq)
 			{
 				frame = start + getFrameFromSequence (seq - startSeq, speed);
@@ -502,11 +464,22 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 			lv2_atom_forge_pad (&forge, sizeof (LV2_Atom) + midiatom.size);
 
 			midiData[i].inactive = true;
+
+			fprintf
+			(
+				stderr, "BSchaffl.lv2 @ %f: Send Midi #%i %i (%i, %i) (frame = %li)  \n",
+				seq,
+				i,
+				midiData[i].msg[0],
+				midiData[i].msg[1],
+				midiData[i].msg[2],
+				frame
+		 	);
 		}
 	}
 
 	// Remove sent data
-	for (MidiData** it = midiData.begin(); (it < midiData.end()) && ((**it).position <= endSeq); )
+	for (MidiData** it = midiData.begin(); (it < midiData.end()) && ((**it).positionSeq <= endSeq); )
 	{
 		if ((**it).inactive)
 		{
@@ -525,7 +498,6 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 						((**nit).msg[1]  == note)
 					)
 					{
-						//fprintf(stderr, "Erase NOTE_ON %i %i %i\n", (**nit).msg[0], (**nit).msg[1], (**nit).msg[2]);
 						nit = midiData.erase (nit);
 						--it;
 					}
@@ -596,6 +568,65 @@ double BSchaffl::getStepEnd (const int step)
 	const int s = step % nrOfSteps;
 	if (s == nrOfSteps - 1) return 1.0;
 	else return getStepStart (s + 1);
+}
+
+int BSchaffl::getNoteOnMsg (const uint8_t ch, const uint8_t note) const
+{
+	for (int i = midiData.size - 1; i >= 0; --i)
+	{
+		if
+		(
+			((midiData[i].msg[0] & 0xF0) == 0x90) &&
+			((midiData[i].msg[0] & 0x0F) == ch) &&
+			(midiData[i].msg[1] == note)
+		) return i;
+	}
+
+	return -1;
+}
+
+void BSchaffl::clearMidiData (const float maxSeq)
+{
+	while ((!midiData.empty()) && (midiData.back().positionSeq > maxSeq))
+	{
+		fprintf
+		(
+			stderr,
+			"BSchaffl.lv2 @: Remove MIDI signal %i (%i,%i) from %f (maxSeq = %f)\n",
+			midiData.back().msg[0],
+			midiData.back().msg[1],
+			midiData.back().msg[2],
+			midiData.back().positionSeq,
+			maxSeq
+		);
+
+		midiData.pop_back();
+	}
+}
+
+void BSchaffl::queueMidiData (const MidiData& midi)
+{
+	for (MidiData** m = midiData.end(); m >= midiData.begin(); --m)
+	{
+		if ((m == midiData.begin()) || ((**(m - 1)).positionSeq <= midi.positionSeq))
+		{
+			midiData.insert (m, midi);
+			break;
+		}
+	}
+
+	fprintf
+	(
+		stderr,
+		"BSchaffl.lv2: Schedule MIDI signal #%li %i (%i,%i) to %f (shift = %f, latency = %f)\n",
+		midiData.size,
+		midi.msg[0],
+		midi.msg[1],
+		midi.msg[2],
+		midi.positionSeq,
+		midi.shiftSeq,
+		latencySeq
+	);
 }
 
 double BSchaffl::getSequenceFromBeats (const double beats)

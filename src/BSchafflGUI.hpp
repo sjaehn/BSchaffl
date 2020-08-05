@@ -170,8 +170,16 @@ private:
 
         BWidgets::ImageIcon midiNoteOptionsIcon;
         BWidgets::Widget midiNoteOptionsContainer;
-        BWidgets::Label noteOffAmpText;
-        BWidgets::PopupListBox noteOffAmpListbox;
+        BWidgets::Text midiNoteText;
+        BWidgets::HSwitch midiNotePositionSwitch;
+        BWidgets::Label midiNotePositionLabel;
+        BWidgets::HSwitch midiNoteValueSwitch;
+        BWidgets::Label midiNoteValueLabel;
+        BWidgets::PopupListBox midiNoteOverlapListbox;
+        BWidgets::Label midiNoteOverlapLabel;
+        BWidgets::Text midiNoteText2;
+        BWidgets::Label midiNoteOffAmpLabel;
+        BWidgets::PopupListBox midiNoteOffAmpListbox;
 
         BWidgets::ImageIcon smartQuantizationIcon;
         BWidgets::Widget smartQuantizationContainer;

@@ -102,12 +102,25 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	midiMsgFilterAllLabel (50, 33, 120, 20, "lflabel", "All"),
 
 	midiNoteOptionsIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_note_options.png"),
-        midiNoteOptionsContainer (0, 0, 340, 100, "screen"),
-        noteOffAmpText (10, 10, 100, 20, "lflabel", "NOTE_OFF amp:"),
-        noteOffAmpListbox
+        midiNoteOptionsContainer (0, 0, 340, 200, "screen"),
+	midiNoteText (10, 10, 320, 30, "text", "Note position and duration can be excluded from stretch. Take care, this may result in overlaps!"),
+        midiNotePositionSwitch (10, 48, 28, 14, "slider", 0.0),
+        midiNotePositionLabel (50, 45, 240, 20, "lflabel", "Keep note position"),
+        midiNoteValueSwitch (10, 68, 28, 14, "slider", 0.0),
+        midiNoteValueLabel (50, 65, 180, 20, "lflabel", "Keep note duration"),
+        midiNoteOverlapListbox
 	(
-		110, 10, 220, 20, 0, 20, 220, 60, "menu",
-		BItems::ItemList ({{0, "Use NOTE_ON amp"}, {1, "Calculate from step/position"}}),
+		120, 90, 80, 20, 0, 20, 80, 80, "menu",
+		BItems::ItemList ({{0, "Ignore"}, {1, "TODO Split"}, {2, "TODO Merge"}}),
+		0
+	),
+        midiNoteOverlapLabel (10, 90, 110, 20, "lflabel", "If notes overlap:"),
+	midiNoteText2 (10, 130, 320, 30, "text", "MIDI note off velocity can be amplified with data either from the start or the end of the note."),
+        midiNoteOffAmpLabel (10, 170, 110, 20, "lflabel", "NOTE_OFF amp:"),
+        midiNoteOffAmpListbox
+	(
+		120, 170, 220, 20, 0, 20, 220, 60, "menu",
+		BItems::ItemList ({{0, "Use NOTE_ON amp"}, {1, "Calculate from end step/position"}}),
 		0
 	),
 
@@ -228,7 +241,10 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	controllers[SWING_PROCESS] = &swingProcessControl;
 	controllers[NR_OF_STEPS] = &nrStepsControl;
 	controllers[AMP_MODE] = &modeSwitch;
-	controllers[NOTE_OFF_AMP] = &noteOffAmpListbox;
+	controllers[NOTE_POSITION_STR] = &midiNotePositionSwitch;
+	controllers[NOTE_VALUE_STR] = &midiNoteValueSwitch;
+	controllers[NOTE_OVERLAP] = &midiNoteOverlapListbox;
+	controllers[NOTE_OFF_AMP] = &midiNoteOffAmpListbox;
 	controllers[QUANT_RANGE] = &smartQuantizationRangeSlider;
         controllers[QUANT_MAP] = &smartQuantizationMappingSwitch;
         controllers[QUANT_POS] = &smartQuantizationPositioningSwitch;
@@ -360,8 +376,16 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		midiMsgFilterContainer.add (midiMsgFilterLabels[i]);
 	}
 
-	midiNoteOptionsContainer.add (noteOffAmpText);
-	midiNoteOptionsContainer.add (noteOffAmpListbox);
+	midiNoteOptionsContainer.add (midiNoteText);
+        midiNoteOptionsContainer.add (midiNotePositionSwitch);
+        midiNoteOptionsContainer.add (midiNotePositionLabel);
+        midiNoteOptionsContainer.add (midiNoteValueSwitch);
+        midiNoteOptionsContainer.add (midiNoteValueLabel);
+        midiNoteOptionsContainer.add (midiNoteOverlapListbox);
+        midiNoteOptionsContainer.add (midiNoteOverlapLabel);
+	midiNoteOptionsContainer.add (midiNoteText2);
+	midiNoteOptionsContainer.add (midiNoteOffAmpLabel);
+	midiNoteOptionsContainer.add (midiNoteOffAmpListbox);
 
 	smartQuantizationContainer.add (smartQuantizationRangeSlider);
         smartQuantizationContainer.add (smartQuantizationMappingSwitch);
@@ -653,12 +677,23 @@ void BSchafflGUI::resizeGUI()
 	}
 
 	RESIZE (midiNoteOptionsIcon, 0, 0, 300, 20, sz);
-        RESIZE (midiNoteOptionsContainer, 0, 0, 340, 100, sz);
-        RESIZE (noteOffAmpText, 10, 10, 100, 20, sz);
-        RESIZE (noteOffAmpListbox, 110, 10, 220, 20, sz);
-	noteOffAmpListbox.resizeListBox (BUtilities::Point (220 * sz, 60 * sz));
-	noteOffAmpListbox.moveListBox (BUtilities::Point (0, 20 * sz));
-	noteOffAmpListbox.resizeListBoxItems (BUtilities::Point (220 * sz, 20 * sz));
+        RESIZE (midiNoteOptionsContainer, 0, 0, 340, 240, sz);
+	RESIZE (midiNoteText, 10, 10, 320, 30, sz);
+	RESIZE (midiNotePositionSwitch, 10, 48, 28, 14, sz);
+	RESIZE (midiNotePositionLabel, 50, 45, 240, 20, sz);
+	RESIZE (midiNoteValueSwitch, 10, 68, 28, 14, sz);
+	RESIZE (midiNoteValueLabel, 50, 65, 180, 20, sz);
+	RESIZE (midiNoteOverlapListbox, 120, 90, 80, 20, sz);
+	midiNoteOverlapListbox.resizeListBox (BUtilities::Point (80 * sz, 80 * sz));
+	midiNoteOverlapListbox.moveListBox (BUtilities::Point (0, 20 * sz));
+	midiNoteOverlapListbox.resizeListBoxItems (BUtilities::Point (80 * sz, 20 * sz));
+	RESIZE (midiNoteOverlapLabel, 10, 90, 110, 20, sz);
+	RESIZE (midiNoteText2, 10, 130, 320, 30, sz);
+        RESIZE (midiNoteOffAmpLabel, 10, 170, 110, 20, sz);
+        RESIZE (midiNoteOffAmpListbox, 120, 170, 220, 20, sz);
+	midiNoteOffAmpListbox.resizeListBox (BUtilities::Point (220 * sz, 60 * sz));
+	midiNoteOffAmpListbox.moveListBox (BUtilities::Point (0, 20 * sz));
+	midiNoteOffAmpListbox.resizeListBoxItems (BUtilities::Point (220 * sz, 20 * sz));
 
 	RESIZE (smartQuantizationIcon, 0, 0, 300, 20, sz);
 	RESIZE (smartQuantizationContainer, 0, 0, 340, 180, sz);
@@ -755,8 +790,16 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 
 	midiNoteOptionsIcon.applyTheme (theme);
         midiNoteOptionsContainer.applyTheme (theme);
-        noteOffAmpText.applyTheme (theme);
-        noteOffAmpListbox.applyTheme (theme);
+	midiNoteText.applyTheme (theme);
+        midiNotePositionSwitch.applyTheme (theme);
+        midiNotePositionLabel.applyTheme (theme);
+        midiNoteValueSwitch.applyTheme (theme);
+        midiNoteValueLabel.applyTheme (theme);
+        midiNoteOverlapListbox.applyTheme (theme);
+        midiNoteOverlapLabel.applyTheme (theme);
+	midiNoteText2.applyTheme (theme);
+        midiNoteOffAmpLabel.applyTheme (theme);
+        midiNoteOffAmpListbox.applyTheme (theme);
 
 	smartQuantizationIcon.applyTheme (theme);
 	smartQuantizationContainer.applyTheme (theme);
@@ -1787,8 +1830,15 @@ void BSchafflGUI::lightButtonClickedCallback (BEvents::Event* event)
 	}
 }
 
-void BSchafflGUI::helpButtonClickedCallback (BEvents::Event* event) {system(OPEN_CMD " " HELP_URL);}
-//void BSchafflGUI::ytButtonClickedCallback (BEvents::Event* event) {system(OPEN_CMD " " YT_URL);}
+void BSchafflGUI::helpButtonClickedCallback (BEvents::Event* event)
+{
+	if (system(OPEN_CMD " " HELP_URL)) std::cerr << "BSchaffl.lv2#GUI: Can't open " << HELP_URL << ". You can try to call it maually.";
+}
+
+/*void BSchafflGUI::ytButtonClickedCallback (BEvents::Event* event)
+{
+	if (system(OPEN_CMD " " YT_URL))  std::cerr << "BJumblr.lv2#GUI: Can't open " << YT_URL << ". You can try to call it maually.";
+}*/
 
 void BSchafflGUI::redrawSContainer ()
 {
