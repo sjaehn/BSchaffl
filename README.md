@@ -193,7 +193,9 @@ Keeps the note duration unaffected from step stretch. Take care, this may cause 
 
 #### If notes overlap
 
-TODO.
+B.Schaffl may temporarily produce overlapping notes if either the note position or the note duration is
+kept unaffected from step stretch. Overlapping MIDI notes usually end at the first MIDI NOTE_OFF. You
+may change this behavior to merge both notes or to split to two (ore more) discreet notes.
 
 
 #### Note off amp
@@ -241,11 +243,11 @@ correct it by itself.
 
 * Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
 * Option to keep note position and/or duration unaffected from step stretch
+* Handle overlapping notes
 
 
 ## TODO's
 
-* Handle overlapping notes
 * Hide debugging information
 * Make tutorial video
 * Link tutorial in plugin

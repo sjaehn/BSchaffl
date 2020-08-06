@@ -178,7 +178,8 @@ private:
 	void randomizeStep (const int step);
 	double getStepStart (const int step);
 	double getStepEnd (const int step);
-	int getNoteOnMsg (const uint8_t ch, const uint8_t note) const;
+	int getNoteOnMsg (const uint8_t ch, const uint8_t note, int start = -1) const;
+	int getNoteOffMsg (const uint8_t ch, const uint8_t note, int start = 0) const;
 	void clearMidiData (const float maxSeq);
 	void queueMidiData (const MidiData& midi);
 	double getSequenceFromBeats (const double beats);

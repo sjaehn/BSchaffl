@@ -383,6 +383,46 @@ void BSchaffl::run (uint32_t n_samples)
 						(controllers[NOTE_VALUE_STR] ? 0 : shift - s1) :
 						(controllers[NOTE_VALUE_STR] ? s1 : shift)
 					);
+
+					// Handle overlapping notes
+					if
+					(
+						(nr >= 0) &&
+						(controllers[NOTE_POSITION_STR] || controllers[NOTE_VALUE_STR]) &&
+						(controllers[NOTE_OVERLAP] == OVERLAP_MERGE)
+					)
+					{
+						const int noteOffNr = getNoteOffMsg (midi.msg[0] & 0x0F, midi.msg[1], nr);
+
+						if (noteOffNr >= 0)
+						{
+							// Nested notes: Ignore inner NOTE_OFF
+							 if (midi.positionSeq <= midiData[noteOffNr].positionSeq)
+							{
+								midi.msg[0] = 0;
+							}
+
+							// Overlapping notes: Remove inner NOTE_OFF
+							else
+							{
+								fprintf
+								(
+									stderr,
+									"BSchaffl.lv2: Remove MIDI signal from #%i %i (%i,%i) to %f (shift = %f, latency = %f)\n",
+									noteOffNr,
+									midiData[noteOffNr].msg[0],
+									midiData[noteOffNr].msg[1],
+									midiData[noteOffNr].msg[2],
+									midiData[noteOffNr].positionSeq,
+									midiData[noteOffNr].shiftSeq,
+									latencySeq
+								);
+
+								midiData.erase (&midiData.iterator[noteOffNr]);
+							}
+						}
+
+					}
 				}
 
 				// NOTE_ON ?
@@ -395,7 +435,78 @@ void BSchaffl::run (uint32_t n_samples)
 					if (controllers[NOTE_POSITION_STR]) midi.positionSeq = origin;
 					else midi.positionSeq = origin + shift;
 
-					// TODO Overlaps
+					// Handle overlapping notes
+					if (controllers[NOTE_POSITION_STR] || controllers[NOTE_VALUE_STR])
+					{
+						// Split: Insert or move NOTE_OFF just before new NOTE_ON
+						if (controllers[NOTE_OVERLAP] == OVERLAP_SPLIT)
+						{
+							const int noteOnNr = getNoteOnMsg (midi.msg[0] & 0x0F, midi.msg[1]);
+							if (noteOnNr >= 0)
+							{
+								const int noteOffNr = getNoteOffMsg (midi.msg[0] & 0x0F, midi.msg[1], noteOnNr);
+								const MidiData noteOff =
+								(
+									noteOffNr >= 0 ?
+									MidiData
+									{
+										{0x80 || (midi.msg[0] & 0x0F), midi.msg[1], midiData[noteOffNr].msg[2]},
+										midiData[noteOffNr].size,
+										midi.positionSeq,
+										midi.shiftSeq,
+										midiData[noteOffNr].amp,
+										midiData[noteOffNr].inactive
+									} :
+									MidiData
+									{
+										{0x80 || (midi.msg[0] & 0x0F), midi.msg[1], midi.msg[2]},
+										midi.size,
+										midi.positionSeq,
+										midi.shiftSeq,
+										midi.amp,
+										midi.inactive
+									}
+								);
+
+								if ((noteOffNr >= 0) && (midi.positionSeq < midiData[noteOffNr].positionSeq))
+								{
+									// Remome old NOTE_OFF
+									fprintf
+									(
+										stderr,
+										"BSchaffl.lv2: Remove MIDI signal from #%i %i (%i,%i) to %f (shift = %f, latency = %f)\n",
+										noteOffNr,
+										midiData[noteOffNr].msg[0],
+										midiData[noteOffNr].msg[1],
+										midiData[noteOffNr].msg[2],
+										midiData[noteOffNr].positionSeq,
+										midiData[noteOffNr].shiftSeq,
+										latencySeq
+									);
+
+									midiData.erase (&midiData.iterator[noteOffNr]);
+
+									// Insert NOTE_OFF
+									queueMidiData (noteOff);
+								}
+
+							}
+						}
+
+						// Merge: Ignore new NOTE_ON
+						else if (controllers[NOTE_OVERLAP] == OVERLAP_MERGE)
+						{
+							const int nr = getNoteOnMsg (midi.msg[0] & 0x0F, midi.msg[1]);
+							if (nr >= 0)
+							{
+								const int noteOffNr = getNoteOffMsg (midi.msg[0] & 0x0F, midi.msg[1], nr);
+								if ((noteOffNr < 0) || (midi.positionSeq < midiData[noteOffNr].positionSeq))
+								{
+									midi.msg[0] = 0;
+								}
+							}
+						}
+					}
 				}
 
 				// Apply amp
@@ -408,7 +519,7 @@ void BSchaffl::run (uint32_t n_samples)
 			else midi.positionSeq = origin + midi.shiftSeq;
 
 			// Store MIDI data
-			queueMidiData (midi);
+			if (midi.msg[0]) queueMidiData (midi);
 		}
 
 		play (last_t, ev->time.frames);
@@ -570,13 +681,28 @@ double BSchaffl::getStepEnd (const int step)
 	else return getStepStart (s + 1);
 }
 
-int BSchaffl::getNoteOnMsg (const uint8_t ch, const uint8_t note) const
+int BSchaffl::getNoteOnMsg (const uint8_t ch, const uint8_t note, int start) const
 {
-	for (int i = midiData.size - 1; i >= 0; --i)
+	for (int i = ((start >= 0) && (start < int (midiData.size)) ? start : midiData.size - 1); i >= 0; --i)
 	{
 		if
 		(
 			((midiData[i].msg[0] & 0xF0) == 0x90) &&
+			((midiData[i].msg[0] & 0x0F) == ch) &&
+			(midiData[i].msg[1] == note)
+		) return i;
+	}
+
+	return -1;
+}
+
+int BSchaffl::getNoteOffMsg (const uint8_t ch, const uint8_t note, int start) const
+{
+	for (int i = ((start >= 0) && (start < int (midiData.size)) ? start : 0); i < int (midiData.size); ++i)
+	{
+		if
+		(
+			((midiData[i].msg[0] & 0xF0) == 0x80) &&
 			((midiData[i].msg[0] & 0x0F) == ch) &&
 			(midiData[i].msg[1] == note)
 		) return i;

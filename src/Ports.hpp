@@ -68,4 +68,11 @@ enum BSchafflSeqLenBaseIndex
 	BARS		= 2
 };
 
+enum BSchafflNoteOverlaps
+{
+	OVERLAP_DO_NOTHING	= 0,
+	OVERLAP_SPLIT		= 1,
+	OVERLAP_MERGE		= 2
+};
+
 #endif /* PORTS_HPP_ */

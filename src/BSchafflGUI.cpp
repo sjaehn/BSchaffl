@@ -110,8 +110,8 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
         midiNoteValueLabel (50, 65, 180, 20, "lflabel", "Keep note duration"),
         midiNoteOverlapListbox
 	(
-		120, 90, 80, 20, 0, 20, 80, 80, "menu",
-		BItems::ItemList ({{0, "Ignore"}, {1, "TODO Split"}, {2, "TODO Merge"}}),
+		120, 90, 100, 20, 0, 20, 100, 80, "menu",
+		BItems::ItemList ({{0, "Do nothing"}, {1, "Split"}, {2, "Merge"}}),
 		0
 	),
         midiNoteOverlapLabel (10, 90, 110, 20, "lflabel", "If notes overlap:"),
@@ -683,10 +683,10 @@ void BSchafflGUI::resizeGUI()
 	RESIZE (midiNotePositionLabel, 50, 45, 240, 20, sz);
 	RESIZE (midiNoteValueSwitch, 10, 68, 28, 14, sz);
 	RESIZE (midiNoteValueLabel, 50, 65, 180, 20, sz);
-	RESIZE (midiNoteOverlapListbox, 120, 90, 80, 20, sz);
-	midiNoteOverlapListbox.resizeListBox (BUtilities::Point (80 * sz, 80 * sz));
+	RESIZE (midiNoteOverlapListbox, 120, 90, 100, 20, sz);
+	midiNoteOverlapListbox.resizeListBox (BUtilities::Point (100 * sz, 80 * sz));
 	midiNoteOverlapListbox.moveListBox (BUtilities::Point (0, 20 * sz));
-	midiNoteOverlapListbox.resizeListBoxItems (BUtilities::Point (80 * sz, 20 * sz));
+	midiNoteOverlapListbox.resizeListBoxItems (BUtilities::Point (100 * sz, 20 * sz));
 	RESIZE (midiNoteOverlapLabel, 10, 90, 110, 20, sz);
 	RESIZE (midiNoteText2, 10, 130, 320, 30, sz);
         RESIZE (midiNoteOffAmpLabel, 10, 170, 110, 20, sz);

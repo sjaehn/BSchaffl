@@ -400,9 +400,9 @@
                 lv2:symbol "midi_note_overlap" ;
                 lv2:name "MIDI note overlap" ;
 		lv2:portProperty lv2:integer, lv2:enumeration ;
-		lv2:scalePoint [ rdfs:label "Ignore"; rdf:value 0 ] ;
-		lv2:scalePoint [ rdfs:label "TODO Split"; rdf:value 1 ] ;
-		lv2:scalePoint [ rdfs:label "TODO Merge"; rdf:value 2 ] ;
+		lv2:scalePoint [ rdfs:label "Do nothing"; rdf:value 0 ] ;
+		lv2:scalePoint [ rdfs:label "Split"; rdf:value 1 ] ;
+		lv2:scalePoint [ rdfs:label "Merge"; rdf:value 2 ] ;
                 lv2:default 0 ;
                 lv2:minimum 0 ;
                 lv2:maximum 2 ;
