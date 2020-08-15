@@ -896,6 +896,8 @@ void BSchaffl::notifyStatusToGui ()
 	lv2_atom_forge_int (&forge, outStep);
 	lv2_atom_forge_key (&forge, uris.bschaffl_latency);
 	lv2_atom_forge_float (&forge, latencyMs);
+	lv2_atom_forge_key (&forge, uris.bschaffl_rate);
+	lv2_atom_forge_double (&forge, rate);
 	lv2_atom_forge_pop (&forge, &frame);
 }
 

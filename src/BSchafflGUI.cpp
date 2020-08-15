@@ -147,8 +147,8 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	userLatencySlider (10, 140, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
 	userLatencyUnitListbox
 	(
-		180, 150, 90, 20, 0, 20, 90, 40, "menu",
-		BItems::ItemList ({BItems::Item({1, "Frames"})}),
+		180, 150, 90, 20, 0, 20, 90, 60, "menu",
+		BItems::ItemList ({{1, "Frames"}, {2, "ms"}}),
 		1
 	),
 
@@ -214,7 +214,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	clipboard (),
 
 	sz (1.0), bgImageSurface (nullptr),
-	map (NULL)
+	map (NULL), rate (48000.0)
 
 {
 	// Init
@@ -263,6 +263,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	midiChFilterAllSwitch.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	midiMsgFilterAllSwitch.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	userLatencySlider.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
+	userLatencyUnitListbox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::listBoxChangedCallback);
 	convertToShapeButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::convertButtonClickedCallback);
 	convertToStepsButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::convertButtonClickedCallback);
@@ -494,12 +495,13 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 			// Status notification
 			if (obj->body.otype == uris.bschaffl_statusEvent)
 			{
-				const LV2_Atom *oPos = NULL, *oLat = NULL;
+				const LV2_Atom *oPos = NULL, *oLat = NULL, *oRate = NULL;
 				lv2_atom_object_get
 				(
 					obj,
 					uris.bschaffl_step, &oPos,
 					uris.bschaffl_latency, &oLat,
+					uris.bschaffl_rate, &oRate,
 					0
 				);
 				if (oPos && (oPos->type == uris.atom_Int))
@@ -531,6 +533,20 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 				{
 					const float latencyMs = ((LV2_Atom_Float*)oLat)->body;
 					latencyDisplay.setText ((latencyMs > 0) ? "Latency: " + BUtilities::to_string (latencyMs, "%5.1f") + " ms" : "");
+				}
+
+				if (oRate && (oRate->type == uris.atom_Double))
+				{
+					rate = ((LV2_Atom_Double*)oRate)->body;
+
+					const float latencyFr =
+					(
+						userLatencyUnitListbox.getValue() == 2.0 ?
+						userLatencySlider.getValue() * rate / 1000.0 :
+						userLatencySlider.getValue()
+
+					);
+					userLatencyValue.setValue (latencyFr);
 				}
 			}
 
@@ -716,7 +732,7 @@ void BSchafflGUI::resizeGUI()
 	RESIZE (userLatencyLabel, 50, 115, 180, 20, sz);
 	RESIZE (userLatencySlider, 10, 140, 160, 28, sz);
 	RESIZE (userLatencyUnitListbox, 180, 150, 90, 20, sz);
-	userLatencyUnitListbox.resizeListBox (BUtilities::Point (90 * sz, 40 * sz));
+	userLatencyUnitListbox.resizeListBox (BUtilities::Point (90 * sz, 60 * sz));
 	userLatencyUnitListbox.moveListBox (BUtilities::Point (0, 20 * sz));
 	userLatencyUnitListbox.resizeListBoxItems (BUtilities::Point (40 * sz, 20 * sz));
 
@@ -1438,7 +1454,33 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 
 			else if (widget == &ui->userLatencySlider)
 			{
-				ui->userLatencyValue.setValue (ui->userLatencySlider.getValue());
+				const double latencyFr =
+				(
+					ui->userLatencyUnitListbox.getValue() == 2.0 ?
+					ui->userLatencySlider.getValue() * ui->rate / 1000.0 :
+					ui->userLatencySlider.getValue()
+
+				);
+				ui->userLatencyValue.setValue (latencyFr);
+			}
+
+			else if (widget == &ui->userLatencyUnitListbox)
+			{
+				// Translate slider value
+				const double val =
+				(
+					ui->userLatencyUnitListbox.getValue() == 2.0 ?
+					ui->userLatencySlider.getValue() * 1000.0 / ui->rate :
+					ui->userLatencySlider.getValue() * ui->rate / 1000.0
+
+				);
+
+				// Set new slider limits
+				const double max = (ui->userLatencyUnitListbox.getValue() == 2.0 ? 192000000.0 / ui->rate : 192000.0);
+				ui->userLatencySlider.setValueable (false);
+ 				ui->userLatencySlider.setMax (max);
+				ui->userLatencySlider.setValueable (true);
+				ui->userLatencySlider.setValue (val);
 			}
 		}
 	}

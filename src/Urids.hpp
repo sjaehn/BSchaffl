@@ -31,6 +31,7 @@
 struct BSchafflURIs
 {
 	LV2_URID atom_Float;
+	LV2_URID atom_Double;
 	LV2_URID atom_Int;
 	LV2_URID atom_Long;
 	LV2_URID atom_String;
@@ -51,6 +52,7 @@ struct BSchafflURIs
 	LV2_URID bschaffl_statusEvent;
 	LV2_URID bschaffl_step;
 	LV2_URID bschaffl_latency;
+	LV2_URID bschaffl_rate;
 	LV2_URID bschaffl_shapeEvent;
 	LV2_URID bschaffl_shapeData;
 	LV2_URID notify_event;
@@ -62,6 +64,7 @@ struct BSchafflURIs
 void getURIs (LV2_URID_Map* m, BSchafflURIs* uris)
 {
 	uris->atom_Float = m->map(m->handle, LV2_ATOM__Float);
+	uris->atom_Double = m->map(m->handle, LV2_ATOM__Double);
 	uris->atom_Int = m->map(m->handle, LV2_ATOM__Int);
 	uris->atom_Long = m->map(m->handle, LV2_ATOM__Long);
 	uris->atom_String = m->map(m->handle, LV2_ATOM__String);
@@ -82,6 +85,7 @@ void getURIs (LV2_URID_Map* m, BSchafflURIs* uris)
 	uris->bschaffl_statusEvent = m->map(m->handle, BSCHAFFL_URI "#BSchafflStatusEvent");
 	uris->bschaffl_step = m->map(m->handle, BSCHAFFL_URI "#BSchafflStep");
 	uris->bschaffl_latency = m->map(m->handle, BSCHAFFL_URI "#BSchafflLatency");
+	uris->bschaffl_rate = m->map(m->handle, BSCHAFFL_URI "#BSchafflRate");
 	uris->bschaffl_shapeEvent = m->map(m->handle, BSCHAFFL_URI "#bschafflShapeEvent");
 	uris->bschaffl_shapeData = m->map(m->handle, BSCHAFFL_URI "#bschafflShapeData");
 	uris->notify_event = m->map(m->handle, BSCHAFFL_URI "#NOTIFYev");

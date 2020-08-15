@@ -243,6 +243,7 @@ private:
 	LV2_Atom_Forge forge;
 	BSchafflURIs uris;
 	LV2_URID_Map* map;
+        double rate;
 
 	// Definition of styles
 	BColors::ColorSet fgColors = {{{0.75, 0.75, 0.75, 1.0}, {1.0, 1.0, 1.0, 1.0}, {0.2, 0.2, 0.2, 1.0}, {0.0, 0.0, 0.0, 0.0}}};
