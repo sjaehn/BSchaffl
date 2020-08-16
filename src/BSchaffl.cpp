@@ -230,11 +230,9 @@ void BSchaffl::run (uint32_t n_samples)
 				if (scheduleUpdatePosition)
 				{
 					// Hard set new position if new data received
-					//float barsequencepos = ((LV2_Atom_Float*)oBbeat)->body * sequencesperbar / beatsPerBar; // Position within a bar (0..sequencesperbar)
-					//position = MODFL (barsequencepos);
-					fprintf(stderr, "BSchaffl.lv2: Change position %f -> ", positionSeq);
+					//fprintf(stderr, "BSchaffl.lv2: Change position %f -> ", positionSeq);
 					positionSeq = getSequenceFromBeats (barBeat + beatsPerBar * bar);
-					fprintf(stderr, "%f\n", positionSeq);
+					//fprintf(stderr, "%f\n", positionSeq);
 					refFrame = ev->time.frames;
 				}
 
@@ -405,7 +403,7 @@ void BSchaffl::run (uint32_t n_samples)
 							// Overlapping notes: Remove inner NOTE_OFF
 							else
 							{
-								fprintf
+								/*fprintf
 								(
 									stderr,
 									"BSchaffl.lv2: Remove MIDI signal from #%i %i (%i,%i) to %f (shift = %f, latency = %f)\n",
@@ -416,7 +414,7 @@ void BSchaffl::run (uint32_t n_samples)
 									midiData[noteOffNr].positionSeq,
 									midiData[noteOffNr].shiftSeq,
 									latencySeq
-								);
+								);*/
 
 								midiData.erase (&midiData.iterator[noteOffNr]);
 							}
@@ -471,7 +469,7 @@ void BSchaffl::run (uint32_t n_samples)
 								if ((noteOffNr >= 0) && (midi.positionSeq < midiData[noteOffNr].positionSeq))
 								{
 									// Remome old NOTE_OFF
-									fprintf
+									/*fprintf
 									(
 										stderr,
 										"BSchaffl.lv2: Remove MIDI signal from #%i %i (%i,%i) to %f (shift = %f, latency = %f)\n",
@@ -482,7 +480,7 @@ void BSchaffl::run (uint32_t n_samples)
 										midiData[noteOffNr].positionSeq,
 										midiData[noteOffNr].shiftSeq,
 										latencySeq
-									);
+									);*/
 
 									midiData.erase (&midiData.iterator[noteOffNr]);
 
@@ -576,7 +574,7 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 
 			midiData[i].inactive = true;
 
-			fprintf
+			/*fprintf
 			(
 				stderr, "BSchaffl.lv2 @ %f: Send Midi #%i %i (%i, %i) (frame = %li)  \n",
 				seq,
@@ -585,7 +583,7 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 				midiData[i].msg[1],
 				midiData[i].msg[2],
 				frame
-		 	);
+		 	);*/
 		}
 	}
 
@@ -715,7 +713,7 @@ void BSchaffl::clearMidiData (const float maxSeq)
 {
 	while ((!midiData.empty()) && (midiData.back().positionSeq > maxSeq))
 	{
-		fprintf
+		/*fprintf
 		(
 			stderr,
 			"BSchaffl.lv2 @: Remove MIDI signal %i (%i,%i) from %f (maxSeq = %f)\n",
@@ -724,7 +722,7 @@ void BSchaffl::clearMidiData (const float maxSeq)
 			midiData.back().msg[2],
 			midiData.back().positionSeq,
 			maxSeq
-		);
+		);*/
 
 		midiData.pop_back();
 	}
@@ -741,7 +739,7 @@ void BSchaffl::queueMidiData (const MidiData& midi)
 		}
 	}
 
-	fprintf
+	/*fprintf
 	(
 		stderr,
 		"BSchaffl.lv2: Schedule MIDI signal #%li %i (%i,%i) to %f (shift = %f, latency = %f)\n",
@@ -752,7 +750,7 @@ void BSchaffl::queueMidiData (const MidiData& midi)
 		midi.positionSeq,
 		midi.shiftSeq,
 		latencySeq
-	);
+	);*/
 }
 
 double BSchaffl::getSequenceFromBeats (const double beats)

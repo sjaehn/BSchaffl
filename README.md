@@ -1,8 +1,6 @@
 # B.Schaffl
 
-Pattern-controlled MIDI amp & time stretch plugin to produce shuffle / swing effects. (Experimental)
-
-**Warning: Experimental software. Not intended for production use, yet. No guarantees.**
+Pattern-controlled MIDI amp & time stretch plugin to produce shuffle / swing effects.
 
 ![screenshot](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/doc/screenshot.png "Screenshot from B.Schaffl")
 
@@ -241,14 +239,11 @@ correct it by itself.
 
 ## What's new
 
-* Option to amplify NOTE_OFF velocity in the same way as NOTE_ON velocity
-* Option to keep note position and/or duration unaffected from step stretch
-* Handle overlapping notes
+* User latency in ms
 
 
 ## TODO's
 
-* Hide debugging information
 * Make tutorial video
 * Link tutorial in plugin
 
