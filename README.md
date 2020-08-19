@@ -2,12 +2,29 @@
 
 Pattern-controlled MIDI amp & time stretch plugin to produce shuffle / swing effects.
 
+Key features:
+* MIDI velocity amplification and timing manipulation plugin
+* Swing and shuffle rhythms
+* Pre-generator dynamics
+* Tempo rubato
+* Pattern (sliders) or shape-controlled
+* MIDI filters
+* Smart quantization
+* Free and open source
+
 ![screenshot](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/doc/screenshot.png "Screenshot from B.Schaffl")
 
 
 ## Installation
 
-Build your own binaries in the following three steps.
+### a) Install the bschaffl package for your system
+
+* [Arch user repository](https://aur.archlinux.org/packages/bschaffl.lv2-git) by Milkii Brewster, SpotlightKid
+* [Debian / LibraZiK](https://librazik.tuxfamily.org/doc3/logiciels/bschaffl) by Olivier Humbert
+* Check https://repology.org/project/bschaffl/versions for other systems
+
+
+### b) Build your own binaries in the following three steps.
 
 Step 1: [Download the latest published version](https://github.com/sjaehn/BSchaffl/releases) of B.Schaffl. Or clone or
 [download the master](https://github.com/sjaehn/BSchaffl/archive/master.zip) of this repository.
@@ -237,14 +254,6 @@ correct it by itself.
 
 * Bart Brouns for the original idea plus subsequent ideas about principle and features
 * Robin Gareus for ideas to technically solve *rubato*-related problems
-
-
-## What's new
-
-* User latency in ms
-* Hide debugging information
-* Remove "experimental" state
-* Link tutorial in plugin
 
 
 ## Links
