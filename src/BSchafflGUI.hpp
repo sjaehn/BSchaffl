@@ -65,7 +65,7 @@ enum MessageNr
 
 #define BG_FILE "inc/surface.png"
 #define HELP_URL "https://github.com/sjaehn/BSchaffl/blob/master/README.md"
-//#define YT_URL " https://youtu.be/PuzoxiAs-h8"
+#define YT_URL " https://youtu.be/CBwkYDk5reU"
 #define OPEN_CMD "xdg-open"
 
 #define LIM(g , min, max) ((g) > (max) ? (max) : ((g) < (min) ? (min) : (g)))
@@ -116,14 +116,14 @@ private:
         static void convertButtonClickedCallback (BEvents::Event* event);
         static void lightButtonClickedCallback (BEvents::Event* event);
         static void helpButtonClickedCallback (BEvents::Event* event);
-	//static void ytButtonClickedCallback (BEvents::Event* event);
+	static void ytButtonClickedCallback (BEvents::Event* event);
 
         std::string pluginPath;
 
 	BWidgets::Widget mContainer;
 
         HaloButton helpButton;
-        //HaloButton ytButton;
+        HaloButton ytButton;
 
         BWidgets::Widget toolbox;
         BWidgets::ImageIcon toolIcon;

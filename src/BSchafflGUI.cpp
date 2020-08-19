@@ -31,7 +31,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer (0, 0, 1020, 480, "main"),
 
 	helpButton (950, 60, 24, 24, "halobutton", "Help"),
-	//ytButton (50, 80, 24, 24, "halobutton", "Tutorial"),
+	ytButton (980, 60, 24, 24, "halobutton", "Tutorial"),
 
 	toolbox (380, 330, 620, 30, "scontainer"),
 	toolIcon (4, 2 , 40, 26, "widget", pluginPath + "inc/tools.png"),
@@ -277,7 +277,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	gridShowButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::gridToolClickedCallback);
 	gridSnapButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::gridToolClickedCallback);
 	helpButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, helpButtonClickedCallback);
-	//ytButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, ytButtonClickedCallback);
+	ytButton.setCallbackFunction(BEvents::BUTTON_PRESS_EVENT, ytButtonClickedCallback);
 	shapeWidget.setCallbackFunction (BEvents::VALUE_CHANGED_EVENT, shapeChangedCallback);
 	stepControlContainer.setCallbackFunction (BEvents::VALUE_CHANGED_EVENT, valueChangedCallback);
 
@@ -417,7 +417,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer.add (selectMenu);
 	mContainer.add (sContainer);
 	mContainer.add (helpButton);
-	//mContainer.add (ytButton);
+	mContainer.add (ytButton);
 
 	toolbox.add (toolIcon);
 	toolbox.add (convertToShapeIcon);
@@ -650,6 +650,7 @@ void BSchafflGUI::resizeGUI()
 	RESIZE (mContainer, 0, 0, 1020, 480, sz);
 
 	RESIZE (helpButton, 950, 60, 24, 24, sz);
+	RESIZE (ytButton, 980, 60, 24, 24, sz);
 
 	RESIZE (toolbox, 380, 330, 620, 40, sz);
 	RESIZE (toolIcon, 4, 2, 40, 26, sz);
@@ -844,7 +845,7 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 
 	sContainer.applyTheme (theme);
 	helpButton.applyTheme (theme);
-	//ytButton.applyTheme (theme);
+	ytButton.applyTheme (theme);
 
 	toolbox.applyTheme (theme);
 	toolIcon.applyTheme (theme);
@@ -1877,10 +1878,10 @@ void BSchafflGUI::helpButtonClickedCallback (BEvents::Event* event)
 	if (system(OPEN_CMD " " HELP_URL)) std::cerr << "BSchaffl.lv2#GUI: Can't open " << HELP_URL << ". You can try to call it maually.";
 }
 
-/*void BSchafflGUI::ytButtonClickedCallback (BEvents::Event* event)
+void BSchafflGUI::ytButtonClickedCallback (BEvents::Event* event)
 {
-	if (system(OPEN_CMD " " YT_URL))  std::cerr << "BJumblr.lv2#GUI: Can't open " << YT_URL << ". You can try to call it maually.";
-}*/
+	if (system(OPEN_CMD " " YT_URL)) std::cerr << "BSchaffl.lv2#GUI: Can't open " << YT_URL << ". You can try to call it maually.";
+}
 
 void BSchafflGUI::redrawSContainer ()
 {
