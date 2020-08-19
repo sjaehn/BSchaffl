@@ -223,7 +223,9 @@ end is within the range. You should combine both for quantization.
 
 Latency is required if a marker is automatically or manually dragged to the left. The plugin itself
 calculates the latency by default. This value (in ms) is shown in the top right of the plugin.
-Alternatively, the user may manually set a fixed latency of up to 192000 frames.
+Alternatively, the user may manually set a fixed latency of up to 192000 frames. It is recommended to
+manually set this parameter to the maximally expected latency if you automate and/or change step markers,
+step swing, and/or step swing process during playback.
 
 Latency-correction of time/position data (time, bar, beat) is required for the proper work of B.Schaffl.
 However, hosts may differently handle latency and time/position data. Some correct it by themselves (as
@@ -240,7 +242,8 @@ correct it by itself.
 ## What's new
 
 * User latency in ms
-
+* Hide debugging information
+* Remove "experimental" state
 
 ## TODO's
 
@@ -251,3 +254,4 @@ correct it by itself.
 ## Links
 
 * Preview: https://www.youtube.com/watch?v=5oPtBPAgvmY
+* Features/Tutorial : https://www.youtube.com/watch?v=CBwkYDk5reU
