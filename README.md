@@ -244,10 +244,6 @@ correct it by itself.
 * User latency in ms
 * Hide debugging information
 * Remove "experimental" state
-
-## TODO's
-
-* Make tutorial video
 * Link tutorial in plugin
 
 
