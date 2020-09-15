@@ -25,6 +25,7 @@
 #include <ctime>
 #include <stdexcept>
 #include <algorithm>
+#include "BUtilities/stof.hpp"
 
 #define LIM(g , min, max) ((g) > (max) ? (max) : ((g) < (min) ? (min) : (g)))
 
@@ -998,7 +999,7 @@ LV2_State_Status BSchaffl::state_restore (LV2_State_Retrieve_Function retrieve, 
 			shapesDataString.erase (0, strPos + 4);
 
 			int typ;
-			try {typ = std::stof (shapesDataString, &nextPos);}
+			try {typ = BUtilities::stof (shapesDataString, &nextPos);}
 			catch  (const std::exception& e)
 			{
 				fprintf (stderr, "BSchaffl.lv2: Restore shape incomplete. Can't parse shape node type from \"%s...\"", shapesDataString.substr (0, 63).c_str());
@@ -1020,7 +1021,7 @@ LV2_State_Status BSchaffl::state_restore (LV2_State_Retrieve_Function retrieve, 
 				}
 				if (strPos > 0) shapesDataString.erase (0, strPos + 4);
 				float val;
-				try {val = std::stof (shapesDataString, &nextPos);}
+				try {val = BUtilities::stof (shapesDataString, &nextPos);}
 				catch  (const std::exception& e)
 				{
 					fprintf (stderr, "BSchaffl.lv2: Restore shape incomplete. Can't parse %s from \"%s...\"",

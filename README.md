@@ -250,6 +250,10 @@ in Ardour 6) others not (Ardour 5). Switch on latency-correction of time/positio
 correct it by itself.
 
 
+## What's new
+* Preset compatibility (both decimal point and decimal comma accepted)
+
+
 ## Acknowledgments
 
 * Bart Brouns for the original idea plus subsequent ideas about principle and features
