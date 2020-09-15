@@ -289,7 +289,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	nrStepsControl.setScrollable (true);
 	nrStepsControl.getDisplayLabel ()->setState (BColors::ACTIVE);
 	swingControl.getDisplayLabel ()->setState (BColors::ACTIVE);
-	markerListBox.setOversize (true);
+	markerListBox.setStacking (BWidgets::STACKING_OVERSIZE);
 
 	shapeWidget.hide();
 	shapeWidget.setMergeable (BEvents::POINTER_DRAG_EVENT, false);
@@ -314,7 +314,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	gridSnapButton.hide();
 	convertToShapeIcon.hide();
 
-	convertToShapeMessage.setOversize (true);
+	convertToShapeMessage.setStacking (BWidgets::STACKING_OVERSIZE);
 
 	//Initialialize and configure stepControllers
 	double sw = sContainer.getEffectiveWidth() - 40;
