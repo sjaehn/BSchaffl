@@ -26,8 +26,11 @@
 #include <stdexcept>
 #include <algorithm>
 #include "BUtilities/stof.hpp"
+#include "SharedData.hpp"
 
 #define LIM(g , min, max) ((g) > (max) ? (max) : ((g) < (min) ? (min) : (g)))
+
+static SharedData sharedData[4] = {SharedData(), SharedData(), SharedData(), SharedData()};
 
 BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 	map(NULL),
@@ -39,11 +42,13 @@ BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 	actStep (-1),
 	midiData (),
 	input(NULL), output(NULL),
+	sharedDataNr (0),
 	controllerPtrs {nullptr}, controllers {0.0f},
 	stepPositions {0.0},
 	shape {Shape<MAXNODES>()},
 	message (),
-	notify_shape (true)
+	notify_shape (true),
+	notify_controllers {false}
 
 {
 	// Init array members
@@ -76,7 +81,10 @@ BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 	recalculateAutoPositions ();
 }
 
-BSchaffl::~BSchaffl () {}
+BSchaffl::~BSchaffl ()
+{
+	if ((sharedDataNr > 0) && (sharedDataNr <= 4)) sharedData[sharedDataNr - 1].unlink (this);
+}
 
 void BSchaffl::connect_port(uint32_t port, void *data)
 {
@@ -108,11 +116,19 @@ void BSchaffl::run (uint32_t n_samples)
 	// Update controller values
 	for (int i = 0; i < LATENCY; ++i)
 	{
-		const float newValue = controllerLimits[i].validate (*controllerPtrs[i]);
+
+		float newValue;
+
+		// Sync with control ports
+		if (sharedDataNr == 0) newValue = controllerLimits[i].validate (*controllerPtrs[i]);
+
+		// Otherwise sync with globally shared data
+		else if (sharedDataNr <= 4) newValue = controllerLimits[i].validate (sharedData[sharedDataNr - 1].get (i));
 
 		if (newValue != controllers[i])
 		{
 			controllers[i] = newValue;
+			/*if ((sharedDataNr >= 1) && (sharedDataNr <= 4))*/ notify_controllers[i] = true;
 
 			if (i == SWING) recalculateAutoPositions();
 
@@ -166,6 +182,85 @@ void BSchaffl::run (uint32_t n_samples)
 
 			// GUI off
 			else if (obj->body.otype == uris.bschaffl_uiOff) uiOn = false;
+
+			// Linked / unlinked to shared data
+			else if (obj->body.otype == uris.bschaffl_sharedDataLinkEvent)
+			{
+				LV2_Atom *oNr = NULL;
+
+				lv2_atom_object_get
+				(
+					obj,
+					uris.bschaffl_sharedDataNr, &oNr,
+					NULL
+				);
+
+				if (oNr && (oNr->type == uris.atom_Int))
+				{
+					const int nr = ((LV2_Atom_Int*)oNr)->body;
+
+					if ((nr >= 0) && (nr <= 4))
+					{
+						if (sharedDataNr != 0) sharedData[sharedDataNr - 1].unlink (this);
+						if ((nr != 0) && sharedData[nr - 1].empty())
+						{
+							for (int i = 0; i < NR_CONTROLLERS; ++i) sharedData[nr - 1].set (i, controllers[i]);
+						}
+						if (nr != 0) sharedData[nr - 1].link (this);
+						sharedDataNr = nr;
+					}
+				}
+			}
+
+			// Controller changed
+			else if ((obj->body.otype == uris.bschaffl_controllerEvent) && (sharedDataNr != 0))
+			{
+				LV2_Atom *oNr = NULL, *oVal = NULL;
+
+				lv2_atom_object_get
+				(
+					obj,
+					uris.bschaffl_controllerNr, &oNr,
+					uris.bschaffl_controllerValue, &oVal,
+					NULL
+				);
+
+				if (oNr && (oNr->type == uris.atom_Int) && oVal && (oVal->type == uris.atom_Float))
+				{
+					const int nr =  ((LV2_Atom_Int*)oNr)->body;
+
+					if ((nr >= 0) && (nr < NR_CONTROLLERS))
+					{
+						const float val = controllerLimits[nr].validate(((LV2_Atom_Float*)oVal)->body);
+						controllers[nr] = val;
+						sharedData[sharedDataNr - 1].set (nr, val);
+
+						if (nr == SWING) recalculateAutoPositions();
+
+						else if (nr == NR_OF_STEPS) recalculateAutoPositions();
+
+						else if ((nr >= STEP_POS) && (nr < STEP_POS + MAXSTEPS - 1))
+						{
+							const int step = nr - STEP_POS;
+							if (val == 0.0f)
+							{
+								if (!stepAutoPositions[step])
+								{
+									stepAutoPositions[step] = true;
+									recalculateAutoPositions();
+								}
+							}
+
+							else if (stepPositions[step] != val)
+							{
+								stepAutoPositions[step] = false;
+								stepPositions[step] = val;
+								recalculateAutoPositions();
+							}
+						}
+					}
+				}
+			}
 
 			// Update time/position data
 			else if (obj->body.otype == uris.time_Position)
@@ -538,6 +633,7 @@ void BSchaffl::run (uint32_t n_samples)
 	{
 		if (message.isScheduled ()) notifyMessageToGui();
 		notifyStatusToGui();
+		for (int i = 0; i < NR_CONTROLLERS; ++i) if (notify_controllers[i]) notifyControllerToGui (i);
 		if (notify_shape) notifyShapeToGui();
 	}
 
@@ -877,6 +973,20 @@ void BSchaffl::recalculateAutoPositions ()
 	}
 }
 
+void BSchaffl::notifyControllerToGui (const int nr)
+{
+	// Send notifications
+	LV2_Atom_Forge_Frame frame;
+	lv2_atom_forge_frame_time (&forge, 0);
+	lv2_atom_forge_object (&forge, &frame, 0, uris.bschaffl_controllerEvent);
+	lv2_atom_forge_key (&forge, uris.bschaffl_controllerNr);
+	lv2_atom_forge_int (&forge, nr);
+	lv2_atom_forge_key (&forge, uris.bschaffl_controllerValue);
+	lv2_atom_forge_float (&forge, controllers[nr]);
+	lv2_atom_forge_pop (&forge, &frame);
+	notify_controllers[nr] = false;
+}
+
 void BSchaffl::notifyStatusToGui ()
 {
 	// Calculate step
@@ -1127,9 +1237,9 @@ void cleanup (LV2_Handle instance)
 
 static const void* extension_data(const char* uri)
 {
-  static const LV2_State_Interface state  = {state_save, state_restore};
-  if (!strcmp(uri, LV2_STATE__interface)) return &state;
-  return NULL;
+	static const LV2_State_Interface state  = {state_save, state_restore};
+	if (!strcmp(uri, LV2_STATE__interface)) return &state;
+	return NULL;
 }
 
 const LV2_Descriptor descriptor =

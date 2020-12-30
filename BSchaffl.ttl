@@ -38,12 +38,12 @@
         rdfs:comment "Pattern-controlled MIDI amp & time stretch plugin to produce shuffle / swing effects." ;
 	doap:maintainer <http://www.jahnichen.de/sjaehn#me> ;
 	doap:license <http://usefulinc.com/doap/licenses/gpl> ;
-	lv2:microVersion 2 ;
-	lv2:minorVersion 2 ;
+	lv2:microVersion 0 ;
+	lv2:minorVersion 3 ;
         lv2:optionalFeature lv2:hardRTCapable ;
         lv2:binary <BSchaffl.so> ;
-	lv2:requiredFeature urid:map ;
-	lv2:extensionData state:interface ;
+	lv2:requiredFeature urid:map;
+	lv2:extensionData state:interface;
 	ui:ui <https://www.jahnichen.de/plugins/lv2/BSchaffl#gui> ;
         lv2:port [
 		a lv2:InputPort , atom:AtomPort ;

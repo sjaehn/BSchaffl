@@ -46,6 +46,13 @@ struct MidiData
 	bool inactive;
 };
 
+struct Atom_Ptr
+{
+	LV2_Atom atom;
+	int nr;
+	void* ptr;
+};
+
 const Limit controllerLimits [NR_CONTROLLERS] =
 {
 	{0.125, 16.0, 0},	// SEQ_LEN_VALUE
@@ -160,6 +167,7 @@ private:
 	LV2_Atom_Sequence* output;
 
 	// Controllers
+	int sharedDataNr = 0;
 	float* controllerPtrs[NR_CONTROLLERS];
 	float controllers[NR_CONTROLLERS];
 	float stepPositions[MAXSTEPS - 1];
@@ -174,6 +182,7 @@ private:
 
 	Message message;
 	bool notify_shape;
+	bool notify_controllers[NR_CONTROLLERS];
 
 	void randomizeStep (const int step);
 	double getStepStart (const int step);
@@ -190,6 +199,7 @@ private:
 	void recalculateLatency();
 	void recalculateAutoPositions ();
 	void play (uint32_t start, uint32_t end);
+	void notifyControllerToGui (const int nr);
 	void notifyStatusToGui ();
 	void notifyShapeToGui ();
 	void notifyMessageToGui ();

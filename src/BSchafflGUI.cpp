@@ -154,7 +154,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	selectMenu
 	(
-		20, 90, 340, 390, "selectmenu",
+		20, 90, 340, 350, "selectmenu",
 		std::list<std::pair<Widget*, Widget*>>
 		({
 			{&midiChFilterIcon, &midiChFilterContainer},
@@ -164,6 +164,8 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 			{&userLatencyIcon, &userLatencyContainer}
 		})
 	),
+
+	sharedDataSelection (58, 448, 304, 24, "widget", 0, 0, 4, 1),
 
 	sContainer (380, 90, 620, 240, "scontainer"),
 
@@ -230,6 +232,8 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		midiChFilterLabels[i] = BWidgets::Label (44 + 80.0 * int (i / 4), 53  + int (i % 4) * 20, 36, 20, "lflabel", "#" + std::to_string (i + 1));
 	}
 
+	for (int i = 0; i < 4; ++i) sharedDataButtons[i] = HaloToggleButton (80 * i, 0, 64, 24, "halobutton", "Shared data " + std::to_string (i + 1) + " (experimental)");
+
 	// Link widgets to controllers
 	controllers[SEQ_LEN_VALUE] = &seqLenValueListbox;
 	controllers[SEQ_LEN_BASE] = &seqLenBaseListbox;
@@ -264,6 +268,8 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	midiMsgFilterAllSwitch.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	userLatencySlider.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	userLatencyUnitListbox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
+	for (HaloToggleButton& s: sharedDataButtons) s.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::sharedDataClickedCallback);
+	sharedDataSelection.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::listBoxChangedCallback);
 	convertToShapeButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::convertButtonClickedCallback);
 	convertToStepsButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::convertButtonClickedCallback);
@@ -407,6 +413,9 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	userLatencyContainer.add (userLatencySlider);
 	userLatencyContainer.add (userLatencyUnitListbox);
 
+	for (HaloToggleButton& s : sharedDataButtons) sharedDataSelection.add (s);
+	mContainer.add (sharedDataSelection);
+
 	sContainer.add (inIcon);
 	sContainer.add (ampIcon);
 	sContainer.add (delIcon);
@@ -491,6 +500,36 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 		if ((atom->type == uris.atom_Blank) || (atom->type == uris.atom_Object))
 		{
 			const LV2_Atom_Object* obj = (const LV2_Atom_Object*) atom;
+
+			// Controller changed
+			if (obj->body.otype == uris.bschaffl_controllerEvent)
+			{
+				LV2_Atom *oNr = NULL, *oVal = NULL;
+
+				lv2_atom_object_get
+				(
+					obj,
+					uris.bschaffl_controllerNr, &oNr,
+					uris.bschaffl_controllerValue, &oVal,
+					NULL
+				);
+
+				if (oNr && (oNr->type == uris.atom_Int) && oVal && (oVal->type == uris.atom_Float))
+				{
+					const int nr =  ((LV2_Atom_Int*)oNr)->body;
+					const float val = ((LV2_Atom_Float*)oVal)->body;
+
+					if ((nr >= STEP_POS) && (nr < STEP_POS + MAXSTEPS - 1))
+					{
+						setMarker (nr - STEP_POS, val);
+						setAutoMarkers ();
+						rearrange_controllers ();
+						redrawSContainer ();
+					}
+
+					else setController (nr, val);
+				}
+			}
 
 			// Status notification
 			if (obj->body.otype == uris.bschaffl_statusEvent)
@@ -608,7 +647,8 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 	}
 
 	// Scan controller ports
-	else if ((format == 0) && (port_index >= CONTROLLERS) && (port_index < CONTROLLERS + NR_CONTROLLERS))
+	/*
+	else if ((format == 0) && (port_index >= CONTROLLERS) && (port_index < CONTROLLERS + NR_CONTROLLERS) && (sharedDataSelection.getValue() == 0))
 	{
 		float* pval = (float*) buffer;
 		const int controllerNr = port_index - CONTROLLERS;
@@ -621,8 +661,9 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 			redrawSContainer ();
 		}
 
-		else  controllers[controllerNr]->setValue (*pval);
+		else setController (controllerNr, *pval);
 	}
+	*/
 }
 
 void BSchafflGUI::resizeGUI()
@@ -737,7 +778,10 @@ void BSchafflGUI::resizeGUI()
 	userLatencyUnitListbox.moveListBox (BUtilities::Point (0, 20 * sz));
 	userLatencyUnitListbox.resizeListBoxItems (BUtilities::Point (40 * sz, 20 * sz));
 
-	RESIZE (selectMenu, 20, 90, 340, 390, sz);
+	RESIZE (selectMenu, 20, 90, 340, 350, sz);
+
+	RESIZE (sharedDataSelection, 58, 448, 304, 24, sz);
+	for (int i = 0; i < 4; ++i) {RESIZE (sharedDataButtons[i], 80 * i, 0, 64, 24, sz);}
 
 	RESIZE (sContainer, 380, 90, 620, 240, sz);
 
@@ -843,6 +887,8 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 
 	selectMenu.applyTheme (theme);
 
+	sharedDataSelection.applyTheme (theme);
+	for (HaloToggleButton& s : sharedDataButtons) s.applyTheme (theme);
 	sContainer.applyTheme (theme);
 	helpButton.applyTheme (theme);
 	ytButton.applyTheme (theme);
@@ -1089,6 +1135,197 @@ void BSchafflGUI::sendShape ()
 	write_function (controller, INPUT, lv2_atom_total_size(msg), uris.atom_eventTransfer, msg);
 }
 
+void BSchafflGUI::sendSharedDataNr ()
+{
+	uint8_t obj_buf[64];
+	lv2_atom_forge_set_buffer(&forge, obj_buf, sizeof(obj_buf));
+
+	LV2_Atom_Forge_Frame frame;
+	LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_object(&forge, &frame, 0, uris.bschaffl_sharedDataLinkEvent);
+	lv2_atom_forge_key (&forge, uris.bschaffl_sharedDataNr);
+	lv2_atom_forge_int (&forge, sharedDataSelection.getValue());
+	lv2_atom_forge_pop(&forge, &frame);
+	write_function(controller, INPUT, lv2_atom_total_size(msg), uris.atom_eventTransfer, msg);
+}
+
+void BSchafflGUI::sendController (const int nr, const float value)
+{
+	uint8_t obj_buf[64];
+	lv2_atom_forge_set_buffer(&forge, obj_buf, sizeof(obj_buf));
+
+	LV2_Atom_Forge_Frame frame;
+	LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_object(&forge, &frame, 0, uris.bschaffl_controllerEvent);
+	lv2_atom_forge_key (&forge, uris.bschaffl_controllerNr);
+	lv2_atom_forge_int (&forge, nr);
+	lv2_atom_forge_key (&forge, uris.bschaffl_controllerValue);
+	lv2_atom_forge_float (&forge, value);
+	lv2_atom_forge_pop(&forge, &frame);
+	write_function(controller, INPUT, lv2_atom_total_size(msg), uris.atom_eventTransfer, msg);
+}
+
+float BSchafflGUI::setController (const int nr, const double value)
+{
+	controllers[nr]->setValueable (false);
+	controllers[nr]->setValue (value);
+	controllers[nr]->setValueable (true);
+
+	if (nr == AMP_MODE)
+	{
+		if (value == 0.0f)
+		{
+			stepControlContainer.show();
+			shapeWidget.hide();
+			shapeToolbox.hide();
+			editToolbox.hide();
+			gridToolbox.hide();
+			for (HaloToggleButton& s : shapeToolButtons) s.hide();
+			for (HaloButton& e : editToolButtons) e.hide();
+			gridShowButton.hide();
+			gridSnapButton.hide();
+			ampSwingControl.setState (BColors::NORMAL);
+			convertToShapeIcon.hide();
+			convertToStepsIcon.show();
+			convertToShapeButton.hide();
+			convertToStepsButton.show();
+			if (convertToShapeMessage.getParent()) release (&convertToShapeMessage);
+		}
+		else
+		{
+			stepControlContainer.hide();
+			shapeWidget.show();
+			shapeToolbox.show();
+			editToolbox.show();
+			gridToolbox.show();
+			for (HaloToggleButton& s : shapeToolButtons) s.show();
+			for (HaloButton& e : editToolButtons) e.show();
+			gridShowButton.show();
+			gridSnapButton.show();
+			ampSwingControl.setState (BColors::INACTIVE);
+			convertToShapeIcon.show();
+			convertToStepsIcon.hide();
+			convertToShapeButton.show();
+			convertToStepsButton.hide();
+			if (convertToStepsMessage.getParent()) release (&convertToStepsMessage);
+		}
+	}
+
+	else if ((nr >= MIDI_CH_FILTER) && (nr < MIDI_CH_FILTER + NR_MIDI_CHS))
+	{
+		int count = 0;
+		for (BWidgets::HSwitch& s : midiChFilterSwitches)
+		{
+			if (s.getValue() != 0.0) ++count;
+		}
+
+		if (count == 0)
+		{
+			midiChFilterAllSwitch.setState (BColors::NORMAL);
+			midiChFilterAllLabel.setState (BColors::NORMAL);
+			midiChFilterAllSwitch.setValue (0.0);
+		}
+
+		else if (count == NR_MIDI_CHS)
+		{
+			midiChFilterAllSwitch.setState (BColors::NORMAL);
+			midiChFilterAllLabel.setState (BColors::NORMAL);
+			midiChFilterAllSwitch.setValue (1.0);
+		}
+
+		else
+		{
+			midiChFilterAllSwitch.setState (BColors::INACTIVE);
+			midiChFilterAllLabel.setState (BColors::INACTIVE);
+		}
+	}
+
+	else if ((nr >= MSG_FILTER_NOTE) && (nr < MSG_FILTER_NOTE + NR_MIDI_MSG_FILTERS))
+	{
+		int count = 0;
+		for (BWidgets::HSwitch& s : midiMsgFilterSwitches)
+		{
+			if (s.getValue() != 0.0) ++count;
+		}
+
+		if (count == 0)
+		{
+			midiMsgFilterAllSwitch.setState (BColors::NORMAL);
+			midiMsgFilterAllLabel.setState (BColors::NORMAL);
+			midiMsgFilterAllSwitch.setValue (0.0);
+		}
+
+		else if (count == NR_MIDI_MSG_FILTERS)
+		{
+			midiMsgFilterAllSwitch.setState (BColors::NORMAL);
+			midiMsgFilterAllLabel.setState (BColors::NORMAL);
+			midiMsgFilterAllSwitch.setValue (1.0);
+		}
+
+		else
+		{
+			midiMsgFilterAllSwitch.setState (BColors::INACTIVE);
+			midiMsgFilterAllLabel.setState (BColors::INACTIVE);
+		}
+	}
+
+	else if (nr == USR_LATENCY)
+	{
+		if (value == 0.0)
+		{
+			userLatencySlider.hide();
+			userLatencyUnitListbox.hide();
+		}
+		else
+		{
+			userLatencySlider.show();
+			userLatencyUnitListbox.show();
+		}
+	}
+
+	else if ((nr >= STEP_POS) && (nr < STEP_POS + MAXSTEPS - 1)) return (((Marker*)controllers[nr])->hasValue() ? value : 0.0f);
+
+	else if ((nr >= STEP_LEV) && (nr < STEP_LEV + MAXSTEPS))
+	{
+		int stepNr = nr - STEP_LEV;
+		stepControlLabel[stepNr].setText (BUtilities::to_string (value, "%1.2f"));
+
+		std::array<double, MAXSTEPS> u = sliderHistory.undo();
+		for (int i = 0; i < MAXSTEPS; ++i)
+		{
+			if ((i != stepNr) && (float (u[i]) != float (stepControl[i].getValue())))
+			{
+				sliderHistory.redo();
+				break;
+			}
+		}
+		stepControlContainer.setValue (1.0);
+	}
+
+	else if (nr == AMP_SWING) rearrange_controllers();
+
+	else if (nr == AMP_PROCESS)
+	{
+		if ((value >= 0.0) && (value <= 1.0)) ampProcessControl.setState (BColors::NORMAL);
+		else ampProcessControl.setState (BColors::ACTIVE);
+	}
+
+	else if (nr == SWING)
+	{
+		setAutoMarkers();
+		rearrange_controllers();
+		redrawSContainer();
+	}
+
+	else if (nr == NR_OF_STEPS)
+	{
+		shapeWidget.setMinorXSteps (1.0 / value);
+		setAutoMarkers();
+		rearrange_controllers();
+		redrawSContainer();
+	}
+
+	return value;
+}
+
 void BSchafflGUI::setMarker (const int markerNr, double value)
 {
 	if ((markerNr < 0) || (markerNr >= MAXSTEPS - 1)) return;
@@ -1246,190 +1483,12 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 
 			if (controllerNr >= 0)
 			{
-				if (controllerNr == LATENCY)
+				if (controllerNr != LATENCY)
 				{
-					// Do nothing
+					const float v = ui->setController (controllerNr, value);
+					if (ui->sharedDataSelection.getValue()) ui->sendController (controllerNr, v);
+					else ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &v);
 				}
-
-				else if (controllerNr == AMP_MODE)
-				{
-					if (value == 0.0f)
-					{
-						ui->stepControlContainer.show();
-						ui->shapeWidget.hide();
-						ui->shapeToolbox.hide();
-						ui->editToolbox.hide();
-						//ui->historyToolbox.hide();
-						ui->gridToolbox.hide();
-						for (HaloToggleButton& s : ui->shapeToolButtons) s.hide();
-						for (HaloButton& e : ui->editToolButtons) e.hide();
-						//for (HaloButton& h : ui->historyToolButtons) h.hide();
-						ui->gridShowButton.hide();
-						ui->gridSnapButton.hide();
-						ui->ampSwingControl.setState (BColors::NORMAL);
-						ui->convertToShapeIcon.hide();
-						ui->convertToStepsIcon.show();
-						ui->convertToShapeButton.hide();
-						ui->convertToStepsButton.show();
-						if (ui->convertToShapeMessage.getParent()) ui->release (&ui->convertToShapeMessage);
-					}
-					else
-					{
-						ui->stepControlContainer.hide();
-						ui->shapeWidget.show();
-						ui->shapeToolbox.show();
-						ui->editToolbox.show();
-						//ui->historyToolbox.show();
-						ui->gridToolbox.show();
-						for (HaloToggleButton& s : ui->shapeToolButtons) s.show();
-						for (HaloButton& e : ui->editToolButtons) e.show();
-						//for (HaloButton& h : ui->historyToolButtons) h.show();
-						ui->gridShowButton.show();
-						ui->gridSnapButton.show();
-						ui->ampSwingControl.setState (BColors::INACTIVE);
-						ui->convertToShapeIcon.show();
-						ui->convertToStepsIcon.hide();
-						ui->convertToShapeButton.show();
-						ui->convertToStepsButton.hide();
-						if (ui->convertToStepsMessage.getParent()) ui->release (&ui->convertToStepsMessage);
-					}
-
-					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
-				}
-
-				else if ((controllerNr >= MIDI_CH_FILTER) && (controllerNr < MIDI_CH_FILTER + NR_MIDI_CHS))
-				{
-					int count = 0;
-					for (BWidgets::HSwitch& s : ui->midiChFilterSwitches)
-					{
-						if (s.getValue() != 0.0) ++count;
-					}
-
-					if (count == 0)
-					{
-						ui->midiChFilterAllSwitch.setState (BColors::NORMAL);
-						ui->midiChFilterAllLabel.setState (BColors::NORMAL);
-						ui->midiChFilterAllSwitch.setValue (0.0);
-					}
-
-					else if (count == NR_MIDI_CHS)
-					{
-						ui->midiChFilterAllSwitch.setState (BColors::NORMAL);
-						ui->midiChFilterAllLabel.setState (BColors::NORMAL);
-						ui->midiChFilterAllSwitch.setValue (1.0);
-					}
-
-					else
-					{
-						ui->midiChFilterAllSwitch.setState (BColors::INACTIVE);
-						ui->midiChFilterAllLabel.setState (BColors::INACTIVE);
-					}
-
-					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
-				}
-
-				else if ((controllerNr >= MSG_FILTER_NOTE) && (controllerNr < MSG_FILTER_NOTE + NR_MIDI_MSG_FILTERS))
-				{
-					int count = 0;
-					for (BWidgets::HSwitch& s : ui->midiMsgFilterSwitches)
-					{
-						if (s.getValue() != 0.0) ++count;
-					}
-
-					if (count == 0)
-					{
-						ui->midiMsgFilterAllSwitch.setState (BColors::NORMAL);
-						ui->midiMsgFilterAllLabel.setState (BColors::NORMAL);
-						ui->midiMsgFilterAllSwitch.setValue (0.0);
-					}
-
-					else if (count == NR_MIDI_MSG_FILTERS)
-					{
-						ui->midiMsgFilterAllSwitch.setState (BColors::NORMAL);
-						ui->midiMsgFilterAllLabel.setState (BColors::NORMAL);
-						ui->midiMsgFilterAllSwitch.setValue (1.0);
-					}
-
-					else
-					{
-						ui->midiMsgFilterAllSwitch.setState (BColors::INACTIVE);
-						ui->midiMsgFilterAllLabel.setState (BColors::INACTIVE);
-					}
-
-					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
-				}
-
-				else if (controllerNr == USR_LATENCY)
-				{
-					if (value == 0.0)
-					{
-						ui->userLatencySlider.hide();
-						ui->userLatencyUnitListbox.hide();
-					}
-					else
-					{
-						ui->userLatencySlider.show();
-						ui->userLatencyUnitListbox.show();
-					}
-
-					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
-				}
-
-				else if ((controllerNr >= STEP_POS) && (controllerNr < STEP_POS + MAXSTEPS - 1))
-				{
-					float pos = (((Marker*)widget)->hasValue() ? value : 0.0f);
-					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &pos);
-				}
-
-				else if ((controllerNr >= STEP_LEV) && (controllerNr < STEP_LEV + MAXSTEPS))
-				{
-					int stepNr = controllerNr - STEP_LEV;
-					ui->stepControlLabel[stepNr].setText (BUtilities::to_string (value, "%1.2f"));
-					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
-
-					std::array<double, MAXSTEPS> u = ui->sliderHistory.undo();
-					for (int i = 0; i < MAXSTEPS; ++i)
-					{
-						if ((i != stepNr) && (float (u[i]) != float (ui->stepControl[i].getValue())))
-						{
-							ui->sliderHistory.redo();
-							break;
-						}
-					}
-					ui->stepControlContainer.setValue (1.0);
-				}
-
-				else if (controllerNr == AMP_SWING)
-				{
-					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
-					ui->rearrange_controllers();
-				}
-
-				else if (controllerNr == AMP_PROCESS)
-				{
-					if ((value >= 0.0) && (value <= 1.0)) ui->ampProcessControl.setState (BColors::NORMAL);
-					else ui->ampProcessControl.setState (BColors::ACTIVE);
-					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
-				}
-
-				else if (controllerNr == SWING)
-				{
-					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
-					ui->setAutoMarkers();
-					ui->rearrange_controllers();
-					ui->redrawSContainer();
-				}
-
-				else if (controllerNr == NR_OF_STEPS)
-				{
-					ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
-					ui->shapeWidget.setMinorXSteps (1.0 / value);
-					ui->setAutoMarkers();
-					ui->rearrange_controllers();
-					ui->redrawSContainer();
-				}
-
-				else ui->write_function (ui->controller, CONTROLLERS + controllerNr, sizeof (float), 0, &value);
 			}
 
 			else if (widget == &ui->stepControlContainer)
@@ -1482,6 +1541,19 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
  				ui->userLatencySlider.setMax (max);
 				ui->userLatencySlider.setValueable (true);
 				ui->userLatencySlider.setValue (val);
+			}
+
+			else if (widget == &ui->sharedDataSelection)
+			{
+				const int val = ui->sharedDataSelection.getValue() - 1;
+				for (int i = 0; i < 4; ++i)
+				{
+					ui->sharedDataButtons[i].setValueable (false);
+					ui->sharedDataButtons[i].setValue (i == val ? 1 : 0);
+					ui->sharedDataButtons[i].setValueable (true);
+				}
+
+				ui->sendSharedDataNr();
 			}
 		}
 	}
@@ -1628,12 +1700,24 @@ void BSchafflGUI::markersAutoClickedCallback (BEvents::Event* event)
 
 	if (hb == &ui->markersAutoButton)
 	{
-		for (Marker& m : ui->markerWidgets) m.setHasValue (false);
+		for (int i = 0; i < MAXSTEPS - 1; ++i)
+		{
+			const float v = 0;
+			ui->markerWidgets[i].setHasValue (false);
+			if (ui->sharedDataSelection.getValue()) ui->sendController (STEP_POS + i, v);
+			else ui->write_function (ui->controller, CONTROLLERS + STEP_POS + i, sizeof (float), 0, &v);
+		}
 	}
 
 	else if (hb == &ui->markersManualButton)
 	{
-		for (Marker& m : ui->markerWidgets) m.setHasValue (true);
+		for (int i = 0; i < MAXSTEPS - 1; ++i)
+		{
+			const float v = ui->markerWidgets[i].getValue();
+			ui->markerWidgets[i].setHasValue (true);
+			if (ui->sharedDataSelection.getValue()) ui->sendController (STEP_POS + i, v);
+			else ui->write_function (ui->controller, CONTROLLERS + STEP_POS + i, sizeof (float), 0, &v);
+		}
 	}
 
 	ui->setAutoMarkers();
@@ -1738,43 +1822,28 @@ void BSchafflGUI::historyToolClickedCallback(BEvents::Event* event)
 
 		switch (widgetNr)
 		{
-			case 0:		for (int i = 0; i < MAXSTEPS; ++i)
-					{
-						values[i] = 1.0;
-						ui->stepControl[i].setValueable (false);
-						ui->stepControl[i].setValue(1.0);
-						ui->stepControl[i].setValueable (true);
-						ui->stepControlLabel[i].setText (BUtilities::to_string (value, "%1.2f"));
-						ui->write_function (ui->controller, CONTROLLERS + STEP_LEV + i, sizeof (float), 0, &value);
-					}
+			case 0:		values.fill (1.0);
 					ui->sliderHistory.push (values);
 					break;
 
 			case 1:		values = ui->sliderHistory.undo();
-					for (int i = 0; i < MAXSTEPS; ++i)
-					{
-						float value = values[i];
-						ui->stepControl[i].setValueable (false);
-						ui->stepControl[i].setValue(value);
-						ui->stepControl[i].setValueable (true);
-						ui->stepControlLabel[i].setText (BUtilities::to_string (value, "%1.2f"));
-						ui->write_function (ui->controller, CONTROLLERS + STEP_LEV + i, sizeof (float), 0, &value);
-					}
 					break;
 
 			case 2:		values = ui->sliderHistory.redo();
-					for (int i = 0; i < MAXSTEPS; ++i)
-					{
-						float value = values[i];
-						ui->stepControl[i].setValueable (false);
-						ui->stepControl[i].setValue(value);
-						ui->stepControl[i].setValueable (true);
-						ui->stepControlLabel[i].setText (BUtilities::to_string (value, "%1.2f"));
-						ui->write_function (ui->controller, CONTROLLERS + STEP_LEV + i, sizeof (float), 0, &value);
-					}
 					break;
 
 			default:	break;
+		}
+
+		for (int i = 0; i < MAXSTEPS; ++i)
+		{
+			float value = values[i];
+			ui->stepControl[i].setValueable (false);
+			ui->stepControl[i].setValue (value);
+			ui->stepControl[i].setValueable (true);
+			ui->stepControlLabel[i].setText (BUtilities::to_string (value, "%1.2f"));
+			if (ui->sharedDataSelection.getValue()) ui->sendController (STEP_LEV + i, value);
+			else ui->write_function (ui->controller, CONTROLLERS + STEP_LEV + i, sizeof (float), 0, &value);
 		}
 	}
 
@@ -1871,6 +1940,29 @@ void BSchafflGUI::lightButtonClickedCallback (BEvents::Event* event)
 		LightButton* l = dynamic_cast<LightButton*> (w);
 		if ((l) && (l != widget)) l->setValue (0.0);
 	}
+}
+
+void BSchafflGUI::sharedDataClickedCallback (BEvents::Event* event)
+{
+	if (!event) return;
+	HaloToggleButton* widget = (HaloToggleButton*) event->getWidget ();
+	if (!widget) return;
+	double value = widget->getValue();
+	BSchafflGUI* ui = (BSchafflGUI*) widget->getMainWindow();
+	if (!ui) return;
+
+	if (value)
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			if (widget == &ui->sharedDataButtons[i])
+			{
+				ui->sharedDataSelection.setValue (i + 1);
+				return;
+			}
+		}
+	}
+	ui->sharedDataSelection.setValue (0);
 }
 
 void BSchafflGUI::helpButtonClickedCallback (BEvents::Event* event)

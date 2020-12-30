@@ -249,8 +249,28 @@ in Ardour 6) others not (Ardour 5). Switch on latency-correction of time/positio
 correct it by itself.
 
 
+### 🔗 Shared data (experimental)
+
+If you use multiple instances of B.Schaffl you may be interested in sharing the plugin settings between
+the instances. Click on one of the four shared data boxes and the respective plugin instance is linked
+to the shared data. If you now click onto the same shared data box in another plugin instance, both
+plugin instances get the same data. Click again on the selected box to unlink the plugin instance from
+shared data.
+
+Note: Shared data are unlinked from host automation.
+
+
 ## What's new
-* Preset compatibility (both decimal point and decimal comma accepted)
+
+* Link controllers to shared data (**experimental, not fully featured yet**)
+* Bugfixes
+  * Refresh marker states
+
+
+## TODOs
+
+* Link shape to shared data
+* Save / restore shared data
 
 
 ## Acknowledgments

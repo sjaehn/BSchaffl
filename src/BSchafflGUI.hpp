@@ -91,6 +91,8 @@ public:
 	void applyTheme (BStyles::Theme& theme) override;
         void sendUiStatus (const bool on);
         void sendShape ();
+        void sendSharedDataNr ();
+        void sendController (const int nr, const float value);
 
 	LV2UI_Controller controller;
 	LV2UI_Write_Function write_function;
@@ -99,6 +101,7 @@ public:
 private:
         double getStepValue (const int stepNr) const;
 	void resizeGUI ();
+        float setController (const int nr, const double value);
         void setMarker (const int markerNr, double value);
         void setAutoMarkers ();
 	void rearrange_controllers ();
@@ -115,6 +118,7 @@ private:
         static void gridToolClickedCallback (BEvents::Event* event);
         static void convertButtonClickedCallback (BEvents::Event* event);
         static void lightButtonClickedCallback (BEvents::Event* event);
+        static void sharedDataClickedCallback (BEvents::Event* event);
         static void helpButtonClickedCallback (BEvents::Event* event);
 	static void ytButtonClickedCallback (BEvents::Event* event);
 
@@ -205,6 +209,9 @@ private:
         BWidgets::PopupListBox userLatencyUnitListbox;
 
         SelectMenu selectMenu;
+
+        BWidgets::RangeWidget sharedDataSelection;
+        std::array<HaloToggleButton, 4> sharedDataButtons;
 
         BWidgets::DrawingSurface sContainer;
         BWidgets::HSwitch modeSwitch;
