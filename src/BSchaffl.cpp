@@ -178,7 +178,12 @@ void BSchaffl::run (uint32_t n_samples)
 			const LV2_Atom_Object* obj = (const LV2_Atom_Object*)&ev->body;
 
 			// GUI on
-			if (obj->body.otype == uris.bschaffl_uiOn) uiOn = true;
+			if (obj->body.otype == uris.bschaffl_uiOn)
+			{
+				uiOn = true;
+				notify_shape = true;
+				std::fill (notify_controllers, notify_controllers + NR_CONTROLLERS, true);
+			}
 
 			// GUI off
 			else if (obj->body.otype == uris.bschaffl_uiOff) uiOn = false;

@@ -262,7 +262,7 @@ Note: Shared data are unlinked from host automation.
 
 ## What's new
 
-* Link controllers to shared data (**experimental, not fully featured yet**)
+* Link controllers to shared data option (**experimental, not fully featured yet**)
 * Bugfixes
   * Refresh marker states
 
