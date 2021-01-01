@@ -252,10 +252,15 @@ correct it by itself.
 ### 🔗 Shared data (experimental)
 
 If you use multiple instances of B.Schaffl you may be interested in sharing the plugin settings between
-the instances. Click on one of the four shared data boxes and the respective plugin instance is linked
-to the shared data. If you now click onto the same shared data box in another plugin instance, both
-plugin instances get the same data. Click again on the selected box to unlink the plugin instance from
-shared data.
+the instances. Click on one of the four shared data fields and the respective plugin instance is linked
+to the shared data. The plugin instance data are copied to the shared data field if no other plugin
+instance is linked to this shared data field before (otherwise *vise versa*).
+
+If you now click on the same shared data box in another plugin instance, both
+plugin instances get the same data.
+
+Click again on the selected box to unlink the plugin instance from
+shared data. The plugin now shows the host-provided data.
 
 Note: Shared data are unlinked from host automation.
 
@@ -263,6 +268,7 @@ Note: Shared data are unlinked from host automation.
 ## What's new
 
 * Link controllers to shared data option (**experimental, not fully featured yet**)
+* Save / restore shared data
 * Bugfixes
   * Refresh marker states
 
@@ -270,7 +276,6 @@ Note: Shared data are unlinked from host automation.
 ## TODOs
 
 * Link shape to shared data
-* Save / restore shared data
 
 
 ## Acknowledgments

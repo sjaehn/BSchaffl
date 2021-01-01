@@ -62,6 +62,7 @@ struct BSchafflURIs
 	LV2_URID bschaffl_controllerEvent;
 	LV2_URID bschaffl_controllerNr;
 	LV2_URID bschaffl_controllerValue;
+	LV2_URID bschaffl_controllers;
 	LV2_URID bschaffl_sharedDataLinkEvent;
 	LV2_URID bschaffl_sharedDataNr;
 };
@@ -100,6 +101,7 @@ void getURIs (LV2_URID_Map* m, BSchafflURIs* uris)
 	uris->bschaffl_controllerEvent = m->map(m->handle, BSCHAFFL_URI "#BSchafflControllerEvent");
 	uris->bschaffl_controllerNr = m->map(m->handle, BSCHAFFL_URI "#BSchafflControllerNr");
 	uris->bschaffl_controllerValue = m->map(m->handle, BSCHAFFL_URI "#BSchafflControllerValue");
+	uris->bschaffl_controllers = m->map(m->handle, BSCHAFFL_URI "#BSchafflControllers");
 	uris->bschaffl_sharedDataLinkEvent = m->map(m->handle, BSCHAFFL_URI "#BSchafflSharedDataLinkEvent");
 	uris->bschaffl_sharedDataNr = m->map(m->handle, BSCHAFFL_URI "#BSchafflSharedDataNr");
 }

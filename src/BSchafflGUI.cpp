@@ -501,8 +501,40 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 		{
 			const LV2_Atom_Object* obj = (const LV2_Atom_Object*) atom;
 
+			// Linked / unlinked to shared data
+			if (obj->body.otype == uris.bschaffl_sharedDataLinkEvent)
+			{
+				LV2_Atom *oNr = NULL;
+
+				lv2_atom_object_get
+				(
+					obj,
+					uris.bschaffl_sharedDataNr, &oNr,
+					NULL
+				);
+
+				if (oNr && (oNr->type == uris.atom_Int))
+				{
+					const int nr = ((LV2_Atom_Int*)oNr)->body;
+					if ((nr >= 0) && (nr <= 4) && (nr != sharedDataSelection.getValue()))
+					{
+						sharedDataSelection.setValueable (false);
+						sharedDataSelection.setValue (nr);
+						sharedDataSelection.setValueable (true);
+
+						for (int i = 0; i < 4; ++i)
+						{
+							sharedDataButtons[i].setValueable (false);
+							sharedDataButtons[i].setValue (i == nr - 1 ? 1 : 0);
+							sharedDataButtons[i].setValueable (true);
+						}
+
+					}
+				}
+			}
+
 			// Controller changed
-			if (obj->body.otype == uris.bschaffl_controllerEvent)
+			else if (obj->body.otype == uris.bschaffl_controllerEvent)
 			{
 				LV2_Atom *oNr = NULL, *oVal = NULL;
 

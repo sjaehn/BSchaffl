@@ -182,7 +182,14 @@ private:
 
 	Message message;
 	bool notify_shape;
+	bool notify_sharedData;
 	bool notify_controllers[NR_CONTROLLERS];
+
+	struct Atom_Controllers
+	{
+		LV2_Atom_Vector_Body body;
+		float data[NR_CONTROLLERS];
+	};
 
 	void randomizeStep (const int step);
 	double getStepStart (const int step);
@@ -200,6 +207,7 @@ private:
 	void recalculateAutoPositions ();
 	void play (uint32_t start, uint32_t end);
 	void notifyControllerToGui (const int nr);
+	void notifySharedDataNrToGui ();
 	void notifyStatusToGui ();
 	void notifyShapeToGui ();
 	void notifyMessageToGui ();

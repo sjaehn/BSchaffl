@@ -48,6 +48,7 @@ BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 	shape {Shape<MAXNODES>()},
 	message (),
 	notify_shape (true),
+	notify_sharedData (false),
 	notify_controllers {false}
 
 {
@@ -182,6 +183,7 @@ void BSchaffl::run (uint32_t n_samples)
 			{
 				uiOn = true;
 				notify_shape = true;
+				notify_sharedData = true;
 				std::fill (notify_controllers, notify_controllers + NR_CONTROLLERS, true);
 			}
 
@@ -204,7 +206,7 @@ void BSchaffl::run (uint32_t n_samples)
 				{
 					const int nr = ((LV2_Atom_Int*)oNr)->body;
 
-					if ((nr >= 0) && (nr <= 4))
+					if ((nr >= 0) && (nr <= 4) && (nr != sharedDataNr))
 					{
 						if (sharedDataNr != 0) sharedData[sharedDataNr - 1].unlink (this);
 						if ((nr != 0) && sharedData[nr - 1].empty())
@@ -213,6 +215,7 @@ void BSchaffl::run (uint32_t n_samples)
 						}
 						if (nr != 0) sharedData[nr - 1].link (this);
 						sharedDataNr = nr;
+						notify_sharedData = true;
 					}
 				}
 			}
@@ -638,6 +641,7 @@ void BSchaffl::run (uint32_t n_samples)
 	{
 		if (message.isScheduled ()) notifyMessageToGui();
 		notifyStatusToGui();
+		if (notify_sharedData) notifySharedDataNrToGui();
 		for (int i = 0; i < NR_CONTROLLERS; ++i) if (notify_controllers[i]) notifyControllerToGui (i);
 		if (notify_shape) notifyShapeToGui();
 	}
@@ -992,6 +996,18 @@ void BSchaffl::notifyControllerToGui (const int nr)
 	notify_controllers[nr] = false;
 }
 
+void BSchaffl::notifySharedDataNrToGui ()
+{
+	// Send notifications
+	LV2_Atom_Forge_Frame frame;
+	lv2_atom_forge_frame_time (&forge, 0);
+	lv2_atom_forge_object (&forge, &frame, 0, uris.bschaffl_sharedDataLinkEvent);
+	lv2_atom_forge_key (&forge, uris.bschaffl_sharedDataNr);
+	lv2_atom_forge_int (&forge, sharedDataNr);
+	lv2_atom_forge_pop (&forge, &frame);
+	notify_sharedData = false;
+}
+
 void BSchaffl::notifyStatusToGui ()
 {
 	// Calculate step
@@ -1059,7 +1075,19 @@ void BSchaffl::notifyMessageToGui ()
 
 LV2_State_Status BSchaffl::state_save (LV2_State_Store_Function store, LV2_State_Handle handle, uint32_t flags, const LV2_Feature* const* features)
 {
+	// Save shared data
+	if (sharedDataNr != 0)
+	{
+		store (handle, uris.bschaffl_sharedDataNr, &sharedDataNr, sizeof(sharedDataNr), uris.atom_Int, LV2_STATE_IS_POD);
 
+		Atom_Controllers atom;
+		for (int i = 0; i < NR_CONTROLLERS; ++i) atom.data[i] = sharedData[sharedDataNr - 1].get (i);
+		atom.body.child_type = uris.atom_Float;
+		atom.body.child_size = sizeof(float);
+		store (handle, uris.bschaffl_controllers, &atom, NR_CONTROLLERS * sizeof (float) + sizeof(LV2_Atom_Vector_Body), uris.atom_Vector, LV2_STATE_IS_POD);
+	}
+
+	// Save shape
 	char shapesDataString[0x8010] = "Shape data:\n";
 
 	for (unsigned int nd = 0; nd < shape.size (); ++nd)
@@ -1095,6 +1123,32 @@ LV2_State_Status BSchaffl::state_restore (LV2_State_Retrieve_Function retrieve, 
 	uint32_t type;
 	uint32_t valflags;
 
+	// Restore sharedData
+	sharedDataNr = 0;
+	const void* sharedDataNrData = retrieve (handle, uris.bschaffl_sharedDataNr, &size, &type, &valflags);
+	if (sharedDataNrData && (type == uris.atom_Int))
+	{
+		const int nr = *(int*)sharedDataNrData;
+		if ((nr >= 0) && (nr <= 4))
+		{
+			const void* controllersData = retrieve (handle, uris.bschaffl_controllers, &size, &type, &valflags);
+			if (controllersData && (type == uris.atom_Vector) && (nr > 0))
+			{
+				const Atom_Controllers* atom = (const Atom_Controllers*) controllersData;
+				if (atom->body.child_type == uris.atom_Float)
+				{
+					for (int i = 0; i < NR_CONTROLLERS; ++i) sharedData[nr - 1].set (i, atom->data[i]);
+				}
+			}
+
+			if (sharedDataNr != 0) sharedData[sharedDataNr - 1].unlink (this);
+			if (nr != 0) sharedData[nr - 1].link (this);
+			sharedDataNr = nr;
+			notify_sharedData = true;
+		}
+	}
+
+	// Restore shape
 	const void* shapesData = retrieve (handle, uris.bschaffl_shapeData, &size, &type, &valflags);
 	if (shapesData && (type == uris.atom_String))
 	{
