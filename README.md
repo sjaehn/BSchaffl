@@ -1,15 +1,19 @@
 # B.Schaffl
 
-Pattern-controlled MIDI amp & time stretch plugin to produce shuffle / swing effects.
+MIDI dynamics and vitalization LV2 plugin.
+
+B.Schaffl is a slider / shape-controlled MIDI amp & time stretch plugin to vitalize sequencer-controlled MIDI
+instruments and to produce shuffle / swing effects.
 
 Key features:
 * MIDI velocity amplification and timing manipulation plugin
 * Swing and shuffle rhythms
 * Pre-generator dynamics
-* Tempo rubato
+* *Tempo rubato*
 * Pattern (sliders) or shape-controlled
 * MIDI filters
 * Smart quantization
+* Group / link individual instances of B.Schaffl
 * Free and open source
 
 ![screenshot](https://raw.githubusercontent.com/sjaehn/BSchaffl/master/doc/screenshot.png "Screenshot from B.Schaffl")
@@ -68,7 +72,8 @@ mode!**
 
 ## Usage
 
-B.Schaffl is a MIDI converting plugin. It needs a MIDI input and a MIDI output.
+B.Schaffl is a MIDI converting plugin. It needs a MIDI input and a MIDI output. Thus, it must be
+placed **before** an instrument (synth or sampler).
 
 The graphical user interface is divided into thee parts. In the top right you can find the core of
 the plugin, the sequence editor. The sequence editor contains a visualization of the
@@ -270,13 +275,9 @@ Note: Shared data are unlinked from host automation.
 * Link controllers to shared data option
 * Link shape to shared data
 * Save / restore shared data
+* Plugin description
 * Bugfixes
   * Refresh marker states
-
-
-## TODOs
-
-* Find a better plugin short description
 
 
 ## Acknowledgments
