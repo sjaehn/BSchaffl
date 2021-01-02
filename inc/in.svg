@@ -11,7 +11,7 @@
    inkscape:export-xdpi="96"
    inkscape:export-filename="/home/sven/dev/c/BSchaffl/inc/in.png"
    sodipodi:docname="in.svg"
-   inkscape:version="1.0 (6e3e5246a0, 2020-05-07)"
+   inkscape:version="1.0.1 (0767f8302a, 2020-10-17)"
    id="svg109"
    version="1.1"
    viewBox="0 0 8.4666665 3.175"
@@ -32,7 +32,7 @@
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
      inkscape:cy="-15.834464"
-     inkscape:cx="-21.198404"
+     inkscape:cx="11.64201"
      inkscape:zoom="5.6"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -52,7 +52,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -63,12 +63,12 @@
     <text
        id="text82-7"
        y="2.606328"
-       x="0.33161056"
+       x="2.7128606"
        style="font-style:normal;font-weight:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.264583"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:'Good Times';-inkscape-font-specification:'Good Times';fill:#ffffff;fill-opacity:1;stroke-width:0.264583"
          y="2.606328"
-         x="0.33161056"
+         x="2.7128606"
          id="tspan80-9"
          sodipodi:role="line"><tspan
            id="tspan84-0"

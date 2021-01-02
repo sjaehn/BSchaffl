@@ -209,8 +209,8 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	controllers{nullptr},
 	messageLabel (480, 63, 465, 20, "hilabel", ""),
 	inIcon (4, 14, 32, 12, "widget", pluginPath + "inc/in.png"),
-	ampIcon (4, 105, 32, 12, "widget", pluginPath + "inc/amp.png"),
-	delIcon (4, 185, 32, 12, "widget", pluginPath + "inc/del.png"),
+	ampIcon (4, 100, 32, 20, "widget", pluginPath + "inc/amp.png"),
+	delIcon (2, 185, 36, 12, "widget", pluginPath + "inc/del.png"),
 	outIcon (4, 214, 32, 12, "widget", pluginPath + "inc/out.png"),
 
 	clipboard (),
@@ -840,8 +840,8 @@ void BSchafflGUI::resizeGUI()
 	RESIZE (latencyDisplay, 900, 10, 120, 10, sz);
 
 	RESIZE (inIcon, 4, 14, 32, 12, sz);
-	RESIZE (ampIcon, 4, 105, 32, 12, sz);
-	RESIZE (delIcon, 4, 185, 32, 12, sz);
+	RESIZE (ampIcon, 4, 100, 32, 20, sz);
+	RESIZE (delIcon, 2, 185, 36, 12, sz);
 	RESIZE (outIcon, 4, 214, 32, 12, sz);
 
 	// Update monitors

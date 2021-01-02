@@ -7,12 +7,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="32"
+   width="36"
    height="12"
-   viewBox="0 0 8.4666665 3.175"
+   viewBox="0 0 9.5249998 3.175"
    version="1.1"
    id="svg109"
-   inkscape:version="1.0 (6e3e5246a0, 2020-05-07)"
+   inkscape:version="1.0.1 (0767f8302a, 2020-10-17)"
    sodipodi:docname="del.svg"
    inkscape:export-filename="/home/sven/dev/c/BSchaffl/inc/del.png"
    inkscape:export-xdpi="96"
@@ -21,25 +21,25 @@
      id="defs103" />
   <sodipodi:namedview
      id="base"
-     pagecolor="#ffffff"
+     pagecolor="#000000"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
+     inkscape:zoom="22.4"
      inkscape:cx="15.413438"
      inkscape:cy="11.781326"
-     inkscape:document-units="mm"
+     inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="true"
      units="px"
-     inkscape:pagecheckerboard="true"
-     inkscape:window-width="1360"
+     inkscape:pagecheckerboard="false"
+     inkscape:window-width="1920"
      inkscape:window-height="1016"
-     inkscape:window-x="50"
+     inkscape:window-x="0"
      inkscape:window-y="27"
-     inkscape:window-maximized="0">
+     inkscape:window-maximized="1">
     <inkscape:grid
        type="xygrid"
        id="grid111" />
@@ -52,7 +52,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -62,14 +62,22 @@
      id="layer1">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="0.41063341"
+       style="font-style:normal;font-weight:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;letter-spacing:-0.132292px;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="1.3084528"
        y="2.5809207"
        id="text82-7"><tspan
          sodipodi:role="line"
          id="tspan80-9"
-         x="0.41063341"
+         x="1.3084528"
          y="2.5809207"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'Good Times';-inkscape-font-specification:'Good Times';fill:#ffffff;fill-opacity:1;stroke-width:0.264583">str</tspan></text>
+    <path
+       style="fill:#ffffff;stroke:none;stroke-width:0.396874px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 0.79374997,0.79374986 V 2.3812499 L 0,1.5875 Z"
+       id="path833" />
+    <path
+       style="fill:#ffffff;stroke:none;stroke-width:0.396874px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 8.73125,0.79375008 V 2.3812498 L 9.5249999,1.5875 Z"
+       id="path833-3" />
   </g>
 </svg>
