@@ -126,6 +126,13 @@ void BSchaffl::run (uint32_t n_samples)
 		}
 	}
 
+	// Update shape
+	if ((sharedDataNr > 0) && (sharedDataNr <= 4) && (shape != sharedData[sharedDataNr - 1].shape))
+	{
+		shape = sharedData[sharedDataNr - 1].shape;
+		notify_shape = true;
+	}
+
 	recalculateLatency();
 	*controllerPtrs[LATENCY] = latencyFr;
 	if (latencyFr > 192000) message.setMessage (LATENCY_MAX_MSG);
@@ -329,6 +336,8 @@ void BSchaffl::run (uint32_t n_samples)
 							shape.appendRawNode (node);
 						}
 						shape.validateShape();
+
+						if ((sharedDataNr > 0) && (sharedDataNr <=4)) sharedData[sharedDataNr - 1].shape = shape;
 					}
 				}
 			}
@@ -1228,8 +1237,9 @@ LV2_State_Status BSchaffl::state_restore (LV2_State_Retrieve_Function retrieve, 
 			shape.appendNode (node);
 		}
 
-		// Validate all shapes
+		// Validate shape
 		if ((shape.size () < 2) || (!shape.validateShape ())) shape.setDefaultShape ();
+		if ((sharedDataNr > 0) && (sharedDataNr <=4)) sharedData[sharedDataNr - 1].shape = shape;
 
 		// Force GUI notification
 		notify_shape = true;

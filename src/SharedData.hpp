@@ -23,6 +23,7 @@
 
 #include "definitions.hpp"
 #include "Ports.hpp"
+#include "Shape.hpp"
 #include <vector>
 #include <algorithm>
 
@@ -35,7 +36,7 @@ protected:
         BSchaffl* instances_[MAXINSTANCES];
 
 public:
-        SharedData () : controllers_ {0}, instances_ {0} {}
+        SharedData () : controllers_ {0}, instances_ {0}, shape () {}
 
         bool isLinked (const BSchaffl* inst) const {return std::find (instances_, instances_ + MAXINSTANCES, inst) != instances_ + MAXINSTANCES;}
 
@@ -64,6 +65,8 @@ public:
         void set (const int nr, const float value) {controllers_[nr] = value;}
 
         float get (const int nr) const {return controllers_[nr];}
+
+        Shape<MAXNODES> shape;
 };
 
 #endif /* SHAREDDATA_HPP */
