@@ -679,7 +679,6 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 	}
 
 	// Scan controller ports
-	/*
 	else if ((format == 0) && (port_index >= CONTROLLERS) && (port_index < CONTROLLERS + NR_CONTROLLERS) && (sharedDataSelection.getValue() == 0))
 	{
 		float* pval = (float*) buffer;
@@ -695,7 +694,6 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 
 		else setController (controllerNr, *pval);
 	}
-	*/
 }
 
 void BSchafflGUI::resizeGUI()

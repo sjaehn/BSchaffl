@@ -191,6 +191,8 @@ private:
 		float data[NR_CONTROLLERS];
 	};
 
+	float getControllerInput (const int sdNr, const int ctrlNr);
+	void setController (const int ctrlNr, const float value);
 	void randomizeStep (const int step);
 	double getStepStart (const int step);
 	double getStepEnd (const int step);

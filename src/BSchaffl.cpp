@@ -118,42 +118,11 @@ void BSchaffl::run (uint32_t n_samples)
 	for (int i = 0; i < LATENCY; ++i)
 	{
 
-		float newValue;
-
-		// Sync with control ports
-		if (sharedDataNr == 0) newValue = controllerLimits[i].validate (*controllerPtrs[i]);
-
-		// Otherwise sync with globally shared data
-		else if (sharedDataNr <= 4) newValue = controllerLimits[i].validate (sharedData[sharedDataNr - 1].get (i));
-
+		float newValue = getControllerInput (sharedDataNr, i);
 		if (newValue != controllers[i])
 		{
-			controllers[i] = newValue;
-			/*if ((sharedDataNr >= 1) && (sharedDataNr <= 4))*/ notify_controllers[i] = true;
-
-			if (i == SWING) recalculateAutoPositions();
-
-			else if (i == NR_OF_STEPS) recalculateAutoPositions();
-
-			else if ((i >= STEP_POS) && (i < STEP_POS + MAXSTEPS - 1))
-			{
-				const int step = i - STEP_POS;
-				if (newValue == 0.0f)
-				{
-					if (!stepAutoPositions[step])
-					{
-						stepAutoPositions[step] = true;
-						recalculateAutoPositions();
-					}
-				}
-
-				else if (stepPositions[step] != newValue)
-				{
-					stepAutoPositions[step] = false;
-					stepPositions[step] = newValue;
-					recalculateAutoPositions();
-				}
-			}
+			setController (i, newValue);
+			if ((sharedDataNr >= 1) && (sharedDataNr <= 4)) notify_controllers[i] = true;
 		}
 	}
 
@@ -209,13 +178,25 @@ void BSchaffl::run (uint32_t n_samples)
 					if ((nr >= 0) && (nr <= 4) && (nr != sharedDataNr))
 					{
 						if (sharedDataNr != 0) sharedData[sharedDataNr - 1].unlink (this);
+
 						if ((nr != 0) && sharedData[nr - 1].empty())
 						{
 							for (int i = 0; i < NR_CONTROLLERS; ++i) sharedData[nr - 1].set (i, controllers[i]);
 						}
+
 						if (nr != 0) sharedData[nr - 1].link (this);
 						sharedDataNr = nr;
 						notify_sharedData = true;
+
+						for (int i = 0; i < NR_CONTROLLERS; ++i)
+						{
+							float newValue = getControllerInput (sharedDataNr, i);
+							if (newValue != controllers[i])
+							{
+								setController (i, newValue);
+								notify_controllers[i] = true;
+							}
+						}
 					}
 				}
 			}
@@ -240,32 +221,8 @@ void BSchaffl::run (uint32_t n_samples)
 					if ((nr >= 0) && (nr < NR_CONTROLLERS))
 					{
 						const float val = controllerLimits[nr].validate(((LV2_Atom_Float*)oVal)->body);
-						controllers[nr] = val;
-						sharedData[sharedDataNr - 1].set (nr, val);
-
-						if (nr == SWING) recalculateAutoPositions();
-
-						else if (nr == NR_OF_STEPS) recalculateAutoPositions();
-
-						else if ((nr >= STEP_POS) && (nr < STEP_POS + MAXSTEPS - 1))
-						{
-							const int step = nr - STEP_POS;
-							if (val == 0.0f)
-							{
-								if (!stepAutoPositions[step])
-								{
-									stepAutoPositions[step] = true;
-									recalculateAutoPositions();
-								}
-							}
-
-							else if (stepPositions[step] != val)
-							{
-								stepAutoPositions[step] = false;
-								stepPositions[step] = val;
-								recalculateAutoPositions();
-							}
-						}
+						if ((sharedDataNr > 0) && (sharedDataNr <= 4)) sharedData[sharedDataNr - 1].set (nr, val);
+						setController (nr, val);
 					}
 				}
 			}
@@ -737,6 +694,46 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 	}
 }
 
+float BSchaffl::getControllerInput (const int sdNr, const int ctrlNr)
+{
+	// Sync with control ports
+	if ((sdNr == 0) && controllerPtrs) return controllerLimits[ctrlNr].validate (*controllerPtrs[ctrlNr]);
+
+	// Otherwise sync with globally shared data
+	if (sdNr <= 4) return controllerLimits[ctrlNr].validate (sharedData[sdNr - 1].get (ctrlNr));
+
+	return controllerLimits[ctrlNr].min;
+}
+
+void BSchaffl::setController (const int ctrlNr, const float value)
+{
+	controllers[ctrlNr] = value;
+
+	if (ctrlNr == SWING) recalculateAutoPositions();
+
+	else if (ctrlNr == NR_OF_STEPS) recalculateAutoPositions();
+
+	else if ((ctrlNr >= STEP_POS) && (ctrlNr < STEP_POS + MAXSTEPS - 1))
+	{
+		const int step = ctrlNr - STEP_POS;
+		if (value == 0.0f)
+		{
+			if (!stepAutoPositions[step])
+			{
+				stepAutoPositions[step] = true;
+				recalculateAutoPositions();
+			}
+		}
+
+		else if (stepPositions[step] != value)
+		{
+			stepAutoPositions[step] = false;
+			stepPositions[step] = value;
+			recalculateAutoPositions();
+		}
+	}
+}
+
 void BSchaffl::randomizeStep (const int step)
 {
 	const int nrOfSteps = controllers[NR_OF_STEPS];
@@ -1145,6 +1142,16 @@ LV2_State_Status BSchaffl::state_restore (LV2_State_Retrieve_Function retrieve, 
 			if (nr != 0) sharedData[nr - 1].link (this);
 			sharedDataNr = nr;
 			notify_sharedData = true;
+
+			for (int i = 0; i < NR_CONTROLLERS; ++i)
+			{
+				float newValue = getControllerInput (sharedDataNr, i);
+				if (newValue != controllers[i])
+				{
+					setController (i, newValue);
+					notify_controllers[i] = true;
+				}
+			}
 		}
 	}
 
