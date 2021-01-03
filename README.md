@@ -284,7 +284,7 @@ Note: Shared data are unlinked from host automation.
 
 * Bart Brouns for the original idea plus subsequent ideas about principle and features
 * Robin Gareus for ideas to technically solve *rubato*-related problems
-
+* Jatin Chowdhury for ideas to technically solve shared data storage
 
 ## Links
 

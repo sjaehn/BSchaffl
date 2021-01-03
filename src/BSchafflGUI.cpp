@@ -232,7 +232,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		midiChFilterLabels[i] = BWidgets::Label (44 + 80.0 * int (i / 4), 53  + int (i % 4) * 20, 36, 20, "lflabel", "#" + std::to_string (i + 1));
 	}
 
-	for (int i = 0; i < 4; ++i) sharedDataButtons[i] = HaloToggleButton (80 * i, 0, 64, 24, "halobutton", "Shared data " + std::to_string (i + 1) + " (experimental)");
+	for (int i = 0; i < 4; ++i) sharedDataButtons[i] = HaloToggleButton (80 * i, 0, 64, 24, "halobutton", "Shared data " + std::to_string (i + 1));
 
 	// Link widgets to controllers
 	controllers[SEQ_LEN_VALUE] = &seqLenValueListbox;
