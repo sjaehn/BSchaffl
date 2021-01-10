@@ -706,7 +706,7 @@ void BSchaffl::play (uint32_t start, uint32_t end)
 float BSchaffl::getControllerInput (const int sdNr, const int ctrlNr)
 {
 	// Sync with control ports
-	if ((sdNr == 0) && controllerPtrs) return controllerLimits[ctrlNr].validate (*controllerPtrs[ctrlNr]);
+	if ((sdNr == 0) && controllerPtrs[ctrlNr]) return controllerLimits[ctrlNr].validate (*controllerPtrs[ctrlNr]);
 
 	// Otherwise sync with globally shared data
 	if (sdNr <= 4) return controllerLimits[ctrlNr].validate (sharedData[sdNr - 1].get (ctrlNr));
