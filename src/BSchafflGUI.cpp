@@ -1494,7 +1494,7 @@ void BSchafflGUI::valueChangedCallback (BEvents::Event* event)
 	if ((event) && (event->getWidget ()))
 	{
 		BWidgets::ValueWidget* widget = (BWidgets::ValueWidget*) event->getWidget ();
-		const float value = widget->getValue();
+		const double value = widget->getValue();
 
 		if (widget->getMainWindow ())
 		{

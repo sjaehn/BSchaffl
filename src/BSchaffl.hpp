@@ -167,7 +167,7 @@ private:
 	LV2_Atom_Sequence* output;
 
 	// Controllers
-	int sharedDataNr = 0;
+	int sharedDataNr;
 	float* controllerPtrs[NR_CONTROLLERS];
 	float controllers[NR_CONTROLLERS];
 	float stepPositions[MAXSTEPS - 1];
