@@ -1,6 +1,6 @@
 # B.Schaffl
 
-MIDI dynamics and vitalization LV2 plugin.
+Groove quantizer LV2 MIDI plugin.
 
 B.Schaffl is a slider / shape-controlled MIDI amp & time stretch plugin to vitalize sequencer-controlled MIDI
 instruments and to produce shuffle / swing effects.
