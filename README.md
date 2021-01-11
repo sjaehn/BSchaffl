@@ -272,12 +272,7 @@ Note: Shared data are unlinked from host automation.
 
 ## What's new
 
-* Link controllers to shared data option
-* Link shape to shared data
-* Save / restore shared data
-* Plugin description
 * Bugfixes
-  * Refresh marker states
 
 
 ## Acknowledgments

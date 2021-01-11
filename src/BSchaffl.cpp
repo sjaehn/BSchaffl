@@ -1082,10 +1082,9 @@ void BSchaffl::notifyMessageToGui ()
 LV2_State_Status BSchaffl::state_save (LV2_State_Store_Function store, LV2_State_Handle handle, uint32_t flags, const LV2_Feature* const* features)
 {
 	// Save shared data
+	store (handle, uris.bschaffl_sharedDataNr, &sharedDataNr, sizeof(sharedDataNr), uris.atom_Int, LV2_STATE_IS_POD);
 	if (sharedDataNr != 0)
 	{
-		store (handle, uris.bschaffl_sharedDataNr, &sharedDataNr, sizeof(sharedDataNr), uris.atom_Int, LV2_STATE_IS_POD);
-
 		Atom_Controllers atom;
 		for (int i = 0; i < NR_CONTROLLERS; ++i) atom.data[i] = sharedData[sharedDataNr - 1].get (i);
 		atom.body.child_type = uris.atom_Float;
@@ -1130,37 +1129,38 @@ LV2_State_Status BSchaffl::state_restore (LV2_State_Retrieve_Function retrieve, 
 	uint32_t valflags;
 
 	// Restore sharedData
+	if (sharedDataNr != 0) sharedData[sharedDataNr - 1].unlink (this);
 	sharedDataNr = 0;
 	const void* sharedDataNrData = retrieve (handle, uris.bschaffl_sharedDataNr, &size, &type, &valflags);
 	if (sharedDataNrData && (type == uris.atom_Int))
 	{
 		const int nr = *(int*)sharedDataNrData;
-		if ((nr >= 0) && (nr <= 4))
+		sharedDataNr = nr;
+		if (nr != 0) sharedData[nr - 1].link (this);
+	}
+
+	if ((sharedDataNr >= 0) && (sharedDataNr <= 4))
+	{
+		const void* controllersData = retrieve (handle, uris.bschaffl_controllers, &size, &type, &valflags);
+		if (controllersData && (type == uris.atom_Vector) && (sharedDataNr > 0))
 		{
-			const void* controllersData = retrieve (handle, uris.bschaffl_controllers, &size, &type, &valflags);
-			if (controllersData && (type == uris.atom_Vector) && (nr > 0))
+			const Atom_Controllers* atom = (const Atom_Controllers*) controllersData;
+			if (atom->body.child_type == uris.atom_Float)
 			{
-				const Atom_Controllers* atom = (const Atom_Controllers*) controllersData;
-				if (atom->body.child_type == uris.atom_Float)
-				{
-					for (int i = 0; i < NR_CONTROLLERS; ++i) sharedData[nr - 1].set (i, atom->data[i]);
-				}
+				for (int i = 0; i < NR_CONTROLLERS; ++i) sharedData[sharedDataNr - 1].set (i, atom->data[i]);
 			}
+		}
+	}
+	
+	notify_sharedData = true;
 
-			if (sharedDataNr != 0) sharedData[sharedDataNr - 1].unlink (this);
-			if (nr != 0) sharedData[nr - 1].link (this);
-			sharedDataNr = nr;
-			notify_sharedData = true;
-
-			for (int i = 0; i < NR_CONTROLLERS; ++i)
-			{
-				float newValue = getControllerInput (sharedDataNr, i);
-				if (newValue != controllers[i])
-				{
-					setController (i, newValue);
-					notify_controllers[i] = true;
-				}
-			}
+	for (int i = 0; i < NR_CONTROLLERS; ++i)
+	{
+		float newValue = getControllerInput (sharedDataNr, i);
+		if (newValue != controllers[i])
+		{
+			setController (i, newValue);
+			notify_controllers[i] = true;
 		}
 	}
 
