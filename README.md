@@ -25,6 +25,8 @@ Key features:
 
 * [Arch user repository](https://aur.archlinux.org/packages/bschaffl.lv2-git) by Milkii Brewster, SpotlightKid
 * [Debian / LibraZiK](https://librazik.tuxfamily.org/doc3/logiciels/bschaffl) by Olivier Humbert
+* [Guix](https://guix.gnu.org/packages/bschaffl-1.2.0/)
+* [NixOS](https://github.com/NixOS/nixpkgs/blob/release-20.09/pkgs/applications/audio/bschaffl/default.nix#L23) by Bart Brouns
 * Check https://repology.org/project/bschaffl/versions for other systems
 
 
