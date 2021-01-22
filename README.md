@@ -274,7 +274,7 @@ Note: Shared data are unlinked from host automation.
 
 ## What's new
 
-* Bugfixes
+* Enable enter slider and dial values via keyboard
 
 
 ## Acknowledgments

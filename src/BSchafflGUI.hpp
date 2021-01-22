@@ -121,6 +121,7 @@ private:
         static void sharedDataClickedCallback (BEvents::Event* event);
         static void helpButtonClickedCallback (BEvents::Event* event);
 	static void ytButtonClickedCallback (BEvents::Event* event);
+	static void stepControlLabelMessageCallback (BEvents::Event* event);
 
         std::string pluginPath;
 

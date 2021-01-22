@@ -337,6 +337,8 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		stepControlLabel[i] = BWidgets::Label ((i + 0.5) * sw / MAXSTEPS + sx - 14, 0, 28, 20, "mlabel", "1.00");
 		stepControlLabel[i].applyTheme (theme, "mlabel");
 		stepControlLabel[i].setState (BColors::ACTIVE);
+		stepControlLabel[i].setEditable (true);
+		stepControlLabel[i].setCallbackFunction(BEvents::EventType::MESSAGE_EVENT, stepControlLabelMessageCallback);
 		stepControlContainer.add (stepControlLabel[i]);
 
 		inputStepLabel[i] = BWidgets::Label (sx + (i + 0.1) * sw / MAXSTEPS, 10, 0.8 * sw / MAXSTEPS, 20, "steplabel", "#" + std::to_string (i + 1));
@@ -2003,6 +2005,36 @@ void BSchafflGUI::helpButtonClickedCallback (BEvents::Event* event)
 void BSchafflGUI::ytButtonClickedCallback (BEvents::Event* event)
 {
 	if (system(OPEN_CMD " " YT_URL)) std::cerr << "BSchaffl.lv2#GUI: Can't open " << YT_URL << ". You can try to call it maually.";
+}
+
+void BSchafflGUI::stepControlLabelMessageCallback (BEvents::Event* event)
+{
+	if (event && event->getWidget())
+	{
+		BWidgets::Label* l = (BWidgets::Label*)event->getWidget();
+		BSchafflGUI* ui = (BSchafflGUI*)l->getMainWindow();
+		if (ui)
+		{
+			for (int i = 0; i < MAXSTEPS; ++i)
+			{
+				if (l == &ui->stepControlLabel[i])
+				{
+					double val = ui->stepControl[i].getValue();
+					try {val = BUtilities::stof (l->getText());}
+					catch (std::invalid_argument &ia)
+					{
+						fprintf (stderr, "%s\n", ia.what());
+						l->setText (BUtilities::to_string (val, "%1.2f"));
+						return;
+					}
+
+					ui->stepControl[i].setValue (val);
+					l->setText (BUtilities::to_string (ui->stepControl[i].getValue(), "%1.2f"));
+					break;
+				}
+			}
+		}
+	}
 }
 
 void BSchafflGUI::redrawSContainer ()
