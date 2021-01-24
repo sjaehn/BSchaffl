@@ -24,7 +24,7 @@
 
 
 BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow) :
-	Window (1020, 480, "B.Schaffl", parentWindow, true),
+	Window (1020, 480, "B.Schaffl", parentWindow, true, PUGL_MODULE, 0),
 	controller (NULL), write_function (NULL),
 	pluginPath (bundle_path ? std::string (bundle_path) : std::string ("")),
 
