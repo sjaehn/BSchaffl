@@ -83,7 +83,7 @@ const std::array<std::string, NR_MIDI_MSG_FILTERS> midiMsgGroupTexts = {{"Note",
 class BSchafflGUI : public BWidgets::Window
 {
 public:
-	BSchafflGUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeWindow parentWindow);
+	BSchafflGUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeView parentWindow);
 	~BSchafflGUI ();
 	void portEvent (uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer);
 	virtual void onConfigureRequest (BEvents::ExposeEvent* event) override;
