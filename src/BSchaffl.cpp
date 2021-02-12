@@ -1151,7 +1151,7 @@ LV2_State_Status BSchaffl::state_restore (LV2_State_Retrieve_Function retrieve, 
 			}
 		}
 	}
-	
+
 	notify_sharedData = true;
 
 	for (int i = 0; i < NR_CONTROLLERS; ++i)
@@ -1248,7 +1248,7 @@ LV2_State_Status BSchaffl::state_restore (LV2_State_Retrieve_Function retrieve, 
 	return LV2_STATE_SUCCESS;
 }
 
-LV2_Handle instantiate (const LV2_Descriptor* descriptor, double samplerate, const char* bundle_path, const LV2_Feature* const* features)
+static LV2_Handle instantiate (const LV2_Descriptor* descriptor, double samplerate, const char* bundle_path, const LV2_Feature* const* features)
 {
 	// New instance
 	BSchaffl* instance;
@@ -1275,13 +1275,13 @@ LV2_Handle instantiate (const LV2_Descriptor* descriptor, double samplerate, con
 	return (LV2_Handle)instance;
 }
 
-void connect_port (LV2_Handle instance, uint32_t port, void *data)
+static void connect_port (LV2_Handle instance, uint32_t port, void *data)
 {
 	BSchaffl* inst = (BSchaffl*) instance;
 	inst->connect_port (port, data);
 }
 
-void run (LV2_Handle instance, uint32_t n_samples)
+static void run (LV2_Handle instance, uint32_t n_samples)
 {
 	BSchaffl* inst = (BSchaffl*) instance;
 	inst->run (n_samples);
@@ -1305,7 +1305,7 @@ static LV2_State_Status state_restore(LV2_Handle instance, LV2_State_Retrieve_Fu
 	return inst->state_restore (retrieve, handle, flags, features);
 }
 
-void cleanup (LV2_Handle instance)
+static void cleanup (LV2_Handle instance)
 {
 	BSchaffl* inst = (BSchaffl*) instance;
 	delete inst;
@@ -1318,7 +1318,7 @@ static const void* extension_data(const char* uri)
 	return NULL;
 }
 
-const LV2_Descriptor descriptor =
+static const LV2_Descriptor descriptor =
 {
 	BSCHAFFL_URI,
 	instantiate,
