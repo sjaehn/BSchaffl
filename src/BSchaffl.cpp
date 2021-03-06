@@ -1278,13 +1278,13 @@ static LV2_Handle instantiate (const LV2_Descriptor* descriptor, double samplera
 static void connect_port (LV2_Handle instance, uint32_t port, void *data)
 {
 	BSchaffl* inst = (BSchaffl*) instance;
-	inst->connect_port (port, data);
+	if (inst) inst->connect_port (port, data);
 }
 
 static void run (LV2_Handle instance, uint32_t n_samples)
 {
 	BSchaffl* inst = (BSchaffl*) instance;
-	inst->run (n_samples);
+	if (inst) inst->run (n_samples);
 }
 
 static LV2_State_Status state_save(LV2_Handle instance, LV2_State_Store_Function store, LV2_State_Handle handle, uint32_t flags,
@@ -1308,7 +1308,7 @@ static LV2_State_Status state_restore(LV2_Handle instance, LV2_State_Retrieve_Fu
 static void cleanup (LV2_Handle instance)
 {
 	BSchaffl* inst = (BSchaffl*) instance;
-	delete inst;
+	if (inst) delete inst;
 }
 
 static const void* extension_data(const char* uri)
