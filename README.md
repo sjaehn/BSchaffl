@@ -283,8 +283,6 @@ Note: Shared data are unlinked from host automation.
 
 ## What's new
 
-* Check dependencies / versions
-* Support older systems (gcc < 8, clang < 10, lv2 < 1.18)
 * Bugfixes
 
 
