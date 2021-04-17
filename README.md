@@ -284,6 +284,7 @@ Note: Shared data are unlinked from host automation.
 ## What's new
 
 * Bugfixes
+* Enable web browser call (help, tutorial) on fork-blocking hosts
 
 
 ## Acknowledgments

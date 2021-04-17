@@ -66,7 +66,7 @@ enum MessageNr
 #define BG_FILE "inc/surface.png"
 #define HELP_URL "https://github.com/sjaehn/BSchaffl/blob/master/README.md"
 #define YT_URL " https://youtu.be/CBwkYDk5reU"
-#define OPEN_CMD "xdg-open"
+#define WWW_BROWSER_CMD "x-www-browser"
 
 #define LIM(g , min, max) ((g) > (max) ? (max) : ((g) < (min) ? (min) : (g)))
 #define RESIZE(widget, x, y, w, h, sz) (widget).moveTo ((x) * (sz), (y) * (sz)); (widget).resize ((w) * (sz), (h) * (sz));

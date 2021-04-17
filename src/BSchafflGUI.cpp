@@ -21,6 +21,7 @@
 #include "BSchafflGUI.hpp"
 #include "Ports.hpp"
 #include "screen.h"
+#include "BUtilities/vsystem.hpp"
 
 
 BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeView parentWindow) :
@@ -1999,12 +2000,20 @@ void BSchafflGUI::sharedDataClickedCallback (BEvents::Event* event)
 
 void BSchafflGUI::helpButtonClickedCallback (BEvents::Event* event)
 {
-	if (system(OPEN_CMD " " HELP_URL)) std::cerr << "BSchaffl.lv2#GUI: Can't open " << HELP_URL << ". You can try to call it manually.\n";
+	char cmd[] = WWW_BROWSER_CMD;
+	char param[] = HELP_URL;
+	char* argv[] = {cmd, param, NULL};
+	std::cerr << "BSchaffl.lv2#GUI: Call " << HELP_URL << " for help.\n";
+	if (BUtilities::vsystem (argv) == -1) std::cerr << "BSchaffl.lv2#GUI: Couldn't fork.\n";
 }
 
 void BSchafflGUI::ytButtonClickedCallback (BEvents::Event* event)
 {
-	if (system(OPEN_CMD " " YT_URL)) std::cerr << "BSchaffl.lv2#GUI: Can't open " << YT_URL << ". You can try to call it manually.\n";
+	char cmd[] = WWW_BROWSER_CMD;
+	char param[] = YT_URL;
+	char* argv[] = {cmd, param, NULL};
+	std::cerr << "BSchaffl.lv2#GUI: Call " << YT_URL << " for tutorial video.\n";
+	if (BUtilities::vsystem (argv) == -1) std::cerr << "BSchaffl.lv2#GUI: Couldn't fork.\n";
 }
 
 void BSchafflGUI::stepControlLabelMessageCallback (BEvents::Event* event)
