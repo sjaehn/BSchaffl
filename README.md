@@ -27,6 +27,7 @@ Key features:
 * [Debian / LibraZiK](https://librazik.tuxfamily.org/doc3/logiciels/bschaffl) by Olivier Humbert
 * [Guix](https://guix.gnu.org/packages/bschaffl-1.2.0/)
 * [NixOS](https://github.com/NixOS/nixpkgs/blob/release-20.09/pkgs/applications/audio/bschaffl/default.nix#L23) by Bart Brouns
+* [openSUSE](https://software.opensuse.org/package/BSchaffl)
 * Check https://repology.org/project/bschaffl/versions for other systems
 
 
