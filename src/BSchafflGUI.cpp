@@ -201,6 +201,15 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	swingRandomControl (720, 422, 120, 28, "slider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
 	swingProcessControl (875, 422, 120, 28, "procslider", 0.0, 0.0, 1.0, 0.0, "%1.2f"),
 	nrStepsControl (380, 422, 155, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
+	seqLenIcon (385, 405, 140, 12, "widget", pluginPath + BSCHAFFL_FILENAME_SEQUENCE_SIZE),
+        ampSwingIcon (555, 405, 140, 12, "widget", pluginPath + BSCHAFFL_FILENAME_AMP_SWING),
+        ampRandomIcon (710, 405, 140, 12, "widget", pluginPath + BSCHAFFL_FILENAME_AMP_RANDOM),
+        ampProcessIcon (865, 405, 140, 12, "widget", pluginPath + BSCHAFFL_FILENAME_AMP_PROCESS),
+        nrStepsIcon (385, 455, 140, 12, "widget", pluginPath + BSCHAFFL_FILENAME_NR_OF_STEPS),
+        swingIcon (555, 455, 140, 12, "widget", pluginPath + BSCHAFFL_FILENAME_STEPS_SWING),
+        swingRandomIcon (710, 455, 140, 12, "widget", pluginPath + BSCHAFFL_FILENAME_STEPS_RANDOM),
+        swingProcessIcon (865, 455, 140, 12, "widget", pluginPath + BSCHAFFL_FILENAME_STEPS_PROCESS),
+
 	stepControlContainer (40, 40, 580, 130, "widget", 0.0),
 	shapeWidget (40, 40, 580, 130, "shape"),
 	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({BSCHAFFL_LABEL_AUTO, BSCHAFFL_LABEL_MANUAL})),
@@ -209,10 +218,10 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	latencyDisplay (900, 10, 120, 10, "smlabel", ""),
 	controllers{nullptr},
 	messageLabel (480, 63, 465, 20, "hilabel", ""),
-	inIcon (4, 14, 32, 12, "widget", pluginPath + "inc/in.png"),
-	ampIcon (4, 100, 32, 20, "widget", pluginPath + "inc/amp.png"),
-	delIcon (2, 185, 36, 12, "widget", pluginPath + "inc/del.png"),
-	outIcon (4, 214, 32, 12, "widget", pluginPath + "inc/out.png"),
+	inIcon (4, 14, 32, 12, "widget", pluginPath + BSCHAFFL_FILENAME_IN),
+	ampIcon (4, 100, 32, 20, "widget", pluginPath + BSCHAFFL_FILENAME_AMP),
+	delIcon (2, 185, 36, 12, "widget", pluginPath + BSCHAFFL_FILENAME_STR),
+	outIcon (4, 214, 32, 12, "widget", pluginPath + BSCHAFFL_FILENAME_OUT),
 
 	clipboard (),
 
@@ -463,6 +472,15 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	mContainer.add (latencyValue);
 	mContainer.add (latencyDisplay);
 	mContainer.add (messageLabel);
+
+	mContainer.add (seqLenIcon);
+        mContainer.add (ampSwingIcon);
+        mContainer.add (ampRandomIcon);
+        mContainer.add (ampProcessIcon);
+        mContainer.add (nrStepsIcon);
+        mContainer.add (swingIcon);
+        mContainer.add (swingRandomIcon);
+        mContainer.add (swingProcessIcon);
 
 	convertToShapeMessage.add (convertToShapeToLinearButton);
         convertToShapeMessage.add (convertToShapeToLinearText);
@@ -839,6 +857,15 @@ void BSchafflGUI::resizeGUI()
 	RESIZE (markerListBox, 12, -68, 86, 66, sz);
 	markerListBox.resizeItems (BUtilities::Point (80 * sz, 20 * sz));
 
+	RESIZE (seqLenIcon, 385, 405, 140, 12, sz);
+        RESIZE (ampSwingIcon, 555, 405, 140, 12, sz);
+        RESIZE (ampRandomIcon, 710, 405, 140, 12, sz);
+        RESIZE (ampProcessIcon, 865, 405, 140, 12, sz);
+        RESIZE (nrStepsIcon, 385, 455, 140, 12, sz);
+        RESIZE (swingIcon, 555, 455, 140, 12, sz);
+        RESIZE (swingRandomIcon, 710, 455, 140, 12, sz);
+        RESIZE (swingProcessIcon, 865, 455, 140, 12, sz);
+
 	RESIZE (messageLabel, 480, 63, 465, 20, sz);
 	RESIZE (latencyDisplay, 900, 10, 120, 10, sz);
 
@@ -952,6 +979,15 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
         convertToShapeToConstText.applyTheme (theme);
 
 	convertToStepsMessage.applyTheme (theme);
+
+	seqLenIcon.applyTheme (theme);
+        ampSwingIcon.applyTheme (theme);
+        ampRandomIcon.applyTheme (theme);
+        ampProcessIcon.applyTheme (theme);
+        nrStepsIcon.applyTheme (theme);
+        swingIcon.applyTheme (theme);
+        swingRandomIcon.applyTheme (theme);
+        swingProcessIcon.applyTheme (theme);
 
 	modeSwitch.applyTheme (theme);
 	seqLenValueListbox.applyTheme (theme);

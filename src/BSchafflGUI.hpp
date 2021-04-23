@@ -70,6 +70,7 @@ enum MessageNr
 };
 #endif /* MESSAGENR_ */
 
+#define BSCHAFFL_FILENAME_BG "inc/surface.png"
 #define HELP_URL "https://github.com/sjaehn/BSchaffl/blob/master/README.md"
 #define YT_URL " https://youtu.be/CBwkYDk5reU"
 #define WWW_BROWSER_CMD "x-www-browser"
@@ -234,6 +235,14 @@ private:
         BWidgets::HSliderValue swingRandomControl;
         BWidgets::HSliderValue swingProcessControl;
 	BWidgets::HSliderValue nrStepsControl;
+        BWidgets::ImageIcon seqLenIcon;
+        BWidgets::ImageIcon ampSwingIcon;
+        BWidgets::ImageIcon ampRandomIcon;
+        BWidgets::ImageIcon ampProcessIcon;
+        BWidgets::ImageIcon nrStepsIcon;
+        BWidgets::ImageIcon swingIcon;
+        BWidgets::ImageIcon swingRandomIcon;
+        BWidgets::ImageIcon swingProcessIcon;
         BWidgets::ValueWidget stepControlContainer;
         ShapeWidget shapeWidget;
 	std::array<BWidgets::VSlider, MAXSTEPS> stepControl;
