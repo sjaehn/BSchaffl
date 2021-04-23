@@ -54,6 +54,13 @@
 
 #ifndef MESSAGENR_
 #define MESSAGENR_
+
+#ifdef LOCALEFILE
+#include LOCALEFILE
+#else
+#include "Locale_EN.hpp"
+#endif
+
 enum MessageNr
 {
 	NO_MSG		= 0,
@@ -63,7 +70,6 @@ enum MessageNr
 };
 #endif /* MESSAGENR_ */
 
-#define BG_FILE "inc/surface.png"
 #define HELP_URL "https://github.com/sjaehn/BSchaffl/blob/master/README.md"
 #define YT_URL " https://youtu.be/CBwkYDk5reU"
 #define WWW_BROWSER_CMD "x-www-browser"
@@ -74,11 +80,14 @@ enum MessageNr
 const std::string messageStrings[MAX_MSG + 1] =
 {
 	"",
-	"*** Jack transport off or halted. ***",
-        "*** Latency exceeds maximum of 192000 frames. ***"
+	"*** " BSCHAFFL_LABEL_JACK_OFF " ***",
+        "*** " BSCHAFFL_LABEL_LATENCY_EXCEEDS " ***"
 };
 
-const std::array<std::string, NR_MIDI_MSG_FILTERS> midiMsgGroupTexts = {{"Note", "Key pressure", "Control change", "Program change", "Channel pressure", "Pitch bend", "System exclusive"}};
+const std::array<std::string, NR_MIDI_MSG_FILTERS> midiMsgGroupTexts =
+{{
+        BSCHAFFL_LABEL_MIDI_NO, BSCHAFFL_LABEL_MIDI_KP, BSCHAFFL_LABEL_MIDI_CC, BSCHAFFL_LABEL_MIDI_PC, BSCHAFFL_LABEL_MIDI_CP, BSCHAFFL_LABEL_MIDI_PB, BSCHAFFL_LABEL_MIDI_SE
+}};
 
 class BSchafflGUI : public BWidgets::Window
 {

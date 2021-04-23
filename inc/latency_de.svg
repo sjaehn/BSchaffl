@@ -9,8 +9,8 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    inkscape:export-ydpi="96"
    inkscape:export-xdpi="96"
-   inkscape:export-filename="/home/sven/dev/c/BSchaffl/inc/midi_msg_filter.png"
-   sodipodi:docname="midi_msg_filter.svg"
+   inkscape:export-filename="/home/sven/dev/c/BSchaffl/inc/latency_de.png"
+   sodipodi:docname="latency_de.svg"
    inkscape:version="1.0.2 (394de47547, 2021-03-26)"
    id="svg109"
    version="1.1"
@@ -70,6 +70,8 @@
          y="4.1359639"
          x="-0.22013316"
          id="tspan80-9"
-         sodipodi:role="line">midi Message filter</tspan></text>
+         sodipodi:role="line"><tspan
+   style="font-size:4.23333px"
+   id="tspan10">L</tspan>atenz</tspan></text>
   </g>
 </svg>

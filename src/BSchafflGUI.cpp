@@ -31,125 +31,125 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	mContainer (0, 0, 1020, 480, "main"),
 
-	helpButton (950, 60, 24, 24, "halobutton", "Help"),
-	ytButton (980, 60, 24, 24, "halobutton", "Tutorial"),
+	helpButton (950, 60, 24, 24, "halobutton", BSCHAFFL_LABEL_HELP),
+	ytButton (980, 60, 24, 24, "halobutton", BSCHAFFL_LABEL_TUTORIAL),
 
 	toolbox (380, 330, 620, 30, "scontainer"),
 	toolIcon (4, 2 , 40, 26, "widget", pluginPath + "inc/tools.png"),
 	convertToShapeIcon (50, 5, 50, 20, "widget", pluginPath + "inc/convert_to_linear_shape.png"),
 	convertToStepsIcon (50, 5, 50, 20, "widget", pluginPath + "inc/convert_to_steps.png"),
-	convertToShapeButton (48, 3, 54, 24, "halobutton", "Convert step sliders to shape"),
-	convertToStepsButton (48, 3, 54, 24, "halobutton", "Convert shape to step sliders"),
+	convertToShapeButton (48, 3, 54, 24, "halobutton", BSCHAFFL_LABEL_CONVERT_TO_SHAPE),
+	convertToStepsButton (48, 3, 54, 24, "halobutton", BSCHAFFL_LABEL_CONVERT_TO_STEPS),
 	markersToolbox (120, 5, 50, 20, "widget", pluginPath + "inc/markers_tb.png"),
 	shapeToolbox (190, 5, 140, 20, "widget", pluginPath + "inc/shape_tools_tb.png"),
 	editToolbox (360, 5, 80, 20, "widget", pluginPath + "inc/edit_tb.png"),
 	historyToolbox (460, 5, 80, 20, "widget", pluginPath + "inc/history_tb.png"),
 	gridToolbox (560, 5, 50, 20, "widget", pluginPath + "inc/grid_tb.png"),
-	markersAutoButton (118, 3, 24, 24, "halobutton", "All markers: Auto"),
-	markersManualButton (148, 3, 24, 24, "halobutton", "All markers: Manual"),
+	markersAutoButton (118, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_ALL_MARKERS_AUTO),
+	markersManualButton (148, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_ALL_MARKERS_MANUAL),
 	shapeToolButtons
 	{
-		HaloToggleButton (188, 3, 24, 24, "halobutton", "Select"),
-		HaloToggleButton (218, 3, 24, 24, "halobutton", "Point node"),
-		HaloToggleButton (248, 3, 24, 24, "halobutton", "Auto Bezier node"),
-		HaloToggleButton (278, 3, 24, 24, "halobutton", "Symmetric Bezier node"),
-		HaloToggleButton (308, 3, 24, 24, "halobutton", "Asymmetric Bezier node")
+		HaloToggleButton (188, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_SELECT),
+		HaloToggleButton (218, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_POINT_NODE),
+		HaloToggleButton (248, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_AUTO_NODE),
+		HaloToggleButton (278, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_SYMMETRIC_NODE),
+		HaloToggleButton (308, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_ASYMMETRIC_NODE)
 	},
 	editToolButtons
 	{
-		HaloButton (358, 3, 24, 24, "halobutton", "Cut"),
-		HaloButton (388, 3, 24, 24, "halobutton", "Copy"),
-		HaloButton (418, 3, 24, 24, "halobutton", "Paste")
+		HaloButton (358, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_CUT),
+		HaloButton (388, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_COPY),
+		HaloButton (418, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_PASTE)
 	},
 	historyToolButtons
 	{
-		HaloButton (458, 3, 24, 24, "halobutton", "Reset"),
-		HaloButton (488, 3, 24, 24, "halobutton", "Undo"),
-		HaloButton (518, 3, 24, 24, "halobutton", "Redo")
+		HaloButton (458, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_RESET),
+		HaloButton (488, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_UNDO),
+		HaloButton (518, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_REDO)
 	},
-	gridShowButton (558, 3, 24, 24, "halobutton", "Show grid"),
-	gridSnapButton (588, 3, 24, 24, "halobutton", "Snap to grid"),
+	gridShowButton (558, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_SHOW_GRID),
+	gridSnapButton (588, 3, 24, 24, "halobutton", BSCHAFFL_LABEL_SNAP_GRID),
 
 	convertToShapeMessage
 	(
 		560, 100, 300, 150, "menu",
-		"Shape-controlled amp mode",
-		"Do you want to convert the amp data from the sliders-controlled mode to this shape ?",
-		std::vector<std::string>{"OK", "Cancel"}
+		BSCHAFFL_LABEL_CONVERT_TO_SHAPE_TITLE,
+		BSCHAFFL_LABEL_CONVERT_TO_SHAPE_TEXT,
+		std::vector<std::string>{BSCHAFFL_LABEL_OK, BSCHAFFL_LABEL_CANCEL}
 	),
         convertToShapeToLinearButton (20, 70, 12, 12, "slider", 0.0),
-        convertToShapeToLinearText (60, 70, 200, 20, "menu/text", "Convert sliders to linear fading"),
+        convertToShapeToLinearText (60, 70, 200, 20, "menu/text", BSCHAFFL_LABEL_CONVERT_TO_SHAPE_LINEAR_TEXT),
         convertToShapeToConstButton (20, 90, 12, 12, "slider", 0.0),
-        convertToShapeToConstText (60, 90, 200, 20, "menu/text", "Convert sliders to steps"),
+        convertToShapeToConstText (60, 90, 200, 20, "menu/text", BSCHAFFL_LABEL_CONVERT_TO_SHAPE_CONST_TEXT),
 
 	convertToStepsMessage
 	(
 		560, 100, 300, 110, "menu",
-		"Sliders-controlled amp mode",
-		"Do you want to convert the amp data from the shape-controlled mode to sliders ?",
-		std::vector<std::string>{"OK", "Cancel"}
+		BSCHAFFL_LABEL_CONVERT_TO_STEPS_TITLE,
+		BSCHAFFL_LABEL_CONVERT_TO_STEPS_TEXT,
+		std::vector<std::string>{BSCHAFFL_LABEL_OK, BSCHAFFL_LABEL_CANCEL}
 	),
 
-	midiChFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_ch_filter.png"),
+	midiChFilterIcon (0, 0, 300, 20, "widget", pluginPath + BSCHAFFL_FILENAME_MIDI_CH_FILTER),
 	midiChFilterContainer (0, 0, 340, 140, "screen"),
-	midiChFilterText (10, 10, 320, 50, "text", "MIDI channels to be processed by the plugin."),
+	midiChFilterText (10, 10, 320, 50, "text", BSCHAFFL_LABEL_MIDI_CH),
 	midiChFilterAllSwitch (10, 36, 28, 14, "slider", 1),
-	midiChFilterAllLabel (44, 33, 120, 20, "lflabel", "All"),
+	midiChFilterAllLabel (44, 33, 120, 20, "lflabel", BSCHAFFL_LABEL_ALL),
 
-	midiMsgFilterIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_msg_filter.png"),
+	midiMsgFilterIcon (0, 0, 300, 20, "widget", pluginPath + BSCHAFFL_FILENAME_MIDI_MSG_FILTER),
 	midiMsgFilterContainer (0, 0, 340, 200, "screen"),
-	midiMsgFilterText (10, 10, 320, 20, "text", "MIDI messages to be processed by the plugin."),
+	midiMsgFilterText (10, 10, 320, 20, "text", BSCHAFFL_LABEL_MIDI_MSG),
 	midiMsgFilterAllSwitch (10, 36, 28, 14, "slider", 1),
-	midiMsgFilterAllLabel (50, 33, 120, 20, "lflabel", "All"),
+	midiMsgFilterAllLabel (50, 33, 120, 20, "lflabel", BSCHAFFL_LABEL_ALL),
 
-	midiNoteOptionsIcon (0, 0, 300, 20, "widget", pluginPath + "inc/midi_note_options.png"),
-        midiNoteOptionsContainer (0, 0, 340, 200, "screen"),
-	midiNoteText (10, 10, 320, 30, "text", "Note position and duration can be excluded from stretch. Take care, this may result in overlaps!"),
-        midiNotePositionSwitch (10, 48, 28, 14, "slider", 0.0),
-        midiNotePositionLabel (50, 45, 240, 20, "lflabel", "Keep note position"),
-        midiNoteValueSwitch (10, 68, 28, 14, "slider", 0.0),
-        midiNoteValueLabel (50, 65, 180, 20, "lflabel", "Keep note duration"),
+	midiNoteOptionsIcon (0, 0, 300, 20, "widget", pluginPath + BSCHAFFL_FILENAME_MIDI_NOTE_OPTIONS),
+        midiNoteOptionsContainer (0, 0, 340, 210, "screen"),
+	midiNoteText (10, 10, 320, 50, "text", BSCHAFFL_LABEL_NOTE_TEXT),
+        midiNotePositionSwitch (10, 68, 28, 14, "slider", 0.0),
+        midiNotePositionLabel (50, 65, 240, 20, "lflabel", BSCHAFFL_LABEL_NOTE_KEEP_POSITION),
+        midiNoteValueSwitch (10, 88, 28, 14, "slider", 0.0),
+        midiNoteValueLabel (50, 85, 180, 20, "lflabel", BSCHAFFL_LABEL_NOTE_KEEP_DURATION),
         midiNoteOverlapListbox
 	(
-		120, 90, 100, 20, 0, 20, 100, 80, "menu",
-		BItems::ItemList ({{0, "Do nothing"}, {1, "Split"}, {2, "Merge"}}),
+		160, 110, 100, 20, 0, 20, 100, 80, "menu",
+		BItems::ItemList ({{0, BSCHAFFL_LABEL_DO_NOTHING}, {1, BSCHAFFL_LABEL_SPLIT}, {2, BSCHAFFL_LABEL_MERGE}}),
 		0
 	),
-        midiNoteOverlapLabel (10, 90, 110, 20, "lflabel", "If notes overlap:"),
-	midiNoteText2 (10, 130, 320, 30, "text", "MIDI note off velocity can be amplified with data either from the start or the end of the note."),
-        midiNoteOffAmpLabel (10, 170, 110, 20, "lflabel", "NOTE_OFF amp:"),
+        midiNoteOverlapLabel (10, 110, 150, 20, "lflabel", BSCHAFFL_LABEL_IF_NOTES_OVERLAP_TITLE),
+	midiNoteText2 (10, 140, 320, 30, "text", BSCHAFFL_LABEL_IF_NOTES_OVERLAP_TEXT),
+        midiNoteOffAmpLabel (10, 180, 110, 20, "lflabel", BSCHAFFL_LABEL_NOTE_OFF_AMP),
         midiNoteOffAmpListbox
 	(
-		120, 170, 220, 20, 0, 20, 220, 60, "menu",
-		BItems::ItemList ({{0, "Use NOTE_ON amp"}, {1, "Calculate from end step/position"}}),
+		120, 180, 220, 20, 0, 20, 220, 60, "menu",
+		BItems::ItemList ({{0, BSCHAFFL_LABEL_USE_NOTE_ON_AMP}, {1, BSCHAFFL_LABEL_CALCULATE_FROM_END}}),
 		0
 	),
 
-	smartQuantizationIcon (0, 0, 300, 20, "widget", pluginPath + "inc/smart_quantization.png"),
-	smartQuantizationContainer (0, 0, 340, 180, "screen"),
-        smartQuantizationRangeSlider (10, 60, 110, 28, "slider", 0.25, 0.0, 0.5, 0.0, "%1.2f"),
-        smartQuantizationMappingSwitch (10, 136, 28, 14, "slider", 1.0),
-        smartQuantizationPositioningSwitch (10, 156, 28, 14, "slider", 0.0),
-        smartQuantizationText1 (10, 10, 320, 50, "text", "Synchronizes not exactly fitting MIDI signals (e.g., notes) with the step pattern if the signal is within a range from the step start or end."),
-        smartQuantizationRangeLabel (130, 70, 90, 20, "lflabel", "Range (steps)"),
-	smartQuantizationText2 (10, 100, 320, 30, "text", "MIDI signals can be synchronized just by assignment to a step or by fitting into a step or both."),
-        smartQuantizationMappingLabel (50, 133, 120, 20, "lflabel", "Assign to a step"),
-        smartQuantizationPositionLabel (50, 153, 120, 20, "lflabel", "Fit into a step"),
+	smartQuantizationIcon (0, 0, 300, 20, "widget", pluginPath + BSCHAFFL_FILENAME_SMART_QUANTIZATION),
+	smartQuantizationContainer (0, 0, 340, 200, "screen"),
+        smartQuantizationRangeSlider (10, 80, 110, 28, "slider", 0.25, 0.0, 0.5, 0.0, "%1.2f"),
+        smartQuantizationMappingSwitch (10, 156, 28, 14, "slider", 1.0),
+        smartQuantizationPositioningSwitch (10, 176, 28, 14, "slider", 0.0),
+        smartQuantizationText1 (10, 10, 320, 70, "text", BSCHAFFL_LABEL_SMART_QUANTIZATION_TEXT_1),
+        smartQuantizationRangeLabel (130, 90, 150, 20, "lflabel", BSCHAFFL_LABEL_RANGE_STEPS),
+	smartQuantizationText2 (10, 120, 320, 30, "text", BSCHAFFL_LABEL_SMART_QUANTIZATION_TEXT_2),
+        smartQuantizationMappingLabel (50, 153, 180, 20, "lflabel", BSCHAFFL_LABEL_ASSIGN_TO_STEP),
+        smartQuantizationPositionLabel (50, 173, 180, 20, "lflabel", BSCHAFFL_LABEL_FIT_TO_STEP),
 
-	userLatencyIcon (0, 0, 300, 20, "widget", pluginPath + "inc/latency.png"),
+	userLatencyIcon (0, 0, 300, 20, "widget", pluginPath + BSCHAFFL_FILENAME_LATENCY),
 	userLatencyContainer (0, 0, 340, 180, "screen"),
-	timeCompensText (10, 10, 320, 30, "text", "Some hosts already compensate time/position by the plugin's latency. Otherwise the plugin can do it."),
-	timeCompensLabel (50, 45, 230, 20, "lflabel", "Latency-compensate time/position"),
+	timeCompensText (10, 10, 320, 30, "text", BSCHAFFL_LABEL_LATENCY_COMPENSATION_TEXT),
+	timeCompensLabel (50, 45, 230, 20, "lflabel", BSCHAFFL_LABEL_LATENCY_COMPENSATION_TITLE),
 	timeCompensSwitch (10, 48, 28, 14, "slider", 0.0),
-	userLatencyText (10, 80, 320, 30, "text", "The plugin itself calculates the latency by default. Alternatively, you may define a fixed latency."),
+	userLatencyText (10, 80, 320, 30, "text", BSCHAFFL_LABEL_LATENCY_USER_TEXT),
 	userLatencySwitch (10, 118, 28, 14, "slider", 0.0),
-	userLatencyLabel (50, 115, 180, 20, "lflabel", "User-defined latency"),
+	userLatencyLabel (50, 115, 180, 20, "lflabel", BSCHAFFL_LABEL_LATENCY_USER_TITLE),
 	userLatencyValue (0, 0, 0, 0, "widget", 0.0, 0.0, 192000, 1.0),
 	userLatencySlider (10, 140, 160, 28, "slider", 0, 0, 192000, 1, "%6.0f"),
 	userLatencyUnitListbox
 	(
 		180, 150, 90, 20, 0, 20, 90, 60, "menu",
-		BItems::ItemList ({{1, "Frames"}, {2, "ms"}}),
+		BItems::ItemList ({{1, BSCHAFFL_LABEL_FRAMES}, {2, BSCHAFFL_LABEL_MS}}),
 		1
 	),
 
@@ -185,7 +185,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	(
 		440, 380, 90, 20, 0, -80, 90, 80, "menu",
 		BItems::ItemList
-		({{0, "Second(s)"}, {1, "Beat(s)"}, {2, "Bar(s)"}}), 2.0
+		({{0, BSCHAFFL_LABEL_SECONDS}, {1, BSCHAFFL_LABEL_BEATS}, {2, BSCHAFFL_LABEL_BARS}}), 2.0
 	),
 	ampSwingControl
 	(
@@ -203,7 +203,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	nrStepsControl (380, 422, 155, 28, "slider", 1.0, 1.0, MAXSTEPS, 1.0, "%2.0f"),
 	stepControlContainer (40, 40, 580, 130, "widget", 0.0),
 	shapeWidget (40, 40, 580, 130, "shape"),
-	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({"Auto", "Manual"})),
+	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({BSCHAFFL_LABEL_AUTO, BSCHAFFL_LABEL_MANUAL})),
 
 	latencyValue (0, 0, 0, 0, "widget", 0),
 	latencyDisplay (900, 10, 120, 10, "smlabel", ""),
@@ -233,7 +233,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 		midiChFilterLabels[i] = BWidgets::Label (44 + 80.0 * int (i / 4), 53  + int (i % 4) * 20, 36, 20, "lflabel", "#" + std::to_string (i + 1));
 	}
 
-	for (int i = 0; i < 4; ++i) sharedDataButtons[i] = HaloToggleButton (80 * i, 0, 64, 24, "halobutton", "Shared data " + std::to_string (i + 1));
+	for (int i = 0; i < 4; ++i) sharedDataButtons[i] = HaloToggleButton (80 * i, 0, 64, 24, "halobutton", BSCHAFFL_LABEL_SHARED_DATA " " + std::to_string (i + 1));
 
 	// Link widgets to controllers
 	controllers[SEQ_LEN_VALUE] = &seqLenValueListbox;
@@ -289,7 +289,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	stepControlContainer.setCallbackFunction (BEvents::VALUE_CHANGED_EVENT, valueChangedCallback);
 
 	// Configure widgets
-	bgImageSurface = cairo_image_surface_create_from_png ((pluginPath + BG_FILE).c_str());
+	bgImageSurface = cairo_image_surface_create_from_png ((pluginPath + BSCHAFFL_FILENAME_BG).c_str());
 	widgetBg.loadFillFromCairoSurface (bgImageSurface);
 	userLatencySlider.hide();
 	userLatencyUnitListbox.hide();
@@ -606,7 +606,7 @@ void BSchafflGUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t 
 				if (oLat && (oLat->type == uris.atom_Float))
 				{
 					const float latencyMs = ((LV2_Atom_Float*)oLat)->body;
-					latencyDisplay.setText ((latencyMs > 0) ? "Latency: " + BUtilities::to_string (latencyMs, "%5.1f") + " ms" : "");
+					latencyDisplay.setText ((latencyMs > 0) ? BSCHAFFL_LABEL_LATENCY ": " + BUtilities::to_string (latencyMs, "%5.1f") + " " BSCHAFFL_LABEL_MS : "");
 				}
 
 				if (oRate && (oRate->type == uris.atom_Double))
@@ -768,34 +768,34 @@ void BSchafflGUI::resizeGUI()
 	}
 
 	RESIZE (midiNoteOptionsIcon, 0, 0, 300, 20, sz);
-        RESIZE (midiNoteOptionsContainer, 0, 0, 340, 240, sz);
-	RESIZE (midiNoteText, 10, 10, 320, 30, sz);
-	RESIZE (midiNotePositionSwitch, 10, 48, 28, 14, sz);
-	RESIZE (midiNotePositionLabel, 50, 45, 240, 20, sz);
-	RESIZE (midiNoteValueSwitch, 10, 68, 28, 14, sz);
-	RESIZE (midiNoteValueLabel, 50, 65, 180, 20, sz);
-	RESIZE (midiNoteOverlapListbox, 120, 90, 100, 20, sz);
+        RESIZE (midiNoteOptionsContainer, 0, 0, 340, 210, sz);
+	RESIZE (midiNoteText, 10, 10, 320, 50, sz);
+	RESIZE (midiNotePositionSwitch, 10, 68, 28, 14, sz);
+	RESIZE (midiNotePositionLabel, 50, 65, 240, 20, sz);
+	RESIZE (midiNoteValueSwitch, 10, 88, 28, 14, sz);
+	RESIZE (midiNoteValueLabel, 50, 85, 180, 20, sz);
+	RESIZE (midiNoteOverlapListbox, 160, 110, 100, 20, sz);
 	midiNoteOverlapListbox.resizeListBox (BUtilities::Point (100 * sz, 80 * sz));
 	midiNoteOverlapListbox.moveListBox (BUtilities::Point (0, 20 * sz));
 	midiNoteOverlapListbox.resizeListBoxItems (BUtilities::Point (100 * sz, 20 * sz));
-	RESIZE (midiNoteOverlapLabel, 10, 90, 110, 20, sz);
-	RESIZE (midiNoteText2, 10, 130, 320, 30, sz);
-        RESIZE (midiNoteOffAmpLabel, 10, 170, 110, 20, sz);
-        RESIZE (midiNoteOffAmpListbox, 120, 170, 220, 20, sz);
+	RESIZE (midiNoteOverlapLabel, 10, 110, 150, 20, sz);
+	RESIZE (midiNoteText2, 10, 140, 320, 30, sz);
+        RESIZE (midiNoteOffAmpLabel, 10, 180, 110, 20, sz);
+        RESIZE (midiNoteOffAmpListbox, 120, 180, 220, 20, sz);
 	midiNoteOffAmpListbox.resizeListBox (BUtilities::Point (220 * sz, 60 * sz));
 	midiNoteOffAmpListbox.moveListBox (BUtilities::Point (0, 20 * sz));
 	midiNoteOffAmpListbox.resizeListBoxItems (BUtilities::Point (220 * sz, 20 * sz));
 
 	RESIZE (smartQuantizationIcon, 0, 0, 300, 20, sz);
-	RESIZE (smartQuantizationContainer, 0, 0, 340, 180, sz);
-	RESIZE (smartQuantizationRangeSlider, 10, 60, 110, 28, sz);
-	RESIZE (smartQuantizationMappingSwitch, 10, 136, 28, 14, sz);
-	RESIZE (smartQuantizationPositioningSwitch, 10, 156, 28, 14, sz);
-	RESIZE (smartQuantizationText1, 10, 10, 320, 50, sz);
-	RESIZE (smartQuantizationRangeLabel, 130, 70, 90, 20, sz);
-	RESIZE (smartQuantizationText2, 10, 100, 320, 30, sz);
-	RESIZE (smartQuantizationMappingLabel, 50, 133, 120, 20, sz);
-	RESIZE (smartQuantizationPositionLabel, 50, 153, 120, 20, sz);
+	RESIZE (smartQuantizationContainer, 0, 0, 340, 200, sz);
+	RESIZE (smartQuantizationRangeSlider, 10, 80, 110, 28, sz);
+	RESIZE (smartQuantizationMappingSwitch, 10, 156, 28, 14, sz);
+	RESIZE (smartQuantizationPositioningSwitch, 10, 176, 28, 14, sz);
+	RESIZE (smartQuantizationText1, 10, 10, 320, 70, sz);
+	RESIZE (smartQuantizationRangeLabel, 130, 90, 150, 20, sz);
+	RESIZE (smartQuantizationText2, 10, 120, 320, 30, sz);
+	RESIZE (smartQuantizationMappingLabel, 50, 153, 180, 20, sz);
+	RESIZE (smartQuantizationPositionLabel, 50, 173, 180, 20, sz);
 
 	RESIZE (userLatencyIcon, 0, 0, 300, 20, sz);
 	RESIZE (userLatencyContainer, 0, 0, 340, 180, sz);

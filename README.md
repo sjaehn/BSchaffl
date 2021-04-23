@@ -62,7 +62,11 @@ sudo make install
 is recommended to improve the plugin performance. Alternatively, you may build a debugging version using
 `make CPPFLAGS+=-g`. For installation into an alternative directory (e.g., /usr/lib/lv2/), change the
 variable `PREFIX` while installing: `sudo make install PREFIX=/usr`. If you want to freely choose the
-install target directory, change the variable `LV2DIR` (e.g., `make install LV2DIR=~/.lv2`).
+install target directory, change the variable `LV2DIR` (e.g., `make install LV2DIR=~/.lv2`) or even define
+`DESTDIR`.
+
+**Optional:** Further supported parameters include `LANGUAGE` (usually two letters code) to change the GUI
+language (see customize).
 
 
 ## Running
@@ -282,8 +286,17 @@ shared data. The plugin now shows the host-provided data.
 Note: Shared data are unlinked from host automation.
 
 
+## Customize
+
+You can create customized builds of B.Schaffl using the parameter `LANGUAGE` (e.g., `make LANGUAGE=DE`).
+To create a new language pack, copy `src/Locale_EN.hpp` and edit the text for the respective definitions.
+But do not change or delete any definition symbol!
+
+
 ## What's new
 
+* Support build parameter LANGUAGE
+* Add EN and DE locales
 * Bugfixes
 * Enable web browser call (help, tutorial) on fork-blocking hosts
 
@@ -293,6 +306,7 @@ Note: Shared data are unlinked from host automation.
 * Bart Brouns for the original idea plus subsequent ideas about principle and features
 * Robin Gareus for ideas to technically solve *rubato*-related problems
 * Jatin Chowdhury for ideas to technically solve shared data storage
+
 
 ## Links
 
