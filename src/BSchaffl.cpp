@@ -40,6 +40,8 @@ BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 	refFrame(0),
 	uiOn (false),
 	actStep (-1),
+	mcg (time (0)), 
+	distribution (0.0, 1.0),
 	midiData (),
 	input(NULL), output(NULL),
 	sharedDataNr (0),
@@ -57,9 +59,6 @@ BSchaffl::BSchaffl (double samplerate, const LV2_Feature* const* features) :
 	std::fill (stepRnds, stepRnds + MAXSTEPS - 1, 1.0);
 
 	shape.setDefaultShape ();
-
-	// Init random engine
-	srand (time (0));
 
 	//Scan host features for URID map
 	LV2_URID_Map* m = NULL;
@@ -419,7 +418,7 @@ void BSchaffl::run (uint32_t n_samples)
 				// Calculate and set amp
 				float aswing = ((map % 2) == 0 ? controllers[AMP_SWING] : 1.0 / controllers[AMP_SWING]);
 				aswing = LIM (aswing, 0, 1);
-				const float rnd = 1.0f + controllers[AMP_RANDOM] * (2.0f * float (rand()) / float (RAND_MAX) - 1.0f);
+				const float rnd = 1.0f + controllers[AMP_RANDOM] * (2.0f * distribution (mcg) - 1.0f);
 				float amp =
 				(
 					controllers[AMP_MODE] == 0.0f ?

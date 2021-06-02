@@ -25,6 +25,7 @@
 
 #include <cmath>
 #include <array>
+#include <random>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
@@ -159,6 +160,8 @@ private:
 	uint32_t refFrame;
 	bool uiOn;
 	int actStep;
+	std::minstd_rand mcg;
+	std::uniform_real_distribution<float> distribution;
 
 	StaticArrayList<MidiData, MIDIBUFFERSIZE> midiData;
 
