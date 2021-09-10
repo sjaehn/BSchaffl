@@ -30,8 +30,15 @@ Key features:
 * [openSUSE](https://software.opensuse.org/package/BSchaffl)
 * Check https://repology.org/project/bschaffl/versions for other systems
 
+Note: This will NOT necessarily install the latest version of B.Schaffl. The version provided depends on the packagers.
 
-### b) Build your own binaries in the following three steps.
+### b) Use the latest provided binaries
+
+Unpack the provided bschaffl-\*.zip or bschaffl-\*.tar.xz from the latest release and 
+copy the BSchaffl.lv2 folder to your lv2 directory (depending on your system settings,
+~/.lv2/, /usr/lib/lv2/, /usr/local/lib/lv2/, or ...).
+
+### c) Build your own binaries in the following three steps.
 
 Step 1: [Download the latest published version](https://github.com/sjaehn/BSchaffl/releases) of B.Schaffl. Or clone or
 [download the master](https://github.com/sjaehn/BSchaffl/archive/master.zip) of this repository.
@@ -58,8 +65,7 @@ make
 sudo make install
 ```
 
-**Optional:** Standard `make` and `make install` parameters are supported. Compiling using `make CPPFLAGS+=-O3`
-is recommended to improve the plugin performance. Alternatively, you may build a debugging version using
+**Optional:** Standard `make` and `make install` parameters are supported. Alternatively, you may build a debugging version using
 `make CPPFLAGS+=-g`. For installation into an alternative directory (e.g., /usr/lib/lv2/), change the
 variable `PREFIX` while installing: `sudo make install PREFIX=/usr`. If you want to freely choose the
 install target directory, change the variable `LV2DIR` (e.g., `make install LV2DIR=~/.lv2`) or even define
@@ -295,6 +301,11 @@ But do not change or delete any definition symbol!
 
 ## What's new
 
+* Faster due to compiler optimizations (`-O3 -ffast-math`)
+* Binary compatibility improved
+  * Static libs
+  * Strip symbols by default
+* Binary packages provided
 * Support build parameter LANGUAGE
 * Add EN and DE locales
 * Bugfixes
@@ -311,4 +322,4 @@ But do not change or delete any definition symbol!
 ## Links
 
 * Preview: https://www.youtube.com/watch?v=5oPtBPAgvmY
-* Features/Tutorial : https://www.youtube.com/watch?v=CBwkYDk5reU
+* Features/Tutorial: https://www.youtube.com/watch?v=CBwkYDk5reU
