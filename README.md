@@ -301,15 +301,7 @@ But do not change or delete any definition symbol!
 
 ## What's new
 
-* Faster due to compiler optimizations (`-O3 -ffast-math`)
-* Binary compatibility improved
-  * Static libs
-  * Strip symbols by default
-* Binary packages provided
-* Support build parameter LANGUAGE
-* Add EN and DE locales
-* Bugfixes
-* Enable web browser call (help, tutorial) on fork-blocking hosts
+* Enter horizontal marker positions
 
 
 ## Acknowledgments

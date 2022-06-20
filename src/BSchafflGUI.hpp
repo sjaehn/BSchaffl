@@ -121,6 +121,7 @@ private:
         static void markerClickedCallback (BEvents::Event* event);
 	static void markerDraggedCallback (BEvents::Event* event);
         static void listBoxChangedCallback (BEvents::Event* event);
+        static void enterOkClickedCallback (BEvents::Event* event);
         static void markersAutoClickedCallback (BEvents::Event* event);
         static void shapeToolClickedCallback (BEvents::Event* event);
         static void editToolClickedCallback (BEvents::Event* event);
@@ -249,6 +250,10 @@ private:
         std::array<BWidgets::Label, MAXSTEPS> stepControlLabel;
 	std::array<Marker, MAXSTEPS - 1> markerWidgets;
         BWidgets::ListBox markerListBox;
+        BWidgets::Widget enterFrame;
+        BWidgets::Label enterLabel;
+        BWidgets::Label enterEdit;
+        BWidgets::TextButton enterOkButton;
         BWidgets::ValueWidget latencyValue;     // Dummy
         BWidgets::Label latencyDisplay;
         std::array<BWidgets::ValueWidget*, NR_CONTROLLERS> controllers;

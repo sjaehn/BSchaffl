@@ -19,9 +19,11 @@
  */
 
 #include "BSchafflGUI.hpp"
+#include "BUtilities/stof.hpp"
 #include "Ports.hpp"
 #include "screen.h"
 #include "BUtilities/vsystem.hpp"
+#include <exception>
 
 
 BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *features, PuglNativeView parentWindow) :
@@ -212,7 +214,12 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 
 	stepControlContainer (40, 40, 580, 130, "widget", 0.0),
 	shapeWidget (40, 40, 580, 130, "shape"),
-	markerListBox (12, -68, 86, 66, "listbox", BItems::ItemList ({BSCHAFFL_LABEL_AUTO, BSCHAFFL_LABEL_MANUAL})),
+
+	markerListBox (12, -88, 86, 86, "listbox", BItems::ItemList ({BSCHAFFL_LABEL_AUTO, BSCHAFFL_LABEL_MANUAL, BSCHAFFL_LABEL_ENTER})),
+	enterFrame (86, 40, 200, 70, "menu"),
+	enterLabel (10, 10, 110, 20, "lflabel", BSCHAFFL_LABEL_NEW_POSITION),
+	enterEdit (120, 10, 70, 20, "lflabel", "0.000"),
+	enterOkButton (60, 40, 80, 20, "button", BSCHAFFL_LABEL_APPLY),
 
 	latencyValue (0, 0, 0, 0, "widget", 0),
 	latencyDisplay (900, 10, 120, 10, "smlabel", ""),
@@ -281,6 +288,7 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	for (HaloToggleButton& s: sharedDataButtons) s.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::sharedDataClickedCallback);
 	sharedDataSelection.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::listBoxChangedCallback);
+	enterOkButton.setCallbackFunction(BEvents::BUTTON_CLICK_EVENT, enterOkClickedCallback);
 	convertToShapeButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::convertButtonClickedCallback);
 	convertToStepsButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::convertButtonClickedCallback);
 	convertToShapeToLinearButton.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::lightButtonClickedCallback);
@@ -306,6 +314,9 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	nrStepsControl.getDisplayLabel ()->setState (BColors::ACTIVE);
 	swingControl.getDisplayLabel ()->setState (BColors::ACTIVE);
 	markerListBox.setStacking (BWidgets::STACKING_OVERSIZE);
+	enterFrame.setStacking (BWidgets::STACKING_OVERSIZE);
+	enterFrame.hide();
+	enterEdit.setEditable (true);
 
 	shapeWidget.hide();
 	shapeWidget.setMergeable (BEvents::POINTER_DRAG_EVENT, false);
@@ -458,6 +469,11 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	toolbox.add (gridShowButton);
 	toolbox.add (gridSnapButton);
 	mContainer.add (toolbox);
+
+	enterFrame.add (enterLabel);
+	enterFrame.add (enterEdit);
+	enterFrame.add (enterOkButton);
+	markerListBox.add (enterFrame);
 
 	mContainer.add (modeSwitch);
 	mContainer.add (seqLenValueListbox);
@@ -854,8 +870,14 @@ void BSchafflGUI::resizeGUI()
 	RESIZE (nrStepsControl, 380, 422, 155, 28, sz);
 	RESIZE (stepControlContainer, 40, 40, 580, 130, sz);
 	RESIZE (shapeWidget, 40, 40, 580, 130, sz);
-	RESIZE (markerListBox, 12, -68, 86, 66, sz);
+	RESIZE (markerListBox, 12, -88, 86, 86, sz);
 	markerListBox.resizeItems (BUtilities::Point (80 * sz, 20 * sz));
+	enterFrame.resize (200 * sz, 70 * sz);
+	if (markerListBox.getAbsolutePosition().x / sz > 720) enterFrame.moveTo (-200 * sz, 40 * sz);
+	else enterFrame.moveTo (86 * sz, 40 * sz);
+	RESIZE (enterLabel, 10, 10, 110, 20, sz);
+	RESIZE (enterEdit, 120, 10, 70, 20, sz);
+	RESIZE (enterOkButton, 60, 40, 80, 20, sz);
 
 	RESIZE (seqLenIcon, 385, 405, 140, 12, sz);
         RESIZE (ampSwingIcon, 555, 405, 140, 12, sz);
@@ -1006,6 +1028,10 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 	messageLabel.applyTheme (theme);
 	sContainer.applyTheme (theme);
 	markerListBox.applyTheme (theme);
+	enterFrame.applyTheme (theme);
+	enterLabel.applyTheme (theme);
+	enterEdit.applyTheme (theme);
+	enterOkButton.applyTheme (theme);
 	inIcon.applyTheme (theme);
 	ampIcon.applyTheme (theme);
 	delIcon.applyTheme (theme);
@@ -1664,7 +1690,11 @@ void BSchafflGUI::markerClickedCallback (BEvents::Event* event)
 			if (oldMarker && (oldMarker == marker))
 			{
 				if (ui->markerListBox.isVisible()) ui->markerListBox.hide();
-				else ui->markerListBox.show ();
+				else 
+				{
+					ui->markerListBox.show ();
+					ui->enterFrame.hide();
+				}
 			}
 
 			else if (oldMarker && (oldMarker != marker))
@@ -1672,12 +1702,14 @@ void BSchafflGUI::markerClickedCallback (BEvents::Event* event)
 				oldMarker->release (&ui->markerListBox);
 				marker->add (ui->markerListBox);
 				ui->markerListBox.show();
+				ui->enterFrame.hide();
 			}
 
 			else
 			{
 				marker->add (ui->markerListBox);
 				ui->markerListBox.show();
+				ui->enterFrame.hide();
 			}
 
 		}
@@ -1746,15 +1778,91 @@ void BSchafflGUI::listBoxChangedCallback (BEvents::Event* event)
 	BSchafflGUI* ui = (BSchafflGUI*)m->getMainWindow();
 	if (!ui) return;
 
-	double value = vev->getValue();
-	if (value == 1.0) m->setHasValue (false);
-	else if (value == 2.0) m->setHasValue (true);
-	else return;
+	int value = vev->getValue();
+	switch (value)
+	{
+		case 1:		// Auto
+					m->setHasValue (false);
+					ui->enterFrame.hide();
+					lb->hide();
+					ui->setAutoMarkers();
+					ui->rearrange_controllers();
+					ui->redrawSContainer();
+					break;
 
-	lb->hide();
-	ui->setAutoMarkers();
-	ui->rearrange_controllers();
-	ui->redrawSContainer();
+		case 2:		// Manual
+					m->setHasValue (true);
+					ui->enterFrame.hide();
+					lb->hide();
+					ui->setAutoMarkers();
+					ui->rearrange_controllers();
+					ui->redrawSContainer();
+					break;
+
+		case 3: 	// Enter
+					m->setHasValue (true);
+					ui->enterEdit.setText (BUtilities::to_string (m->getValue(), "%1.6f"));
+					if (ui->markerListBox.getAbsolutePosition().x / ui->sz > 720) ui->enterFrame.moveTo (-200 * ui->sz, ui->enterFrame.getPosition().y);
+					else ui->enterFrame.moveTo (86 * ui->sz, ui->enterFrame.getPosition().y);
+					ui->enterFrame.show();
+					break;
+
+		default:	return;
+	}
+}
+
+void BSchafflGUI::enterOkClickedCallback (BEvents::Event* event)
+{
+	if (!event) return;
+	BEvents::PointerEvent* pev = (BEvents::PointerEvent*) event;
+	if (pev->getButton() != BDevices::LEFT_BUTTON) return;
+	BWidgets::TextButton* button = (BWidgets::TextButton*)event->getWidget();
+	if (!button) return;
+	BSchafflGUI* ui = (BSchafflGUI*)button->getMainWindow();
+	if (!ui) return;
+	Marker* marker = (Marker*)ui->markerListBox.getParent();
+	if (!marker) return;
+
+	int nrSteps = ui->controllers[NR_OF_STEPS]->getValue();
+
+	for (int i = 0; i < nrSteps - 1; ++i)
+	{
+		if (marker == &ui->markerWidgets[i])
+		{
+			double frac = marker->getValue();
+			try {frac = BUtilities::stof (ui->enterEdit.getText());}
+			catch (std::exception &exc) {std::cerr << "BSchaffl.lv2#GUI: " << exc.what() << "\n";}
+			frac = LIMIT (frac, MINMARKERVALUE, 1.0);
+
+			// Limit to antecessors value
+			for (int j = i - 1; j >= 0; --j)
+			{
+				if (ui->markerWidgets[j].hasValue())
+				{
+					if (frac < ui->markerWidgets[j].getValue()) frac = ui->markerWidgets[j].getValue();
+					break;
+				}
+			}
+
+			// Limit to successors value
+			for (int j = i + 1; j < nrSteps - 1; ++j)
+			{
+				if (ui->markerWidgets[j].hasValue())
+				{
+					if (frac > ui->markerWidgets[j].getValue()) frac = ui->markerWidgets[j].getValue();
+					break;
+				}
+			}
+
+			ui->enterFrame.hide();
+			ui->markerListBox.hide();
+			ui->setMarker (i, frac);
+			ui->setAutoMarkers();
+			ui->rearrange_controllers();
+			ui->redrawSContainer();
+			break;
+		}
+	}
 }
 
 void BSchafflGUI::markersAutoClickedCallback (BEvents::Event* event)
