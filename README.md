@@ -136,8 +136,10 @@ Drag the stretch markers to manually shrink or stretch the step size.
 
 All stretch markers are set to "auto" by default. This means that all markers are homogeneously
 distributed and are automatically re-positioned after changes. The markers status is changed to
-"manual" once a marker is dragged. You can also change the markers status by right-clicking on it or by
-setting all markers by pressing the "All markers" buttons in the toolbox.
+"manual" once a marker is dragged. You can also change the markers status by right-clicking on it.
+Then you can choose between "auto", "manual" and "enter". This third option allows to enter a new
+relative marker position and the marker is set to the manual mode. Finally, you can also set all
+markers at once by pressing the "All markers" buttons in the toolbox.
 
 
 #### Toolbox
