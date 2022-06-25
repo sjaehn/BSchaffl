@@ -1814,7 +1814,7 @@ void BSchafflGUI::listBoxChangedCallback (BEvents::Event* event)
 
 		case 3: 	// Enter
 					m->setHasValue (true);
-					ui->enterEdit.setText (BUtilities::to_string (m->getValue(), "%1.6f"));
+					ui->recalculateEnterEdit();
 					if (ui->markerListBox.getAbsolutePosition().x / ui->sz > 600) ui->enterFrame.moveTo (-320 * ui->sz, ui->enterFrame.getPosition().y);
 					else ui->enterFrame.moveTo (86 * ui->sz, ui->enterFrame.getPosition().y);
 					ui->enterFrame.show();
