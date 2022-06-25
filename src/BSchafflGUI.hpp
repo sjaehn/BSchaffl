@@ -116,11 +116,13 @@ private:
         void setAutoMarkers ();
 	void rearrange_controllers ();
         void redrawSContainer ();
+        void recalculateEnterEdit ();
 	static void valueChangedCallback (BEvents::Event* event);
         static void shapeChangedCallback (BEvents::Event* event);
         static void markerClickedCallback (BEvents::Event* event);
 	static void markerDraggedCallback (BEvents::Event* event);
         static void listBoxChangedCallback (BEvents::Event* event);
+        static void enterListBoxChangedCallback (BEvents::Event* event);
         static void enterOkClickedCallback (BEvents::Event* event);
         static void markersAutoClickedCallback (BEvents::Event* event);
         static void shapeToolClickedCallback (BEvents::Event* event);
@@ -251,8 +253,9 @@ private:
 	std::array<Marker, MAXSTEPS - 1> markerWidgets;
         BWidgets::ListBox markerListBox;
         BWidgets::Widget enterFrame;
-        BWidgets::Label enterLabel;
+        BWidgets::PopupListBox enterPositionPopup;
         BWidgets::Label enterEdit;
+        BWidgets::PopupListBox enterSequencesPopup;
         BWidgets::TextButton enterOkButton;
         BWidgets::ValueWidget latencyValue;     // Dummy
         BWidgets::Label latencyDisplay;

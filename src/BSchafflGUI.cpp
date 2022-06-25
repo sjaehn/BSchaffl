@@ -20,6 +20,7 @@
 
 #include "BSchafflGUI.hpp"
 #include "BUtilities/stof.hpp"
+#include "BUtilities/to_string.hpp"
 #include "Ports.hpp"
 #include "screen.h"
 #include "BUtilities/vsystem.hpp"
@@ -216,10 +217,11 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	shapeWidget (40, 40, 580, 130, "shape"),
 
 	markerListBox (12, -88, 86, 86, "listbox", BItems::ItemList ({BSCHAFFL_LABEL_AUTO, BSCHAFFL_LABEL_MANUAL, BSCHAFFL_LABEL_ENTER})),
-	enterFrame (86, 40, 200, 70, "menu"),
-	enterLabel (10, 10, 110, 20, "lflabel", BSCHAFFL_LABEL_NEW_POSITION),
-	enterEdit (120, 10, 70, 20, "lflabel", "0.000"),
-	enterOkButton (60, 40, 80, 20, "button", BSCHAFFL_LABEL_APPLY),
+	enterFrame (86, 40, 320, 70, "menu"),
+	enterPositionPopup (10, 10, 120, 20, 110, 60, "menu", BItems::ItemList ({BSCHAFFL_LABEL_NEW_POSITION, BSCHAFFL_LABEL_NEW_LENGTH}), 1),
+	enterEdit (140, 10, 60, 20, "lflabel", "0.000"),
+	enterSequencesPopup (210, 10, 100, 20, 80, 60, "menu", BItems::ItemList ({BSCHAFFL_LABEL_SEQUENCES, BSCHAFFL_LABEL_STEPS}), 1),
+	enterOkButton (120, 40, 80, 20, "button", BSCHAFFL_LABEL_APPLY),
 
 	latencyValue (0, 0, 0, 0, "widget", 0),
 	latencyDisplay (900, 10, 120, 10, "smlabel", ""),
@@ -288,6 +290,8 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	for (HaloToggleButton& s: sharedDataButtons) s.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::sharedDataClickedCallback);
 	sharedDataSelection.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::valueChangedCallback);
 	markerListBox.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::listBoxChangedCallback);
+	enterPositionPopup.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::enterListBoxChangedCallback);
+	enterSequencesPopup.setCallbackFunction (BEvents::EventType::VALUE_CHANGED_EVENT, BSchafflGUI::enterListBoxChangedCallback);
 	enterOkButton.setCallbackFunction(BEvents::BUTTON_CLICK_EVENT, enterOkClickedCallback);
 	convertToShapeButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::convertButtonClickedCallback);
 	convertToStepsButton.setCallbackFunction (BEvents::EventType::BUTTON_PRESS_EVENT, BSchafflGUI::convertButtonClickedCallback);
@@ -470,8 +474,9 @@ BSchafflGUI::BSchafflGUI (const char *bundle_path, const LV2_Feature *const *fea
 	toolbox.add (gridSnapButton);
 	mContainer.add (toolbox);
 
-	enterFrame.add (enterLabel);
+	enterFrame.add (enterPositionPopup);
 	enterFrame.add (enterEdit);
+	enterFrame.add (enterSequencesPopup);
 	enterFrame.add (enterOkButton);
 	markerListBox.add (enterFrame);
 
@@ -872,12 +877,19 @@ void BSchafflGUI::resizeGUI()
 	RESIZE (shapeWidget, 40, 40, 580, 130, sz);
 	RESIZE (markerListBox, 12, -88, 86, 86, sz);
 	markerListBox.resizeItems (BUtilities::Point (80 * sz, 20 * sz));
-	enterFrame.resize (200 * sz, 70 * sz);
-	if (markerListBox.getAbsolutePosition().x / sz > 720) enterFrame.moveTo (-200 * sz, 40 * sz);
+	enterFrame.resize (320 * sz, 70 * sz);
+	if (markerListBox.getAbsolutePosition().x / sz > 600) enterFrame.moveTo (-320 * sz, 40 * sz);
 	else enterFrame.moveTo (86 * sz, 40 * sz);
-	RESIZE (enterLabel, 10, 10, 110, 20, sz);
-	RESIZE (enterEdit, 120, 10, 70, 20, sz);
-	RESIZE (enterOkButton, 60, 40, 80, 20, sz);
+	RESIZE (enterPositionPopup, 10, 10, 120, 20, sz);
+	enterPositionPopup.resizeListBox (BUtilities::Point (120 * sz, 60 * sz));
+	enterPositionPopup.moveListBox (BUtilities::Point (0, 20 * sz));
+	enterPositionPopup.resizeListBoxItems (BUtilities::Point (120 * sz, 20 * sz));
+	RESIZE (enterEdit, 140, 10, 70, 20, sz);
+	RESIZE (enterSequencesPopup, 210, 10, 100, 20, sz);
+	enterSequencesPopup.resizeListBox (BUtilities::Point (100 * sz, 60 * sz));
+	enterSequencesPopup.moveListBox (BUtilities::Point (0, 20 * sz));
+	enterSequencesPopup.resizeListBoxItems (BUtilities::Point (100 * sz, 20 * sz));
+	RESIZE (enterOkButton, 120, 40, 80, 20, sz);
 
 	RESIZE (seqLenIcon, 385, 405, 140, 12, sz);
         RESIZE (ampSwingIcon, 555, 405, 140, 12, sz);
@@ -1029,8 +1041,9 @@ void BSchafflGUI::applyTheme (BStyles::Theme& theme)
 	sContainer.applyTheme (theme);
 	markerListBox.applyTheme (theme);
 	enterFrame.applyTheme (theme);
-	enterLabel.applyTheme (theme);
+	enterPositionPopup.applyTheme (theme);
 	enterEdit.applyTheme (theme);
+	enterSequencesPopup.applyTheme (theme);
 	enterOkButton.applyTheme (theme);
 	inIcon.applyTheme (theme);
 	ampIcon.applyTheme (theme);
@@ -1802,13 +1815,27 @@ void BSchafflGUI::listBoxChangedCallback (BEvents::Event* event)
 		case 3: 	// Enter
 					m->setHasValue (true);
 					ui->enterEdit.setText (BUtilities::to_string (m->getValue(), "%1.6f"));
-					if (ui->markerListBox.getAbsolutePosition().x / ui->sz > 720) ui->enterFrame.moveTo (-200 * ui->sz, ui->enterFrame.getPosition().y);
+					if (ui->markerListBox.getAbsolutePosition().x / ui->sz > 600) ui->enterFrame.moveTo (-320 * ui->sz, ui->enterFrame.getPosition().y);
 					else ui->enterFrame.moveTo (86 * ui->sz, ui->enterFrame.getPosition().y);
 					ui->enterFrame.show();
 					break;
 
 		default:	return;
 	}
+}
+
+void BSchafflGUI::enterListBoxChangedCallback (BEvents::Event* event)
+{
+	if (!event) return;
+	BEvents::ValueChangedEvent* vev = (BEvents::ValueChangedEvent*) event;
+	BWidgets::ListBox* lb = (BWidgets::ListBox*) vev->getWidget();
+	if (!lb) return;
+	Marker* m = (Marker*) lb->getParent();
+	if (!m) return;
+	BSchafflGUI* ui = (BSchafflGUI*)m->getMainWindow();
+	if (!ui) return;
+
+	ui->recalculateEnterEdit();
 }
 
 void BSchafflGUI::enterOkClickedCallback (BEvents::Event* event)
@@ -1830,8 +1857,27 @@ void BSchafflGUI::enterOkClickedCallback (BEvents::Event* event)
 		if (marker == &ui->markerWidgets[i])
 		{
 			double frac = marker->getValue();
-			try {frac = BUtilities::stof (ui->enterEdit.getText());}
+			double val = 0.0;
+
+			try 
+			{
+				val = BUtilities::stof (ui->enterEdit.getText());
+				if (ui->enterPositionPopup.getValue() == 1.0)
+				{
+					if (ui->enterSequencesPopup.getValue() == 1.0) frac = val;
+					else frac = val / nrSteps;
+				}
+
+				else
+				{
+					const double prec = (i > 0 ? ui->markerWidgets[i - 1].getValue() : 0.0);
+					if (i > 0) ui->markerWidgets[i - 1].setHasValue (true);
+					if (ui->enterSequencesPopup.getValue() == 1.0) frac = val + prec;
+					else frac = val / nrSteps + prec;
+				}
+			}
 			catch (std::exception &exc) {std::cerr << "BSchaffl.lv2#GUI: " << exc.what() << "\n";}
+
 			frac = LIMIT (frac, MINMARKERVALUE, 1.0);
 
 			// Limit to antecessors value
@@ -2228,6 +2274,47 @@ void BSchafflGUI::redrawSContainer ()
 
 	cairo_destroy (cr);
 	sContainer.update();
+}
+
+void BSchafflGUI::recalculateEnterEdit ()
+{
+	Marker* marker = (Marker*)markerListBox.getParent();
+	if (!marker) return;
+
+	int nrSteps = controllers[NR_OF_STEPS]->getValue();
+
+	for (int i = 0; i < nrSteps - 1; ++i)
+	{
+		if (marker == &markerWidgets[i])
+		{
+			const double rpos = marker->getValue();
+			double val = rpos;
+
+			if (enterPositionPopup.getValue() == 1.0)
+			{
+				if (enterSequencesPopup.getValue() == 2.0)
+				{
+					val = rpos * nrSteps;
+					// TODO rounding
+				}
+			}
+
+			else 
+			{
+				const double prpos = (i > 0 ? markerWidgets[i - 1].getValue() : 0.0);
+				if (enterSequencesPopup.getValue() == 1.0) val = rpos - prpos;
+				else
+				{
+					val = (rpos - prpos) * nrSteps;
+					// TODO rounding
+				}
+
+			}
+
+			enterEdit.setText (BUtilities::to_string (val, "%1.6f"));
+			break;
+		}
+	}
 }
 
 static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor, const char *plugin_uri, const char *bundle_path,

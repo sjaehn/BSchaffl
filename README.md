@@ -138,7 +138,9 @@ All stretch markers are set to "auto" by default. This means that all markers ar
 distributed and are automatically re-positioned after changes. The markers status is changed to
 "manual" once a marker is dragged. You can also change the markers status by right-clicking on it.
 Then you can choose between "auto", "manual" and "enter". This third option allows to enter a new
-relative marker position and the marker is set to the manual mode. Finally, you can also set all
+marker position (either as fraction of a sequence or as number of steps) or a new step length
+(again, either as fraction of a sequence or as number of steps). The marker is set to the new
+position upon clicking "Apply" and switched to the manual mode. Finally, you can also set all
 markers at once by pressing the "All markers" buttons in the toolbox.
 
 
