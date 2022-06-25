@@ -305,7 +305,8 @@ But do not change or delete any definition symbol!
 
 ## What's new
 
-* Enter horizontal marker positions
+* Enter absolute or relative maker positions and step lengths
+* Support keys HOME, END
 
 
 ## Acknowledgments

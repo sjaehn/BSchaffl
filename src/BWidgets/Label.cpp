@@ -17,6 +17,7 @@
 
 #include "Label.hpp"
 #include "Window.hpp"
+#include "pugl/pugl/pugl.h"
 #include <locale>
 #include <codecvt>
 
@@ -275,6 +276,14 @@ void Label::onKeyPressed (BEvents::KeyEvent* event)
 
 			case PUGL_KEY_RIGHT :
 			setCursor (cursorFrom + 1);
+			break;
+
+			case PUGL_KEY_HOME :
+			setCursor (0);
+			break;
+
+			case PUGL_KEY_END:
+			setCursor (u32labelText.length ());
 			break;
 
 			default:
